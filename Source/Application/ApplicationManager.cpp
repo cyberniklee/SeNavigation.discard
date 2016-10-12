@@ -43,6 +43,7 @@ void ApplicationManager::quitApplications()
 
 void ApplicationManager::initialize()
 {
+  Application::globalInitialize();
   registerSignal();
   registerApplications();
 

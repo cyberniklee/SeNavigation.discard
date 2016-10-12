@@ -27,6 +27,8 @@ protected:
 	NS_NaviCommon::Service* service;
 
 public:
+	static void globalInitialize();
+
 	virtual void initialize();
 	virtual void run();
 	virtual void quit();

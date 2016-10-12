@@ -7,18 +7,29 @@
 
 #include "Application.h"
 #include <Console/Console.h>
+#include <Time/Time.h>
 
 static NS_NaviCommon::Dispitcher global_dispitcher;
 static NS_NaviCommon::Service global_service;
 
-Application::Application() {
-	// TODO Auto-generated constructor stub
-	dispitcher = &global_dispitcher;
-
+Application::Application()
+{
+  dispitcher = &global_dispitcher;
+  service = &global_service;
 }
 
-Application::~Application() {
-	// TODO Auto-generated destructor stub
+Application::~Application()
+{
+  dispitcher = NULL;
+  service = NULL;
+}
+
+void Application::globalInitialize()
+{
+  NS_NaviCommon::Time::init();
+
+  global_dispitcher.initialize();
+  global_service.initialize();
 }
 
 void Application::initialize()

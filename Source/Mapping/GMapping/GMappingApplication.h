@@ -57,11 +57,20 @@ private:
 private:
   void loadParameters();
   void laserDataCallback(NS_NaviCommon::DataBase* laser_data);
+  void odometryDataCallback(NS_NaviCommon::DataBase* odometry_data);
   void mapService(NS_NaviCommon::RequestBase* request, NS_NaviCommon::ResponseBase* response);
 private:
   NS_GMapping::GridSlamProcessor* gsp;
   NS_GMapping::RangeSensor* gsp_laser;
   NS_GMapping::OdometrySensor* gsp_odom;
+
+  std::vector<double> laser_angles;
+  bool do_reverse_range;
+  unsigned int gsp_laser_beam_count;
+
+  bool got_first_scan;
+  bool got_map;
+
 public:
   virtual void initialize();
   virtual void run();
