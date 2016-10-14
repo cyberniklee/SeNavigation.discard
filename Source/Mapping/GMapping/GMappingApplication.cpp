@@ -10,6 +10,9 @@
 #include <boost/bind.hpp>
 #include <Transform/DataTypes.h>
 #include <Transform/LinearMath/Transform.h>
+#include <DataSet/DataType/Odometry.h>
+#include <Service/ServiceType/RequestMap.h>
+#include <Service/ServiceType/ResponseMap.h>
 #include "Utils/Stat.h"
 
 #define MAP_IDX(sx, i, j) ((sx) * (j) + (i))
@@ -87,12 +90,22 @@ void GMappingApplication::laserDataCallback(NS_DataType::DataBase* laser_data)
 
 void GMappingApplication::odometryDataCallback(NS_DataType::DataBase* odometry_data)
 {
-
+  NS_DataType::Odometry* odometry = (NS_DataType::Odometry*)odometry_data;
 }
 
-void GMappingApplication::mapService(NS_NaviCommon::RequestBase* request, NS_NaviCommon::ResponseBase* response)
+void GMappingApplication::mapService(NS_ServiceType::RequestBase* request, NS_ServiceType::ResponseBase* response)
 {
+  NS_ServiceType::RequestMap* req = (NS_ServiceType::RequestMap*)request;
+  NS_ServiceType::ResponseMap* rep = (NS_ServiceType::ResponseMap*)response;
 
+  boost::mutex::scoped_lock map_mutex(map_lock);
+  if(got_map && map.info.width && map.info.height)
+  {
+    rep->map = map;
+    rep->result = true;
+  }else{
+    rep->result = false;
+  }
 }
 
 double GMappingApplication::computePoseEntropy()
@@ -231,8 +244,81 @@ void GMappingApplication::updateMap(NS_DataType::LaserScan& laser_data)
 
   if(!got_map)
   {
-
+    map.info.resolution = delta_;
+    map.info.origin.position.x = 0.0;
+    map.info.origin.position.y = 0.0;
+    map.info.origin.position.z = 0.0;
+    map.info.origin.orientation.x = 0.0;
+    map.info.origin.orientation.y = 0.0;
+    map.info.origin.orientation.z = 0.0;
+    map.info.origin.orientation.w = 0.0;
   }
+
+  Point center;
+  center.x = (xmin_ + xmax_) / 2.0;
+  center.y = (ymin_ + ymax_) / 2.0;
+
+  ScanMatcherMap smap(center, xmin_, ymin_, xmax_, ymax_, delta_);
+
+  NS_NaviCommon::console.message("Trajectory tree:");
+
+  for(GridSlamProcessor::TNode* n = best.node; n; n = n->parent)
+  {
+    NS_NaviCommon::console.message("  %.3f  %.3f  %.3f", n->pose.x, n->pose.y, n->pose.theta);
+    if(!n->reading)
+    {
+      NS_NaviCommon::console.message("Null node!");
+      continue;
+    }
+    matcher.invalidateActiveArea();
+    matcher.computeActiveArea(smap, n->pose, &((*n->reading)[0]));
+    matcher.registerScan(smap, n->pose, &((*n->reading)[0]));
+  }
+
+  if(map.info.width != (unsigned int)smap.getMapSizeX() ||
+		  map.info.height != (unsigned int)smap.getMapSizeY())
+  {
+    Point wmin = smap.map2world(IntPoint(0, 0));
+    Point wmax = smap.map2world(IntPoint(smap.getMapSizeX(), smap.getMapSizeY()));
+    xmin_ = wmin.x;
+    ymin_ = wmin.y;
+    xmax_ = wmax.x;
+    ymax_ = wmax.y;
+
+    NS_NaviCommon::console.message("Map size update!current is %d x %d.",
+    		smap.getMapSizeX(), smap.getMapSizeY());
+    NS_NaviCommon::console.message("Map position is from (%f, %f) to (%f, %f)",
+    		xmin_, ymin_, xmax_, ymax_);
+
+    map.info.width = smap.getMapSizeX();
+    map.info.height = smap.getMapSizeY();
+    map.info.origin.position.x = xmin_;
+    map.info.origin.position.y = ymin_;
+    map.data.resize(map.info.width * map.info.height);
+
+    NS_NaviCommon::console.message("Map origin: (%f, %f).",
+    		map.info.origin.position.x, map.info.origin.position.y);
+  }
+
+  for(int x = 0; x < smap.getMapSizeX(); x++)
+  {
+    for(int y = 0; y < smap.getMapSizeY(); y++)
+    {
+      IntPoint p(x, y);
+      double occ = smap.cell(p);
+      assert(occ <= 1.0);
+      if(occ < 0)
+      {
+        map.data[MAP_IDX(map.info.width, x, y)] = -1;
+      }else if(occ > occ_thresh_){
+        map.data[MAP_IDX(map.info.width, x, y)] = 100;
+      }else{
+        map.data[MAP_IDX(map.info.width, x, y)] = 0;
+      }
+    }
+  }
+
+  got_map = true;
 }
 
 bool GMappingApplication::addScan(NS_DataType::LaserScan& laser_data, OrientedPoint& gmap_pose)
@@ -263,7 +349,7 @@ bool GMappingApplication::addScan(NS_DataType::LaserScan& laser_data, OrientedPo
       }
     }
   }else{
-    for(int i = 0; i < laser_data.ranges.size(); i++)
+    for(unsigned int i = 0; i < laser_data.ranges.size(); i++)
     {
       if(laser_data.ranges[i] < laser_data.range_min)
       {

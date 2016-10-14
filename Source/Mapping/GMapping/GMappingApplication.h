@@ -17,6 +17,7 @@
 #include <Service/ServiceType/ResponseBase.h>
 #include <Transform/LinearMath/Transform.h>
 #include <DataSet/DataType/LaserScan.h>
+#include <DataSet/DataType/OccupancyGrid.h>
 #include <Time/Time.h>
 #include <Time/Duration.h>
 
@@ -66,7 +67,7 @@ private:
   void loadParameters();
   void laserDataCallback(NS_DataType::DataBase* laser_data);
   void odometryDataCallback(NS_DataType::DataBase* odometry_data);
-  void mapService(NS_NaviCommon::RequestBase* request, NS_NaviCommon::ResponseBase* response);
+  void mapService(NS_ServiceType::RequestBase* request, NS_ServiceType::ResponseBase* response);
   double computePoseEntropy();
   bool getOdomPose(OrientedPoint& gmap_pose);
   bool initMapper(NS_DataType::LaserScan& laser_data);
@@ -89,6 +90,8 @@ private:
   NS_Transform::Transform centered_laser_pose;
 
   int laser_count;
+
+  NS_DataType::OccupancyGrid map;
 
   boost::mutex map_to_odom_lock;
   boost::mutex map_lock;
