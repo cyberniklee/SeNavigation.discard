@@ -15,6 +15,10 @@
 #include <DataSet/DataType/DataBase.h>
 #include <Service/ServiceType/RequestBase.h>
 #include <Service/ServiceType/ResponseBase.h>
+#include <Transform/LinearMath/Transform.h>
+#include <DataSet/DataType/LaserScan.h>
+#include <Time/Time.h>
+#include <Time/Duration.h>
 
 namespace NS_GMapping {
 
@@ -23,12 +27,13 @@ public:
   GMappingApplication();
   virtual ~GMappingApplication();
 private:
-  double maxRange_;
-  double maxUrange_;
+  bool up_mounted;
+  double max_range_;
+  double max_u_range_;
   double maxrange_;
   double minimum_score_;
   double sigma_;
-  int kernelSize_;
+  int kernel_size_;
   double lstep_;
   double astep_;
   int iterations_;
@@ -39,10 +44,10 @@ private:
   double srt_;
   double str_;
   double stt_;
-  double linearUpdate_;
-  double angularUpdate_;
-  double temporalUpdate_;
-  double resampleThreshold_;
+  double linear_update_;
+  double angular_update_;
+  double temporal_update_;
+  double resample_threshold_;
   int particles_;
   double xmin_;
   double ymin_;
@@ -54,15 +59,23 @@ private:
   double llsamplestep_;
   double lasamplerange_;
   double lasamplestep_;
+  int throttle_scans_;
+  NS_NaviCommon::Duration map_update_interval_;
+  unsigned long int seed_;
 private:
   void loadParameters();
-  void laserDataCallback(NS_NaviCommon::DataBase* laser_data);
-  void odometryDataCallback(NS_NaviCommon::DataBase* odometry_data);
+  void laserDataCallback(NS_DataType::DataBase* laser_data);
+  void odometryDataCallback(NS_DataType::DataBase* odometry_data);
   void mapService(NS_NaviCommon::RequestBase* request, NS_NaviCommon::ResponseBase* response);
+  double computePoseEntropy();
+  bool getOdomPose(OrientedPoint& gmap_pose);
+  bool initMapper(NS_DataType::LaserScan& laser_data);
+  bool addScan(NS_DataType::LaserScan& laser_data, OrientedPoint& gmap_pose);
+  void updateMap(NS_DataType::LaserScan& laser_data);
 private:
-  NS_GMapping::GridSlamProcessor* gsp;
-  NS_GMapping::RangeSensor* gsp_laser;
-  NS_GMapping::OdometrySensor* gsp_odom;
+  GridSlamProcessor* gsp;
+  RangeSensor* gsp_laser;
+  OdometrySensor* gsp_odom;
 
   std::vector<double> laser_angles;
   bool do_reverse_range;
@@ -70,6 +83,15 @@ private:
 
   bool got_first_scan;
   bool got_map;
+
+  NS_Transform::Transform map_to_odom;
+
+  NS_Transform::Transform centered_laser_pose;
+
+  int laser_count;
+
+  boost::mutex map_to_odom_lock;
+  boost::mutex map_lock;
 
 public:
   virtual void initialize();
