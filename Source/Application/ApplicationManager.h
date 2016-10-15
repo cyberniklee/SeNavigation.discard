@@ -11,8 +11,10 @@
 #include "Application.h"
 #include <vector>
 #include "../Mapping/GMapping/GMappingApplication.h"
+#include "../Controller/ControllerApplication.h"
 
 using namespace NS_GMapping;
+using namespace NS_Controller;
 
 class ApplicationManager
 {
@@ -27,6 +29,9 @@ private:
   {
 	GMappingApplication* gmapping = new GMappingApplication;
     applications.push_back(gmapping);
+
+    ControllerApplication* controller = new ControllerApplication;
+    applications.push_back(controller);
   }
 
   void quitApplications();
