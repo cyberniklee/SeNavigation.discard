@@ -10,11 +10,13 @@
 
 #include "Application.h"
 #include <vector>
+#include "../Sensor/Lidar/SelidarApplication.h"
 #include "../Mapping/GMapping/GMappingApplication.h"
 #include "../Controller/ControllerApplication.h"
 
 using namespace NS_GMapping;
 using namespace NS_Controller;
+using namespace NS_Selidar;
 
 class ApplicationManager
 {
@@ -27,11 +29,15 @@ private:
 
   void registerApplications()
   {
+    SelidarApplication* selidar = new SelidarApplication;
+    applications.push_back(selidar);
+
 	GMappingApplication* gmapping = new GMappingApplication;
     applications.push_back(gmapping);
-
+/*
     ControllerApplication* controller = new ControllerApplication;
     applications.push_back(controller);
+    */
   }
 
   void quitApplications();

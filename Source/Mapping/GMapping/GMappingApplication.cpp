@@ -46,6 +46,8 @@ GMappingApplication::~GMappingApplication()
 
 void GMappingApplication::laserDataCallback(NS_DataType::DataBase* laser_data)
 {
+  NS_NaviCommon::console.message("laser scan..");
+  return;
   NS_DataType::LaserScan* laser = (NS_DataType::LaserScan*)laser_data;
   laser_count++;
   if((laser_count % throttle_scans_) != 0)
@@ -400,7 +402,6 @@ void GMappingApplication::run()
 {
   NS_NaviCommon::console.message("gmapping is running!");
   running = true;
-  while(running);
 }
 
 void GMappingApplication::quit()
