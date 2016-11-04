@@ -29,13 +29,12 @@ private:
 	std::string frame_id;
 	bool inverted;
 	bool angle_compensate;
-	NS_DataType::LaserScan scan_msg;
 	SelidarDriver drv;
 	boost::thread scan_thread;
 private:
 	bool checkSelidarHealth(SelidarDriver * drv);
+	bool checkSelidarInfo(SelidarDriver * drv);
 	void loadParameters();
-    void scanDataCallback(NS_DataType::DataBase* scan);
 	bool startScanService(NS_ServiceType::RequestBase* request, NS_ServiceType::ResponseBase* response);
 	bool stopScanService(NS_ServiceType::RequestBase* request, NS_ServiceType::ResponseBase* response);
 	void publishScan(selidar_response_measurement_node_t *nodes,

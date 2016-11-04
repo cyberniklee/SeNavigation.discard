@@ -13,7 +13,14 @@
 #include <DataSet/DataType/Odometry.h>
 #include <Service/ServiceType/RequestMap.h>
 #include <Service/ServiceType/ResponseMap.h>
+#include <Service/ServiceType/RequestTransform.h>
+#include <Service/ServiceType/ResponseTransform.h>
+#include <Service/Service.h>
 #include "Utils/Stat.h"
+#include <time.h>
+
+#define DEG2RAD(x) ((x)*M_PI/180.)
+#define RAD2DEG(x) ((x)*180./M_PI)
 
 #define MAP_IDX(sx, i, j) ((sx) * (j) + (i))
 
@@ -32,6 +39,8 @@ GMappingApplication::GMappingApplication()
 
   got_first_scan = false;
   got_map = false;
+
+  seed_ = time(NULL);
 }
 
 GMappingApplication::~GMappingApplication()
@@ -46,12 +55,20 @@ GMappingApplication::~GMappingApplication()
 
 void GMappingApplication::laserDataCallback(NS_DataType::DataBase* laser_data)
 {
-  NS_NaviCommon::console.message("laser scan..");
-  return;
   NS_DataType::LaserScan* laser = (NS_DataType::LaserScan*)laser_data;
   laser_count++;
-  if((laser_count % throttle_scans_) != 0)
-    return;
+/*
+  for(int i = 0; i < laser->ranges.size(); i++)
+  {
+	float degree = RAD2DEG(laser->angle_min + laser->angle_increment * i);
+	//NS_NaviCommon::console.debug("--->   angle: %f, range: %f", degree, laser->ranges[i]);
+  }
+*/
+  if(throttle_scans_ != 0)
+  {
+    if((laser_count % throttle_scans_) != 0)
+      return;
+  }
 
   static NS_NaviCommon::Time last_map_update(0, 0);
 
@@ -69,10 +86,14 @@ void GMappingApplication::laserDataCallback(NS_DataType::DataBase* laser_data)
     NS_NaviCommon::console.message("Add scan process..");
     OrientedPoint mpose = gsp->getParticles()[gsp->getBestParticleIndex()].pose;
 
+
     NS_Transform::Transform laser_to_map = NS_Transform::Transform(NS_Transform::createQuaternionFromRPY(0, 0, mpose.theta),
     		NS_Transform::Vector3(mpose.x, mpose.y, 0.0)).inverse();
     NS_Transform::Transform odom_to_laser = NS_Transform::Transform(NS_Transform::createQuaternionFromRPY(0, 0, odom_pose.theta),
         	NS_Transform::Vector3(odom_pose.x, odom_pose.y, 0.0));
+    NS_NaviCommon::console.debug("new best pose: %.3f, %.3f, %.3f.", mpose.x, mpose.y, mpose.theta);
+    NS_NaviCommon::console.debug("odom pose: %.3f, %.3f, %.3f.", odom_pose.x, odom_pose.y, odom_pose.theta);
+    NS_NaviCommon::console.debug("correction: %.3f, %.3f, %.3f.", mpose.x - odom_pose.x, mpose.y - odom_pose.y, mpose.theta - odom_pose.theta);
 
     map_to_odom_lock.lock();
     map_to_odom = (odom_to_laser * laser_to_map).inverse();
@@ -88,11 +109,6 @@ void GMappingApplication::laserDataCallback(NS_DataType::DataBase* laser_data)
   }else{
     NS_NaviCommon::console.warning("Can not process the scan!");
   }
-}
-
-void GMappingApplication::odometryDataCallback(NS_DataType::DataBase* odometry_data)
-{
-  NS_DataType::Odometry* odometry = (NS_DataType::Odometry*)odometry_data;
 }
 
 void GMappingApplication::mapService(NS_ServiceType::RequestBase* request, NS_ServiceType::ResponseBase* response)
@@ -132,13 +148,21 @@ double GMappingApplication::computePoseEntropy()
 
 bool GMappingApplication::getOdomPose(OrientedPoint& gmap_pose)
 {
-  NS_Transform::Stamped<NS_Transform::Transform> odom_pose;
   //TODO:transform from odom to laser
 
-  double yaw = NS_Transform::getYaw(odom_pose.getRotation());
+  NS_ServiceType::RequestTransform request_odom;
+  NS_ServiceType::ResponseTransform odom_transform;
 
-  gmap_pose = OrientedPoint(odom_pose.getOrigin().x(),
-		  odom_pose.getOrigin().y(), yaw);
+  if(service->call(NS_NaviCommon::SERVICE_TYPE_ODOMETRY_TRANSFORM, &request_odom, &odom_transform) == false)
+  {
+    NS_NaviCommon::console.warning("Get odometry transform failure!");
+    return false;
+  }
+
+  double yaw = NS_Transform::getYaw(odom_transform.transform.rotation);
+
+  gmap_pose = OrientedPoint(odom_transform.transform.translation.x,
+		  odom_transform.transform.translation.y, yaw);
 
   return true;
 }
@@ -171,7 +195,7 @@ bool GMappingApplication::initMapper(NS_DataType::LaserScan& laser_data)
     theta += std::fabs(laser_data.angle_increment);
   }
 
-  NS_NaviCommon::console.message("Laser got first frame min:%.3f, max:%.3f, inc:%.3f",
+  NS_NaviCommon::console.debug("Laser got first frame min:%.3f, max:%.3f, inc:%.3f",
 		  laser_data.angle_min, laser_data.angle_max, laser_data.angle_increment);
 
   OrientedPoint gmap_pose(0, 0, 0);
@@ -198,7 +222,7 @@ bool GMappingApplication::initMapper(NS_DataType::LaserScan& laser_data)
   OrientedPoint initial_pose;
   if(!getOdomPose(initial_pose))
   {
-    NS_NaviCommon::console.message("Unable to get initial pose, start with zero...");
+    NS_NaviCommon::console.warning("Unable to get initial pose, start with zero...");
     initial_pose = OrientedPoint(0.0, 0.0, 0.0);
   }
 
@@ -262,14 +286,14 @@ void GMappingApplication::updateMap(NS_DataType::LaserScan& laser_data)
 
   ScanMatcherMap smap(center, xmin_, ymin_, xmax_, ymax_, delta_);
 
-  NS_NaviCommon::console.message("Trajectory tree:");
+  NS_NaviCommon::console.debug("Trajectory tree:");
 
   for(GridSlamProcessor::TNode* n = best.node; n; n = n->parent)
   {
-    NS_NaviCommon::console.message("  %.3f  %.3f  %.3f", n->pose.x, n->pose.y, n->pose.theta);
+    NS_NaviCommon::console.debug("  %.3f  %.3f  %.3f", n->pose.x, n->pose.y, n->pose.theta);
     if(!n->reading)
     {
-      NS_NaviCommon::console.message("Null node!");
+      NS_NaviCommon::console.warning("Null node!");
       continue;
     }
     matcher.invalidateActiveArea();
@@ -327,11 +351,13 @@ bool GMappingApplication::addScan(NS_DataType::LaserScan& laser_data, OrientedPo
 {
   if(!getOdomPose(gmap_pose))
   {
+    NS_NaviCommon::console.debug("Get odometry pose failure!");
     return false;
   }
 
   if(laser_data.ranges.size() != gsp_laser_beam_count)
   {
+    NS_NaviCommon::console.debug("Laser beam count number is not correct!");
     return false;
   }
 
@@ -369,15 +395,57 @@ bool GMappingApplication::addScan(NS_DataType::LaserScan& laser_data, OrientedPo
 
   reading.setPose(gmap_pose);
 
-  NS_NaviCommon::console.message("Processing laser data...");
-
   return gsp->processScan(reading);
 }
 
 void GMappingApplication::loadParameters()
 {
-  parameter.loadConfigurationFile("GMapping.xml");
+  parameter.loadConfigurationFile("gmapping.xml");
 
+  if(parameter.getParameter("up_mounted", 1) == 1)
+	  up_mounted = true;
+  else up_mounted = false;
+
+  max_range_ = parameter.getParameter("max_range", 6.0f);
+  max_u_range_ = parameter.getParameter("max_u_range", 6.0f);
+  minimum_score_ = parameter.getParameter("minimum_score", 0.0f);
+  sigma_ = parameter.getParameter("sigma", 0.05f);
+  kernel_size_ = parameter.getParameter("kernel_size", 1);
+  lstep_ = parameter.getParameter("lstep", 0.05f);
+  astep_ = parameter.getParameter("astep", 0.05f);
+  iterations_ = parameter.getParameter("iterations", 5);
+  lsigma_ = parameter.getParameter("lsigma", 0.075f);
+  ogain_ = parameter.getParameter("ogain", 3.0f);
+  lskip_ = parameter.getParameter("lskip", 0);
+
+  srr_ = parameter.getParameter("srr", 0.1f);
+  srt_ = parameter.getParameter("srt", 0.2f);
+  str_ = parameter.getParameter("str", 0.1f);
+  stt_ = parameter.getParameter("stt", 0.2f);
+
+  linear_update_ = parameter.getParameter("linear_update", 1.0f);
+  angular_update_ = parameter.getParameter("angular_update", 0.5f);
+  temporal_update_ = parameter.getParameter("temporal_update", -1.0f);
+  resample_threshold_ = parameter.getParameter("resample_threshold", 0.5f);
+  particles_ = parameter.getParameter("particles", 30);
+
+  xmin_ = parameter.getParameter("xmin", -100.0f);
+  ymin_ = parameter.getParameter("ymin", -100.0f);
+  xmax_ = parameter.getParameter("xmax", 100.0f);
+  ymax_ = parameter.getParameter("ymax", 100.0f);
+  delta_ = parameter.getParameter("delta", 0.05f);
+
+  occ_thresh_ = parameter.getParameter("occ_thresh", 0.25f);
+
+  llsamplerange_ = parameter.getParameter("llsamplerange", 0.01f);
+  llsamplestep_ = parameter.getParameter("llsamplestep", 0.01f);
+  lasamplerange_ = parameter.getParameter("lasamplerange", 0.005f);
+  lasamplestep_ = parameter.getParameter("lasamplestep", 0.005f);
+
+  throttle_scans_ = parameter.getParameter("throttle_scans", 2);
+
+  double map_update_interval_sec = parameter.getParameter("map_update_interval", 3.0f);
+  map_update_interval_ = NS_NaviCommon::Duration(map_update_interval_sec);
 }
 
 void GMappingApplication::initialize()
@@ -388,9 +456,6 @@ void GMappingApplication::initialize()
 
   dispitcher->subscribe(NS_NaviCommon::DATA_TYPE_LASER_SCAN,
 		  boost::bind(&GMappingApplication::laserDataCallback, this, _1));
-
-  dispitcher->subscribe(NS_NaviCommon::DATA_TYPE_ODOMETRY,
-  		  boost::bind(&GMappingApplication::odometryDataCallback, this, _1));
 
   service->advertise(NS_NaviCommon::SERVICE_TYPE_MAP,
 		  boost::bind(&GMappingApplication::mapService, this, _1, _2));

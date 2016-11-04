@@ -20,7 +20,9 @@ const double m_distanceThresholdCheck = 20;
 using namespace std;
 
   GridSlamProcessor::GridSlamProcessor(): m_infoStream(cout){
-    
+
+    m_outputStream.open("/tmp/gfs.txt", std::ofstream::out);
+
     m_obsSigmaGain=1;
     m_resampleThreshold=0.5;
     m_minimumScore=0.;
@@ -28,6 +30,8 @@ using namespace std;
   
   GridSlamProcessor::GridSlamProcessor(const GridSlamProcessor& gsp) 
     :m_particles(gsp.m_particles), m_infoStream(cout){
+
+    m_outputStream.open("/tmp/gfs.txt", std::ofstream::out);
     
     m_obsSigmaGain=gsp.m_obsSigmaGain;
     m_resampleThreshold=gsp.m_resampleThreshold;
@@ -87,7 +91,10 @@ using namespace std;
   }
   
   GridSlamProcessor::GridSlamProcessor(std::ostream& infoS): m_infoStream(infoS){
-    m_obsSigmaGain=1;
+
+    m_outputStream.open("/tmp/gfs.txt", std::ofstream::out);
+
+	m_obsSigmaGain=1;
     m_resampleThreshold=0.5;
     m_minimumScore=0.;
 	

@@ -833,7 +833,6 @@ u_result SelidarDriver::_waitResponseHeader(selidar_ans_header_t * header, unsig
 
         for (size_t pos = 0; pos < recvSize; ++pos) {
             unsigned char currentByte = recvBuffer[pos];
-            printf(" %02X", currentByte);
             switch (recvPos) {
             case 0:
                 if (currentByte != SELIDAR_ANS_SYNC_BYTE1) {

@@ -18,9 +18,17 @@ void ApplicationManager::signalAction(int signal)
   instance->quitApplications();
 }
 
+void ApplicationManager::applicationsPending()
+{
+  while(running)
+  {
+  }
+}
+
 ApplicationManager::ApplicationManager() {
 	// TODO Auto-generated constructor stub
   instance = this;
+  running = false;
 }
 
 ApplicationManager::~ApplicationManager() {
@@ -39,9 +47,10 @@ void ApplicationManager::quitApplications()
   {
 	(*it)->quit();
   }
+  running = false;
 }
 
-void ApplicationManager::initialize()
+bool ApplicationManager::initialize()
 {
   Application::globalInitialize();
   registerSignal();
@@ -51,14 +60,36 @@ void ApplicationManager::initialize()
   for(it = applications.begin(); it != applications.end(); it++)
   {
 	(*it)->initialize();
+	if((*it)->isInitialized() == false)
+	{
+      NS_NaviCommon::console.error("Initialize not complete!");
+      return false;
+	}
   }
+  return true;
 }
 
-void ApplicationManager::run()
+bool ApplicationManager::run()
 {
   std::vector<Application*>::iterator it;
   for(it = applications.begin(); it != applications.end(); it++)
   {
     (*it)->run();
+    if((*it)->isRunning() == false)
+    {
+      NS_NaviCommon::console.error("Application not set running!");
+      return false;
+    }
   }
+
+  running = true;
+
+  applications_pending_thread = boost::thread(boost::bind(&ApplicationManager::applicationsPending, this));
+
+  return true;
+}
+
+void ApplicationManager::pending()
+{
+  applications_pending_thread.join();
 }

@@ -31,7 +31,6 @@ private:
   bool up_mounted;
   double max_range_;
   double max_u_range_;
-  double maxrange_;
   double minimum_score_;
   double sigma_;
   int kernel_size_;
@@ -66,7 +65,6 @@ private:
 private:
   void loadParameters();
   void laserDataCallback(NS_DataType::DataBase* laser_data);
-  void odometryDataCallback(NS_DataType::DataBase* odometry_data);
   void mapService(NS_ServiceType::RequestBase* request, NS_ServiceType::ResponseBase* response);
   double computePoseEntropy();
   bool getOdomPose(OrientedPoint& gmap_pose);

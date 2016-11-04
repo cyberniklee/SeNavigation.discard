@@ -185,8 +185,8 @@ void ScanMatcher::computeActiveArea(ScanMatcherMap& map, const OrientedPoint& p,
 		} else {
 			if (*r>m_laserMaxRange||*r>m_usableRange) continue;
 			Point phit=lp;
-			phit.x+=*r*cos(lp.theta+*angle);
-			phit.y+=*r*sin(lp.theta+*angle);
+			phit.x+=(*r)*cos(lp.theta+*angle);
+			phit.y+=(*r)*sin(lp.theta+*angle);
 			IntPoint p1=map.world2map(phit);
 			assert(p1.x>=0 && p1.y>=0);
 			IntPoint cp=map.storage().patchIndexes(p1);

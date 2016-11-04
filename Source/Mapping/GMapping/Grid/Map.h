@@ -192,7 +192,7 @@ Point Map<Cell,Storage,isClass>::map2world(const IntPoint& p) const{
 template <class Cell, class Storage, const bool isClass>
 Cell& Map<Cell,Storage,isClass>::cell(const IntPoint& p) {
 	AccessibilityState s=m_storage.cellState(p);
-	if (! s&Inside)
+	if (!(s&Inside))
 		assert(0);
 	//if (s&Allocated) return m_storage.cell(p); assert(0);
 
@@ -205,7 +205,7 @@ template <class Cell, class Storage, const bool isClass>
 Cell& Map<Cell,Storage,isClass>::cell(const Point& p) {
 	IntPoint ip=world2map(p);
 	AccessibilityState s=m_storage.cellState(ip);
-	if (! s&Inside)
+	if (!(s&Inside))
 		assert(0);
 	//if (s&Allocated) return m_storage.cell(ip); assert(0);
 

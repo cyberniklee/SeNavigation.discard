@@ -9,6 +9,7 @@
 #include <Console/Console.h>
 //for debugging
 #include <assert.h>
+#include <Time/Utils.h>
 
 namespace NS_Selidar {
 
@@ -47,39 +48,36 @@ bool SelidarApplication::checkSelidarHealth(SelidarDriver * drv)
 
     op_result = drv->getHealth(healthinfo);
     if (IS_OK(op_result)) {
-        printf("SELidar health status : %d\n", healthinfo.status);
+        NS_NaviCommon::console.debug("Selidar health status : %d, opcode: %x \n",
+        		healthinfo.status, op_result);
 
         if (healthinfo.status == SELIDAR_STATUS_ERROR) {
-            fprintf(stderr, "Error, selidar internal error detected."
-                            "Please reboot the device to retry.\n");
             return false;
         } else {
             return true;
         }
 
     } else {
-        fprintf(stderr, "Error, cannot retrieve selidar health code: %x\n",
-                        op_result);
         return false;
     }
 }
 
-void SelidarApplication::scanDataCallback(NS_DataType::DataBase* scan) {
-	NS_DataType::LaserScan* scan_data = (NS_DataType::LaserScan*)scan;
-	 int count = scan_data->scan_time / scan_data->time_increment;
-	    //ROS_INFO("I heard a laser scan %s[%d]:", scan->header.frame_id.c_str(), count);
-	    //ROS_INFO("angle_range, %f, %f", RAD2DEG(scan->angle_min), RAD2DEG(scan->angle_max));
-	    NS_NaviCommon::Console console;
-	    console.message("I heard a laser scan %s[%d]:", scan_data->header.frame_id.c_str(), count);
-	    console.message("angle_range, %f, %f", RAD2DEG(scan_data->angle_min), RAD2DEG(scan_data->angle_max));
-	    printf("%d\n", count);
-	    printf("%d\n", (scan_data->ranges).size());
-	    for(int i = 0; i < count; i++) {
-	        float degree = RAD2DEG(scan_data->angle_min + scan_data->angle_increment * i);
-	        //ROS_INFO(": [%f, %f]", degree, scan->ranges[i]);
-	        console.message(": [%lf, %lf]", degree, scan_data->ranges[i]);
-	    }
+bool SelidarApplication::checkSelidarInfo(SelidarDriver * drv)
+{
+  u_result     op_result;
+  selidar_response_device_info_t device_info;
+
+  op_result = drv->getDeviceInfo(device_info);
+  if (IS_OK(op_result)) {
+	  NS_NaviCommon::console.debug("Selidar device model : %d, opcode: %x \n",
+			  device_info.model, op_result);
+	  return true;
+  } else {
+	  return false;
+  }
+
 }
+
 
 bool SelidarApplication::stopScanService(NS_ServiceType::RequestBase* request,
 		NS_ServiceType::ResponseBase* response)
@@ -101,7 +99,7 @@ bool SelidarApplication::startScanService(NS_ServiceType::RequestBase* request,
 
 	NS_NaviCommon::console.message("Start motor");
     drv.startMotor();
-    drv.startScan();;
+    drv.startScan();
     return true;
 }
 
@@ -111,52 +109,54 @@ void SelidarApplication::publishScan(selidar_response_measurement_node_t *nodes,
 {
 	static int scan_count = 0;
 
-	scan_msg.header.stamp = start;
-	scan_msg.header.frame_id = frame_id;
+	NS_DataType::LaserScan* scan_msg = new NS_DataType::LaserScan;
+
+	scan_msg->header.stamp = start;
+	scan_msg->header.frame_id = frame_id;
 	scan_count++;
-	printf("Befor publish_scan, angle_min: %f, angle_max: %f\n", angle_min, angle_max);
+
 	bool reversed = (angle_max > angle_min);
 	if ( reversed ) {
-		scan_msg.angle_min =  M_PI - angle_max;
-	    scan_msg.angle_max =  M_PI - angle_min;
+		scan_msg->angle_min =  M_PI - angle_max;
+	    scan_msg->angle_max =  M_PI - angle_min;
 	} else {
-	    scan_msg.angle_min =  M_PI - angle_min;
-	    scan_msg.angle_max =  M_PI - angle_max;
+	    scan_msg->angle_min =  M_PI - angle_min;
+	    scan_msg->angle_max =  M_PI - angle_max;
 	}
-	scan_msg.angle_increment =
-			(scan_msg.angle_max - scan_msg.angle_min) / (double)(node_count-1);
-	printf("publish_scan, scan_msg.angle_min: %f, scan_msg.angle_max: %f\n", scan_msg.angle_min, scan_msg.angle_max);
-	scan_msg.scan_time = scan_time;
-	scan_msg.time_increment = scan_time / (double)(node_count-1);
-	scan_msg.range_min = 0.15;
-	scan_msg.range_max = 6.;
+	scan_msg->angle_increment =
+			(scan_msg->angle_max - scan_msg->angle_min) / (double)(node_count-1);
+	//NS_NaviCommon::console.debug("publish_scan, scan_msg->angle_min: %f, scan_msg->angle_max: %f\n", scan_msg->angle_min, scan_msg->angle_max);
+	scan_msg->scan_time = scan_time;
+	scan_msg->time_increment = scan_time / (double)(node_count-1);
+	scan_msg->range_min = 0.15;
+	scan_msg->range_max = 6.;
 
-	scan_msg.intensities.resize(node_count);
-	scan_msg.ranges.resize(node_count);
+	scan_msg->intensities.resize(node_count);
+	scan_msg->ranges.resize(node_count);
 	bool reverse_data = (!inverted && reversed) || (inverted && !reversed);
 	if (!reverse_data) {
 		for (size_t i = 0; i < node_count; i++) {
 			float read_value = (float) nodes[i].distance_q2/4.0f/1000;
 			if (read_value == 0.0)
-				scan_msg.ranges[i] = std::numeric_limits<float>::infinity();
+				scan_msg->ranges[i] = std::numeric_limits<float>::infinity();
 			else
-				scan_msg.ranges[i] = read_value;
-			scan_msg.intensities[i] = (float) (nodes[i].sync_quality >> 2);
+				scan_msg->ranges[i] = read_value;
+			scan_msg->intensities[i] = (float) (nodes[i].sync_quality >> 2);
 		}
 
 	} else {
 		for (size_t i = 0; i < node_count; i++) {
 			float read_value = (float)nodes[i].distance_q2/4.0f/1000;
 			if (read_value == 0.0)
-				scan_msg.ranges[node_count-1-i] = std::numeric_limits<float>::infinity();
+				scan_msg->ranges[node_count-1-i] = std::numeric_limits<float>::infinity();
 			else
-				scan_msg.ranges[node_count-1-i] = read_value;
-			scan_msg.intensities[node_count-1-i] = (float) (nodes[i].sync_quality >> 2);
+				scan_msg->ranges[node_count-1-i] = read_value;
+			scan_msg->intensities[node_count-1-i] = (float) (nodes[i].sync_quality >> 2);
 		}
 
 	}
 
-	dispitcher->publish(NS_NaviCommon::DATA_TYPE_LASER_SCAN, &scan_msg);
+	dispitcher->publish(NS_NaviCommon::DATA_TYPE_LASER_SCAN, scan_msg);
 }
 
 void SelidarApplication::scanLoop()
@@ -178,7 +178,7 @@ void SelidarApplication::scanLoop()
 			op_result = drv.ascendScanData(nodes, count);
 			float angle_min = DEG2RAD(0.0f);
 			float angle_max = DEG2RAD(359.0f);
-			printf("153,154,angle_min: %f, angle_max: %f\n", angle_min, angle_max);
+
 			if (op_result == RESULT_OK) {
 				//assert(op_result == RESULT_OK);
 				if (angle_compensate) {
@@ -201,7 +201,7 @@ void SelidarApplication::scanLoop()
 						}
 
 					}
-					printf("179, 180, angle_min: %f, angle_max: %f\n", angle_min, angle_max);
+
 					publishScan(angle_compensate_nodes, angle_compensate_nodes_count,
 							start_scan_time, scan_duration, angle_min, angle_max);
 				} else {
@@ -216,7 +216,6 @@ void SelidarApplication::scanLoop()
 
 					angle_min = DEG2RAD((float)(nodes[start_node].angle_q6_checkbit >> SELIDAR_RESP_MEASUREMENT_ANGLE_SHIFT)/64.0f);
 					angle_max = DEG2RAD((float)(nodes[end_node].angle_q6_checkbit >> SELIDAR_RESP_MEASUREMENT_ANGLE_SHIFT)/64.0f);
-					printf("No angle_compensate! angle_min: %f, angle_max: %f\n", angle_min, angle_max);
 					publishScan(&nodes[start_node], end_node-start_node +1,
 							start_scan_time, scan_duration, angle_min, angle_max);
 			   }
@@ -224,17 +223,13 @@ void SelidarApplication::scanLoop()
 				// All the data is invalid, just publish them
 				float angle_min = DEG2RAD(0.0f);
 				float angle_max = DEG2RAD(359.0f);
-				printf("RESULT_OPERATION_FAIL! angle_min: %f, angle_max: %f\n", angle_min, angle_max);
-				//assert(op_result == RESULT_OPERATION_FAIL);
 				publishScan(nodes, count,
 						start_scan_time, scan_duration, angle_min, angle_max);
+
 			}
 
 		}
 	}
-
-	drv.stop();
-	drv.stopMotor();
 }
 
 void  SelidarApplication::initialize()
@@ -245,12 +240,16 @@ void  SelidarApplication::initialize()
 
 	 // make connection...
 	 if (IS_FAIL(drv.connect(serial_port.c_str(), (unsigned int)serial_baudrate, 0))) {
-		fprintf(stderr, "Error, cannot bind to the specified serial port %s.\n"
-				, serial_port.c_str());
+		 NS_NaviCommon::console.error("cannot bind to the specified serial port %s.", serial_port.c_str());
 	 }
-	 // check health...
 
+	 // check health...
 	 if (!checkSelidarHealth(&drv)) {
+		return;
+	 }
+
+	 // get device info...
+	 if (!checkSelidarInfo(&drv)) {
 		return;
 	 }
 
@@ -258,10 +257,6 @@ void  SelidarApplication::initialize()
 	 service->advertise(NS_NaviCommon::SERVICE_TYPE_START_SCAN, boost::bind(&SelidarApplication::startScanService, this, _1, _2));
 
     initialized = true;
-/*
-	dispitcher->subscribe(NS_NaviCommon::DATA_TYPE_LASER_SCAN,
-				  boost::bind(&SelidarApplication::scanDataCallback, this, _1));
-*/
 
     NS_NaviCommon::console.message("selidar has initialized!");
 }
@@ -273,9 +268,6 @@ void SelidarApplication::run()
 	running = true;
 
 	scan_thread = boost::thread(boost::bind(&SelidarApplication::scanLoop, this));
-	scan_thread.join();
-
-
 }
 
 void SelidarApplication::quit()
@@ -283,6 +275,12 @@ void SelidarApplication::quit()
 	NS_NaviCommon::console.message("selidar is quitting!");
 
     running = false;
+
+    scan_thread.join();
+
+    drv.stop();
+    drv.stopMotor();
+    drv.disconnect();
 }
 
 }

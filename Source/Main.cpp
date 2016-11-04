@@ -11,8 +11,18 @@
 int main(int argc, char* argv[])
 {
 	ApplicationManager manager;
-	manager.initialize();
-	manager.run();
+
+	if(!manager.initialize())
+	{
+		return -1;
+	}
+
+	if(!manager.run())
+	{
+		return -1;
+	}
+
+	manager.pending();
 
 	return 0;
 }
