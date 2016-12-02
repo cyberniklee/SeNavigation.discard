@@ -7,13 +7,17 @@ Layer::Layer()
   : layered_costmap_(NULL)
   , current_(false)
   , enabled_(false)
-  , name_()
+  , dispitcher_(NULL)
+  , service_(NULL)
 {}
 
-void Layer::initialize(LayeredCostmap* parent, std::string name)
+void Layer::initialize(LayeredCostmap* parent,
+		  NS_NaviCommon::Dispitcher* dispitcher,
+		  NS_NaviCommon::Service* service)
 {
   layered_costmap_ = parent;
-  name_ = name;
+  dispitcher_ = dispitcher;
+  service_ = service;
   onInitialize();
 }
 

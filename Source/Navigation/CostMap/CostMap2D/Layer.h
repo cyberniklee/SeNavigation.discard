@@ -4,6 +4,8 @@
 #include "CostMap2D.h"
 #include "LayeredCostMap.h"
 #include <string>
+#include <DataSet/Dispitcher.h>
+#include <Service/Service.h>
 
 namespace NS_CostMap
 {
@@ -14,7 +16,9 @@ class Layer
 public:
   Layer();
 
-  void initialize(LayeredCostmap* parent, std::string name);
+  void initialize(LayeredCostmap* parent,
+		  NS_NaviCommon::Dispitcher* dispitcher,
+		  NS_NaviCommon::Service* service);
 
   /**
    * @brief This is called by the LayeredCostmap to poll this plugin as to how
@@ -61,11 +65,6 @@ public:
   /** @brief Implement this to make this layer match the size of the parent costmap. */
   virtual void matchSize() {}
 
-  std::string getName() const
-  {
-    return name_;
-  }
-
   /** @brief Convenience function for layered_costmap_->getFootprint(). */
   const std::vector<NS_DataType::Point>& getFootprint() const;
 
@@ -84,7 +83,9 @@ protected:
   LayeredCostmap* layered_costmap_;
   bool current_;
   bool enabled_;  ///< Currently this var is managed by subclasses. TODO: make this managed by this class and/or container class.
-  std::string name_;
+
+  NS_NaviCommon::Dispitcher* dispitcher_;
+  NS_NaviCommon::Service* service_;
 
 private:
   std::vector<NS_DataType::Point> footprint_spec_;

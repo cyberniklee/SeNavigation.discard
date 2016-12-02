@@ -190,7 +190,7 @@ void ControllerApplication::initialize()
   service->advertise(NS_NaviCommon::SERVICE_TYPE_RAW_ODOMETRY,
   		  boost::bind(&ControllerApplication::odomService, this, _1, _2));
 
-  service->advertise(NS_NaviCommon::SERVICE_TYPE_ODOMETRY_TRANSFORM,
+  service->advertise(NS_NaviCommon::SERVICE_TYPE_ODOMETRY_BASE_TRANSFORM,
     	  boost::bind(&ControllerApplication::odomTransformService, this, _1, _2));
 
   initialized = true;

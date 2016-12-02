@@ -21,7 +21,7 @@ public:
   /**
    * @brief  Constructor for a costmap
    */
-  LayeredCostmap(std::string global_frame, bool rolling_window, bool track_unknown);
+  LayeredCostmap(bool track_unknown);
 
   /**
    * @brief  Destructor
@@ -33,11 +33,6 @@ public:
    * If you want to update the map outside of the update loop that runs, you can call this.
    */
   void updateMap(double robot_x, double robot_y, double robot_yaw);
-
-  std::string getGlobalFrameID() const
-  {
-    return global_frame_;
-  }
 
   void resizeMap(unsigned int size_x, unsigned int size_y, double resolution, double origin_x, double origin_y,
                  bool size_locked = false);
@@ -55,11 +50,6 @@ public:
   Costmap2D* getCostmap()
   {
     return &costmap_;
-  }
-
-  bool isRolling()
-  {
-    return rolling_window_;
   }
 
   bool isTrackingUnknown()
@@ -119,9 +109,6 @@ public:
 
 private:
   Costmap2D costmap_;
-  std::string global_frame_;
-
-  bool rolling_window_;  /// < @brief Whether or not the costmap should roll with the robot
 
   bool current_;
   double minx_, miny_, maxx_, maxy_;

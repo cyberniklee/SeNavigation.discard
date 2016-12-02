@@ -66,6 +66,7 @@ private:
   void loadParameters();
   void laserDataCallback(NS_DataType::DataBase* laser_data);
   void mapService(NS_ServiceType::RequestBase* request, NS_ServiceType::ResponseBase* response);
+  void mapTransformService(NS_ServiceType::RequestBase* request, NS_ServiceType::ResponseBase* response);
   double computePoseEntropy();
   bool getOdomPose(OrientedPoint& gmap_pose);
   bool initMapper(NS_DataType::LaserScan& laser_data);

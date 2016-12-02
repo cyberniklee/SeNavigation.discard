@@ -126,6 +126,16 @@ void GMappingApplication::mapService(NS_ServiceType::RequestBase* request, NS_Se
   }
 }
 
+void GMappingApplication::mapTransformService(NS_ServiceType::RequestBase* request, NS_ServiceType::ResponseBase* response)
+{
+  NS_ServiceType::RequestTransform* req = (NS_ServiceType::RequestTransform*)request;
+  NS_ServiceType::ResponseTransform* rep = (NS_ServiceType::ResponseTransform*)response;
+
+  boost::mutex::scoped_lock map_mutex(map_lock);
+  transformTFToMsg(map_to_odom, rep->transform);
+
+}
+
 double GMappingApplication::computePoseEntropy()
 {
   double weight_total = 0.0;
@@ -153,7 +163,7 @@ bool GMappingApplication::getOdomPose(OrientedPoint& gmap_pose)
   NS_ServiceType::RequestTransform request_odom;
   NS_ServiceType::ResponseTransform odom_transform;
 
-  if(service->call(NS_NaviCommon::SERVICE_TYPE_ODOMETRY_TRANSFORM, &request_odom, &odom_transform) == false)
+  if(service->call(NS_NaviCommon::SERVICE_TYPE_ODOMETRY_BASE_TRANSFORM, &request_odom, &odom_transform) == false)
   {
     NS_NaviCommon::console.warning("Get odometry transform failure!");
     return false;

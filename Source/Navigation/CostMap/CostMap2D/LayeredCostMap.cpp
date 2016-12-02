@@ -12,8 +12,8 @@ using std::vector;
 namespace NS_CostMap
 {
 
-LayeredCostmap::LayeredCostmap(std::string global_frame, bool rolling_window, bool track_unknown) :
-    costmap_(), global_frame_(global_frame), rolling_window_(rolling_window), initialized_(false), size_locked_(false)
+LayeredCostmap::LayeredCostmap(bool track_unknown) :
+    costmap_(), initialized_(false), size_locked_(false)
 {
   if (track_unknown)
     costmap_.setDefaultValue(255);
@@ -43,14 +43,6 @@ void LayeredCostmap::resizeMap(unsigned int size_x, unsigned int size_y, double 
 
 void LayeredCostmap::updateMap(double robot_x, double robot_y, double robot_yaw)
 {
-  // if we're using a rolling buffer costmap... we need to update the origin using the robot's position
-  if (rolling_window_)
-  {
-    double new_origin_x = robot_x - costmap_.getSizeInMetersX() / 2;
-    double new_origin_y = robot_y - costmap_.getSizeInMetersY() / 2;
-    costmap_.updateOrigin(new_origin_x, new_origin_y);
-  }
-
   if (plugins_.size() == 0)
     return;
 
@@ -72,10 +64,9 @@ void LayeredCostmap::updateMap(double robot_x, double robot_y, double robot_yaw)
     if (minx_ > prev_minx || miny_ > prev_miny || maxx_ < prev_maxx || maxy_ < prev_maxy)
     {
       NS_NaviCommon::console.debug("Illegal bounds change, was [tl: (%f, %f), br: (%f, %f)], but "
-                        "is now [tl: (%f, %f), br: (%f, %f)]. The offending layer is %s",
+                        "is now [tl: (%f, %f), br: (%f, %f)].",
                         prev_minx, prev_miny, prev_maxx , prev_maxy,
-                        minx_, miny_, maxx_ , maxy_,
-                        (*plugin)->getName().c_str());
+                        minx_, miny_, maxx_ , maxy_);
     }
   }
 
