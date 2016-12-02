@@ -1,11 +1,11 @@
 /*
- * CostmapApplication.cpp
+ * CostmapWrapper.cpp
  *
  *  Created on: 2016年11月3日
  *      Author: seeing
  */
 
-#include "CostmapApplication.h"
+#include "CostmapWrapper.h"
 #include "Layers/StaticLayer.h"
 
 #include <Console/Console.h>
@@ -14,11 +14,16 @@
 #include <Service/ServiceType/RequestTransform.h>
 #include <Service/ServiceType/ResponseTransform.h>
 #include <DataSet/DataType/PolygonStamped.h>
+#include <Parameter/Parameter.h>
 #include "Utils/Footprint.h"
 
 namespace NS_CostMap {
 
-CostmapApplication::CostmapApplication() {
+CostmapWrapper::CostmapWrapper(NS_NaviCommon::Dispitcher* dispitcher_, NS_NaviCommon::Service* service_)
+{
+  dispitcher = dispitcher_;
+  service = service_;
+
   layered_costmap = NULL;
 
   cost_translation_table = NULL;
@@ -41,7 +46,7 @@ CostmapApplication::CostmapApplication() {
   }
 }
 
-CostmapApplication::~CostmapApplication()
+CostmapWrapper::~CostmapWrapper()
 {
   if(layered_costmap)
     delete layered_costmap;
@@ -50,14 +55,14 @@ CostmapApplication::~CostmapApplication()
     delete cost_translation_table;
 }
 
-void CostmapApplication::loadLayers()
+void CostmapWrapper::loadLayers()
 {
   StaticLayer* static_layer = new StaticLayer();
   layers.push_back(static_layer);
 
 }
 
-void CostmapApplication::updateMap()
+void CostmapWrapper::updateMap()
 {
   // get global pose
   NS_Transform::Stamped < NS_Transform::Pose > pose;
@@ -76,7 +81,7 @@ void CostmapApplication::updateMap()
   }
 }
 
-void CostmapApplication::updateCostmap()
+void CostmapWrapper::updateCostmap()
 {
 	/*
   Costmap2D* costmap_ = layered_costmap->getCostmap();
@@ -118,7 +123,7 @@ void CostmapApplication::updateCostmap()
   */
 }
 
-void CostmapApplication::updateMapLoop(double frequency)
+void CostmapWrapper::updateMapLoop(double frequency)
 {
   NS_NaviCommon::Rate rate(frequency);
   while(running)
@@ -135,8 +140,9 @@ void CostmapApplication::updateMapLoop(double frequency)
   }
 }
 
-void CostmapApplication::loadParameters()
+void CostmapWrapper::loadParameters()
 {
+  NS_NaviCommon::Parameter parameter;
   parameter.loadConfigurationFile("costmap.xml");
 
   if(parameter.getParameter("track_unknown_space", 0) == 1)
@@ -155,7 +161,7 @@ void CostmapApplication::loadParameters()
   origin_y_ = 0.0;
 }
 
-void CostmapApplication::prepareMap()
+void CostmapWrapper::prepareMap()
 {
   Costmap2D* costmap_ = layered_costmap->getCostmap();
 
@@ -187,7 +193,7 @@ void CostmapApplication::prepareMap()
   }
 }
 
-bool CostmapApplication::getRobotPose(NS_Transform::Stamped<NS_Transform::Pose>& global_pose) const
+bool CostmapWrapper::getRobotPose(NS_Transform::Stamped<NS_Transform::Pose>& global_pose) const
 {
   NS_ServiceType::RequestTransform request_odom;
   NS_ServiceType::ResponseTransform odom_transform;
@@ -215,7 +221,7 @@ bool CostmapApplication::getRobotPose(NS_Transform::Stamped<NS_Transform::Pose>&
   return true;
 }
 
-void CostmapApplication::mapService(NS_ServiceType::RequestBase* request, NS_ServiceType::ResponseBase* response)
+void CostmapWrapper::mapService(NS_ServiceType::RequestBase* request, NS_ServiceType::ResponseBase* response)
 {
   NS_ServiceType::RequestMap* req = (NS_ServiceType::RequestMap*)request;
   NS_ServiceType::ResponseMap* rep = (NS_ServiceType::ResponseMap*)response;
@@ -230,7 +236,7 @@ void CostmapApplication::mapService(NS_ServiceType::RequestBase* request, NS_Ser
   }
 }
 
-void CostmapApplication::setPaddedRobotFootprint(const std::vector<NS_DataType::Point>& points)
+void CostmapWrapper::setPaddedRobotFootprint(const std::vector<NS_DataType::Point>& points)
 {
   padded_footprint = points;
   padFootprint(padded_footprint, footprint_padding_);
@@ -238,7 +244,7 @@ void CostmapApplication::setPaddedRobotFootprint(const std::vector<NS_DataType::
   layered_costmap->setFootprint(padded_footprint);
 }
 
-void CostmapApplication::initialize()
+void CostmapWrapper::initialize()
 {
   NS_NaviCommon::console.message("costmap is initializing!");
   loadLayers();
@@ -268,19 +274,18 @@ void CostmapApplication::initialize()
 							  (unsigned int)(map_height_meters_ / resolution_),
 							  resolution_, origin_x_, origin_y_);
 
-  initialized = true;
 }
 
-void CostmapApplication::run()
+void CostmapWrapper::start()
 {
   NS_NaviCommon::console.message("costmap is running!");
 
   running = true;
 
-  update_map_thread = boost::thread(boost::bind(&CostmapApplication::updateMapLoop, this, map_update_frequency_));
+  update_map_thread = boost::thread(boost::bind(&CostmapWrapper::updateMapLoop, this, map_update_frequency_));
 }
 
-void CostmapApplication::quit()
+void CostmapWrapper::stop()
 {
   NS_NaviCommon::console.message("costmap is quitting!");
   running = false;

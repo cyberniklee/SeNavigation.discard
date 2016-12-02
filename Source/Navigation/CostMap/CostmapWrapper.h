@@ -1,12 +1,12 @@
 /*
- * CostmapApplication.h
+ * CostmapWrapper.h
  *
  *  Created on: 2016年11月3日
  *      Author: seeing
  */
 
-#ifndef _COSTMAP_COSTMAPAPPLICATION_H_
-#define _COSTMAP_COSTMAPAPPLICATION_H_
+#ifndef _COSTMAP_COSTMAPWRAPPER_H_
+#define _COSTMAP_COSTMAPWRAPPER_H_
 
 #include <vector>
 #include "../../Application/Application.h"
@@ -16,16 +16,19 @@
 #include <Service/ServiceType/ResponseBase.h>
 #include <DataSet/DataType/Point.h>
 #include <Transform/DataTypes.h>
+#include <DataSet/Dispitcher.h>
+#include <Service/Service.h>
 
 namespace NS_CostMap {
 
 typedef std::vector<CostmapLayer*> CostMapLayers;
 typedef std::vector<CostmapLayer*>::iterator CostMapLayersIterator;
 
-class CostmapApplication: public Application {
+class CostmapWrapper
+{
 public:
-	CostmapApplication();
-	virtual ~CostmapApplication();
+	CostmapWrapper(NS_NaviCommon::Dispitcher* dispitcher_, NS_NaviCommon::Service* service_);
+	virtual ~CostmapWrapper();
 private:
 	bool track_unknown_space_;
 	std::string footprint_;
@@ -60,6 +63,8 @@ private:
 
 	bool got_map;
 
+	bool running;
+
 private:
 	void loadParameters();
 	void loadLayers();
@@ -81,11 +86,14 @@ private:
 	void updateMap();
 	void updateCostmap();
 public:
-	virtual void initialize();
-	virtual void run();
-	virtual void quit();
+	void initialize();
+	void start();
+	void stop();
+private:
+	NS_NaviCommon::Dispitcher* dispitcher;
+	NS_NaviCommon::Service* service;
 };
 
 } /* namespace NS_CostMap */
 
-#endif /* NAVIGATION_COSTMAP_COSTMAPAPPLICATION_H_ */
+#endif /* NAVIGATION_COSTMAP_COSTMAPWRAPPER_H_ */

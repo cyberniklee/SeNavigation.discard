@@ -15,12 +15,10 @@
 #include "../Sensor/Lidar/SelidarApplication.h"
 #include "../Mapping/GMapping/GMappingApplication.h"
 #include "../Controller/ControllerApplication.h"
-#include "../Navigation/CostMap/CostmapApplication.h"
 
 using namespace NS_GMapping;
 using namespace NS_Controller;
 using namespace NS_Selidar;
-using namespace NS_CostMap;
 
 class ApplicationManager
 {
@@ -47,9 +45,6 @@ private:
 
     ControllerApplication* controller = new ControllerApplication;
     applications.push_back(controller);
-
-    CostmapApplication* costmap = new CostmapApplication;
-    applications.push_back(costmap);
   }
 
   void quitApplications();

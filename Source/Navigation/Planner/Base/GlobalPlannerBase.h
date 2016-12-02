@@ -11,6 +11,7 @@
 #include <DataSet/DataType/PoseStamped.h>
 #include <DataSet/Dispitcher.h>
 #include <Service/Service.h>
+#include "../../CostMap/CostmapWrapper.h"
 
 namespace NS_Planner {
 
@@ -20,10 +21,11 @@ public:
 	virtual ~GlobalPlannerBase(){};
 
 public:
-	void initialize(NS_NaviCommon::Dispitcher* dispitcher, NS_NaviCommon::Service* service)
+	void initialize(NS_CostMap::CostmapWrapper* costmap_, NS_NaviCommon::Dispitcher* dispitcher_, NS_NaviCommon::Service* service_)
 	{
-		dispitcher_ = dispitcher;
-		service_ = service;
+		dispitcher = dispitcher_;
+		service = service_;
+		costmap = costmap_;
 		onInitialize();
 	};
 
@@ -39,9 +41,10 @@ public:
 		cost = 0;
 		makePlan(start, goal, plan);
 	};
-private:
-	NS_NaviCommon::Dispitcher* dispitcher_;
-	NS_NaviCommon::Service* service_;
+protected:
+	NS_NaviCommon::Dispitcher* dispitcher;
+	NS_NaviCommon::Service* service;
+	NS_CostMap::CostmapWrapper* costmap;
 };
 
 } /* namespace NS_Planner */
