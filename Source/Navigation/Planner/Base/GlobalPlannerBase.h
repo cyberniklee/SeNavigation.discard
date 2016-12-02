@@ -16,8 +16,8 @@ namespace NS_Planner {
 
 class GlobalPlannerBase {
 public:
-	GlobalPlannerBase();
-	virtual ~GlobalPlannerBase();
+	GlobalPlannerBase(){};
+	virtual ~GlobalPlannerBase(){};
 
 public:
 	void initialize(NS_NaviCommon::Dispitcher* dispitcher, NS_NaviCommon::Service* service)
@@ -27,10 +27,10 @@ public:
 		onInitialize();
 	};
 
-	virtual void onInitialize();
+	virtual void onInitialize() = 0;
 
 	virtual bool makePlan(const NS_DataType::PoseStamped& start,
-			const NS_DataType::PoseStamped& goal, std::vector<NS_DataType::PoseStamped>& plan);
+			const NS_DataType::PoseStamped& goal, std::vector<NS_DataType::PoseStamped>& plan) = 0;
 
 	virtual bool makePlan(const NS_DataType::PoseStamped& start,
 			const NS_DataType::PoseStamped& goal, std::vector<NS_DataType::PoseStamped>& plan,
