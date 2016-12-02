@@ -8,6 +8,8 @@
 #ifndef _PLANNERAPPLICATION_H_
 #define _PLANNERAPPLICATION_H_
 
+#include "../../Application/Application.h"
+
 namespace NS_Planner {
 
 class PlannerApplication: public Application {

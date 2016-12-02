@@ -8,6 +8,8 @@
 #ifndef _BASELOCALPLANNER_H_
 #define _BASELOCALPLANNER_H_
 
+#include "../../Base/LocalPlannerBase.h"
+
 namespace NS_Planner {
 
 class BaseLocalPlanner: public LocalPlannerBase {

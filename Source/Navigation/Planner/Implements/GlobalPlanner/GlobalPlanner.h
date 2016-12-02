@@ -8,6 +8,8 @@
 #ifndef _GLOBALPLANNER_H_
 #define _GLOBALPLANNER_H_
 
+#include "../../Base/GlobalPlannerBase.h"
+
 namespace NS_Planner {
 
 class GlobalPlanner: public GlobalPlannerBase {

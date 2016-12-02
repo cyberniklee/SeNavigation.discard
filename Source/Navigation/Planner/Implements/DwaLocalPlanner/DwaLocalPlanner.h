@@ -8,6 +8,8 @@
 #ifndef _DWALOCALPLANNER_H_
 #define _DWALOCALPLANNER_H_
 
+#include "../../Base/LocalPlannerBase.h"
+
 namespace NS_Planner {
 
 class DwaLocalPlanner: public LocalPlannerBase {
