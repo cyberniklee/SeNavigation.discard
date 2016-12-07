@@ -80,10 +80,15 @@ private:
 
 	void setPaddedRobotFootprint(const std::vector<NS_DataType::Point>& points);
 
-	bool getRobotPose(NS_Transform::Stamped<NS_Transform::Pose>& global_pose) const;
-
 	void updateMap();
 	void updateCostmap();
+public:
+	LayeredCostmap* getLayeredCostmap()
+	{
+		return layered_costmap;
+	};
+
+	bool getRobotPose(NS_Transform::Stamped<NS_Transform::Pose>& global_pose) const;
 public:
 	void initialize();
 	void start();
