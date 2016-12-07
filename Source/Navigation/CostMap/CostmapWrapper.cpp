@@ -83,7 +83,6 @@ void CostmapWrapper::updateMap()
 
 void CostmapWrapper::updateCostmap()
 {
-	/*
   Costmap2D* costmap_ = layered_costmap->getCostmap();
   double resolution = costmap_->getResolution();
 
@@ -95,6 +94,7 @@ void CostmapWrapper::updateCostmap()
   {
 	prepareMap();
   }
+  /*
   else if (x0 < xn)
   {
 	boost::unique_lock<Costmap2D::mutex_t> lock(*(costmap_->getMutex()));
@@ -116,11 +116,11 @@ void CostmapWrapper::updateCostmap()
 	}
 	costmap_update_pub_.publish(update);
   }
-
-  xn_ = yn_ = 0;
-  x0_ = costmap_->getSizeInCellsX();
-  y0_ = costmap_->getSizeInCellsY();
   */
+
+  xn = yn = 0;
+  x0 = costmap_->getSizeInCellsX();
+  y0 = costmap_->getSizeInCellsY();
 }
 
 void CostmapWrapper::updateMapLoop(double frequency)

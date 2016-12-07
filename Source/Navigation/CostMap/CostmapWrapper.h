@@ -9,7 +9,6 @@
 #define _COSTMAP_COSTMAPWRAPPER_H_
 
 #include <vector>
-#include "../../Application/Application.h"
 #include "CostMap2D/CostMapLayer.h"
 #include <DataSet/DataType/OccupancyGrid.h>
 #include <Service/ServiceType/RequestBase.h>
