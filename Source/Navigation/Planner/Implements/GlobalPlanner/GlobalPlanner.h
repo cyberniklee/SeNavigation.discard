@@ -16,6 +16,11 @@ class GlobalPlanner: public GlobalPlannerBase {
 public:
 	GlobalPlanner();
 	virtual ~GlobalPlanner();
+
+	virtual void onInitialize();
+
+	virtual bool makePlan(const NS_DataType::PoseStamped& start,
+			const NS_DataType::PoseStamped& goal, std::vector<NS_DataType::PoseStamped>& plan);
 };
 
 } /* namespace NS_Planner */

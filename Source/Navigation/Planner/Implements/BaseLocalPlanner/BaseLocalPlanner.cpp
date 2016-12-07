@@ -18,4 +18,24 @@ BaseLocalPlanner::~BaseLocalPlanner() {
 	// TODO Auto-generated destructor stub
 }
 
+void BaseLocalPlanner::onInitialize()
+{
+
+}
+
+bool BaseLocalPlanner::computeVelocityCommands(NS_DataType::Twist& cmd_vel)
+{
+
+}
+
+bool BaseLocalPlanner::isGoalReached()
+{
+
+}
+
+bool BaseLocalPlanner::setPlan(const std::vector<NS_DataType::PoseStamped>& plan)
+{
+
+}
+
 } /* namespace NS_Planner */

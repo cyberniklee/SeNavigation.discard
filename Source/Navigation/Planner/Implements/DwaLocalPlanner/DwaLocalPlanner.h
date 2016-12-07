@@ -16,6 +16,14 @@ class DwaLocalPlanner: public LocalPlannerBase {
 public:
 	DwaLocalPlanner();
 	virtual ~DwaLocalPlanner();
+
+	virtual void onInitialize();
+
+	virtual bool computeVelocityCommands(NS_DataType::Twist& cmd_vel);
+
+	virtual bool isGoalReached();
+
+	virtual bool setPlan(const std::vector<NS_DataType::PoseStamped>& plan);
 };
 
 } /* namespace NS_Planner */
