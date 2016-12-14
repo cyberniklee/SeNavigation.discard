@@ -9,6 +9,7 @@
 #include "Planner/Implements/BaseLocalPlanner/BaseLocalPlanner.h"
 #include "Planner/Implements/DwaLocalPlanner/DwaLocalPlanner.h"
 #include "Planner/Implements/GlobalPlanner/GlobalPlanner.h"
+#include <Transform/DataTypes.h>
 
 
 namespace NS_Navigation {
@@ -26,6 +27,33 @@ NavigationApplication::~NavigationApplication()
 void NavigationApplication::loadParameters()
 {
 
+}
+
+bool NavigationApplication::makePlan(const NS_DataType::PoseStamped& goal, std::vector<NS_DataType::PoseStamped>& plan)
+{
+  boost::unique_lock<NS_CostMap::Costmap2D::mutex_t> lock(*(global_costmap->getLayeredCostmap()->getCostmap()->getMutex()));
+
+  plan.clear();
+
+  //get the starting pose of the robot
+  NS_Transform::Stamped<NS_Transform::Pose> global_pose;
+  if(!global_costmap->getRobotPose(global_pose))
+  {
+    NS_NaviCommon::console.error("Unable to get starting pose of robot, unable to create global plan");
+    return false;
+  }
+
+  NS_DataType::PoseStamped start;
+  NS_Transform::poseStampedTFToMsg(global_pose, start);
+
+  //if the planner fails or returns a zero length plan, planning failed
+  if(!global_planner->makePlan(start, goal, plan) || plan.empty())
+  {
+    NS_NaviCommon::console.warning("Failed to find a  plan to point (%.2f, %.2f)", goal.pose.position.x, goal.pose.position.y);
+    return false;
+  }
+
+  return true;
 }
 
 void NavigationApplication::planLoop()
@@ -69,6 +97,8 @@ void NavigationApplication::initialize()
 
   global_planner->initialize(global_costmap, dispitcher, service);
   local_planner->initialize(local_costmap, dispitcher, service);
+
+  state = PLANNING;
 
   initialized = true;
 }

@@ -14,10 +14,12 @@
 #include "Planner/Base/GlobalPlannerBase.h"
 #include "Planner/Base/LocalPlannerBase.h"
 #include <boost/thread/thread.hpp>
+#include <DataSet/DataType/PoseStamped.h>
+#include <vector>
 
 namespace NS_Navigation {
 
-enum MoveBaseState
+enum NaviState
 {
   PLANNING,
   CONTROLLING,
@@ -32,6 +34,8 @@ private:
   void loadParameters();
 
   void planLoop();
+
+  bool makePlan(const NS_DataType::PoseStamped& goal, std::vector<NS_DataType::PoseStamped>& plan);
 private:
   std::string global_planner_type_;
   std::string local_planner_type_;
@@ -49,6 +53,8 @@ private:
   NS_Planner::LocalPlannerBase* local_planner;
 
   boost::thread plan_thread;
+
+  NaviState state;
 public:
   virtual void initialize();
   virtual void run();
