@@ -36,6 +36,10 @@ private:
   void planLoop();
 
   bool makePlan(const NS_DataType::PoseStamped& goal, std::vector<NS_DataType::PoseStamped>& plan);
+
+  void goalCallback(NS_DataType::DataBase* target_goal);
+
+  NS_DataType::PoseStamped goalToGlobalFrame(NS_DataType::PoseStamped& goal);
 private:
   std::string global_planner_type_;
   std::string local_planner_type_;

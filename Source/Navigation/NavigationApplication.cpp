@@ -10,6 +10,8 @@
 #include "Planner/Implements/DwaLocalPlanner/DwaLocalPlanner.h"
 #include "Planner/Implements/GlobalPlanner/GlobalPlanner.h"
 #include <Transform/DataTypes.h>
+#include <Service/ServiceType/RequestTransform.h>
+#include <Service/ServiceType/ResponseTransform.h>
 
 
 namespace NS_Navigation {
@@ -62,6 +64,44 @@ void NavigationApplication::planLoop()
   {
 
   }
+}
+
+NS_DataType::PoseStamped NavigationApplication::goalToGlobalFrame(NS_DataType::PoseStamped& goal)
+{
+  NS_Transform::Stamped<NS_Transform::Pose> goal_pose, global_pose;
+  poseStampedMsgToTF(goal, goal_pose);
+
+  NS_ServiceType::RequestTransform request_odom;
+  NS_ServiceType::ResponseTransform odom_transform;
+  NS_ServiceType::ResponseTransform map_transform;
+
+  if(service->call(NS_NaviCommon::SERVICE_TYPE_ODOMETRY_BASE_TRANSFORM, &request_odom, &odom_transform) == false)
+  {
+	NS_NaviCommon::console.warning("Get odometry transform failure!");
+	return goal;
+  }
+
+  if(service->call(NS_NaviCommon::SERVICE_TYPE_MAP_ODOMETRY_TRANSFORM, &request_odom, &map_transform) == false)
+  {
+  	NS_NaviCommon::console.warning("Get map transform failure!");
+  	return goal;
+  }
+
+  //TODO: not verify code for transform
+  NS_Transform::Transform odom_tf, map_tf;
+  NS_Transform::transformMsgToTF(odom_transform.transform, odom_tf);
+  NS_Transform::transformMsgToTF(map_transform.transform, map_tf);
+
+  global_pose.setData(odom_tf * map_tf);
+
+  NS_DataType::PoseStamped global_pose_data;
+  NS_Transform::poseStampedTFToMsg(global_pose, global_pose_data);
+  return global_pose_data;
+}
+
+void NavigationApplication::goalCallback(NS_DataType::DataBase* target_goal)
+{
+  NS_DataType::PoseStamped* goal = (NS_DataType::PoseStamped*)target_goal;
 }
 
 void NavigationApplication::initialize()

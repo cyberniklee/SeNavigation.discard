@@ -19,8 +19,6 @@
 
 #include <boost/thread/thread.hpp>
 
-#include "Communication/CommBase.h"
-#include "Communication/SerialComm.h"
 #include "Communication/SpiComm.h"
 #include "../Application/Application.h"
 
@@ -45,7 +43,7 @@ public:
   virtual ~ControllerApplication();
 private:
   boost::thread controller_loop_thread;
-  CommBase* communication;
+  //CommBase* communication;
 
   boost::mutex odom_lock;
   OdometryState current_odom_state;
