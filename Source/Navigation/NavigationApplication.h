@@ -40,6 +40,10 @@ private:
   void goalCallback(NS_DataType::DataBase* target_goal);
 
   NS_DataType::PoseStamped goalToGlobalFrame(NS_DataType::PoseStamped& goal);
+
+  void publishZeroVelocity();
+  bool isQuaternionValid(const NS_DataType::Quaternion& q);
+  double distance(const NS_DataType::PoseStamped& p1, const NS_DataType::PoseStamped& p2);
 private:
   std::string global_planner_type_;
   std::string local_planner_type_;
@@ -55,6 +59,10 @@ private:
 
   NS_Planner::GlobalPlannerBase* global_planner;
   NS_Planner::LocalPlannerBase* local_planner;
+
+  NS_DataType::PoseStamped goal;
+
+  bool new_goal_trigger;
 
   boost::thread plan_thread;
 

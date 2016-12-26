@@ -12,6 +12,8 @@
 #include <Transform/DataTypes.h>
 #include <Service/ServiceType/RequestTransform.h>
 #include <Service/ServiceType/ResponseTransform.h>
+#include <DataSet/Dispitcher.h>
+#include <DataSet/DataType/Twist.h>
 
 
 namespace NS_Navigation {
@@ -101,7 +103,66 @@ NS_DataType::PoseStamped NavigationApplication::goalToGlobalFrame(NS_DataType::P
 
 void NavigationApplication::goalCallback(NS_DataType::DataBase* target_goal)
 {
-  NS_DataType::PoseStamped* goal = (NS_DataType::PoseStamped*)target_goal;
+  NS_DataType::PoseStamped* target = (NS_DataType::PoseStamped*)target_goal;
+
+  goal = *target;
+
+  new_goal_trigger = true;
+/*
+  if(!isQuaternionValid(goal->pose.orientation))
+  {
+    NS_NaviCommon::console.error("It's a illegal pose!");
+	return;
+  }
+*/
+}
+
+void NavigationApplication::publishZeroVelocity()
+{
+  NS_DataType::Twist* cmd_vel = new NS_DataType::Twist;
+  cmd_vel->linear.x = 0.0;
+  cmd_vel->linear.y = 0.0;
+  cmd_vel->angular.z = 0.0;
+  dispitcher->publish(NS_NaviCommon::DATA_TYPE_TWIST, cmd_vel);
+}
+
+bool NavigationApplication::isQuaternionValid(const NS_DataType::Quaternion& q)
+{
+  //first we need to check if the quaternion has nan's or infs
+  if(!std::isfinite(q.x) || !std::isfinite(q.y) || !std::isfinite(q.z) || !std::isfinite(q.w))
+  {
+    NS_NaviCommon::console.error("Quaternion has nans or infs... discarding as a navigation goal");
+    return false;
+  }
+
+  NS_Transform::Quaternion tf_q(q.x, q.y, q.z, q.w);
+
+  //next, we need to check if the length of the quaternion is close to zero
+  if(tf_q.length2() < 1e-6)
+  {
+    NS_NaviCommon::console.error("Quaternion has length close to zero... discarding as navigation goal");
+    return false;
+  }
+
+  //next, we'll normalize the quaternion and check that it transforms the vertical vector correctly
+  tf_q.normalize();
+
+  NS_Transform::Vector3 up(0, 0, 1);
+
+  double dot = up.dot(up.rotate(tf_q.getAxis(), tf_q.getAngle()));
+
+  if(fabs(dot - 1) > 1e-3)
+  {
+    NS_NaviCommon::console.error("Quaternion is invalid... for navigation the z-axis of the quaternion must be close to vertical.");
+    return false;
+  }
+
+  return true;
+}
+
+double NavigationApplication::distance(const NS_DataType::PoseStamped& p1, const NS_DataType::PoseStamped& p2)
+{
+  return hypot(p1.pose.position.x - p2.pose.position.x, p1.pose.position.y - p2.pose.position.y);
 }
 
 void NavigationApplication::initialize()
@@ -139,6 +200,8 @@ void NavigationApplication::initialize()
   local_planner->initialize(local_costmap, dispitcher, service);
 
   state = PLANNING;
+
+  new_goal_trigger = false;
 
   initialized = true;
 }
