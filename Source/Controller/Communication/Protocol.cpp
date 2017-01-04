@@ -36,11 +36,8 @@ bool serializeRequest(CntlSpiRequestType& request, unsigned char *buffer, int& l
   memcpy(buffer + position, &request.length, sizeof(request.length));
   position += sizeof(request.length);
 
-  for(int i = 0; i < request.length; i++)
-  {
-    *(buffer + position + i) = request.data[i];
-    position++;
-  }
+  memcpy(buffer + position, request.data, request.length);
+  position += request.length;
 
   for(int i = 0; i < position; i++)
   {
@@ -57,6 +54,43 @@ bool deserializeResponse(unsigned char *buffer, const int& length, CntlSpiRespon
 {
   if(buffer == NULL)
 	return false;
+
+  int position = 0;
+
+  memcpy(&response.sync, buffer + position, sizeof(response.sync));
+  position += sizeof(response.sync);
+
+  memcpy(&response.sequence, buffer + position, sizeof(response.sequence));
+  position += sizeof(response.sequence);
+
+  memcpy(&response.type, buffer + position, sizeof(response.type));
+  position += sizeof(response.type);
+
+  memcpy(&response.result, buffer + position, sizeof(response.result));
+  position += sizeof(response.result);
+
+  memcpy(&response.timestamp, buffer + position, sizeof(response.timestamp));
+  position += sizeof(response.timestamp);
+
+  memcpy(&response.length, buffer + position, sizeof(response.length));
+  position += sizeof(response.length);
+
+  memcpy(&response.data, buffer + position, response.length);
+  position += response.length;
+
+  memcpy(&response.checksum, buffer + position, sizeof(response.checksum));
+  position += sizeof(response.checksum);
+
+  unsigned char checksum = 0;
+  for(int i = 0; i < position; i++)
+  {
+    checksum ^= *(buffer + i);
+  }
+  if(checksum != response.checksum)
+  {
+    return false;
+  }
+
   return true;
 }
 
