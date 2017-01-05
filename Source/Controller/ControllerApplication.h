@@ -45,13 +45,13 @@ private:
 private:
   std::string comm_dev_name_;
 
-  float control_rate_;
-  float control_timeout_;
-  float wheel_diameter_;
+  double control_rate_;
+  double control_timeout_;
+  double wheel_diameter_;
   int encoder_resolution_;
   int gear_reduction_;
-  float wheel_track_;
-  float accel_limit_;
+  double wheel_track_;
+  double accel_limit_;
 
   /*
    * PID parameters
@@ -61,13 +61,15 @@ private:
   int pid_ki_;
   int pid_ko_;
 
-  float ticks_per_meter;
+  double ticks_per_meter;
+  double distance_per_tick;
 private:
 
   void odomService(NS_ServiceType::RequestBase* request, NS_ServiceType::ResponseBase* response);
   void odomTransformService(NS_ServiceType::RequestBase* request, NS_ServiceType::ResponseBase* response);
   void twistCallback(NS_DataType::DataBase* twist_data);
   void loadParameters();
+  void configController();
 
 public:
   virtual void initialize();

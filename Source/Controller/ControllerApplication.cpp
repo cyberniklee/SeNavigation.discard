@@ -113,12 +113,26 @@ void ControllerApplication::loadParameters()
   pid_ko_ = parameter.getParameter("pid_ko", 50);
 
   ticks_per_meter = (encoder_resolution_ * gear_reduction_) / (wheel_diameter_ * M_PI);
+  distance_per_tick = (wheel_diameter_ * M_PI) / (encoder_resolution_ * gear_reduction_);
+}
+
+void ControllerApplication::configController()
+{
+  comm->setFloatValue(BASE_REG_DIST_PER_PULSE, distance_per_tick);
+  comm->setFloatValue(BASE_REG_WHEEL_TRACK, wheel_track_);
+  comm->setFloatValue(BASE_REG_CNTL_RATE, control_rate_);
+
+  comm->setInt32Value(BASE_REG_PID_KP, pid_kp_);
+  comm->setInt32Value(BASE_REG_PID_KI, pid_ki_);
+  comm->setInt32Value(BASE_REG_PID_KD, pid_kd_);
+  comm->setInt32Value(BASE_REG_PID_KO, pid_ko_);
 }
 
 void ControllerApplication::initialize()
 {
   NS_NaviCommon::console.message("controller is initializing!");
   loadParameters();
+  configController();
 
   comm = new SpiComm(comm_dev_name_);
   if(!comm->open())
