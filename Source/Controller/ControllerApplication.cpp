@@ -26,6 +26,8 @@ ControllerApplication::ControllerApplication() {
 
 ControllerApplication::~ControllerApplication() {
 	// TODO Auto-generated destructor stub
+  if(comm)
+    delete comm;
 }
 
 void ControllerApplication::odomService(NS_ServiceType::RequestBase* request, NS_ServiceType::ResponseBase* response)
@@ -35,11 +37,11 @@ void ControllerApplication::odomService(NS_ServiceType::RequestBase* request, NS
 
   boost::mutex::scoped_lock locker_(odom_lock);
 
-  float x = comm->getFloatValue(BASE_REG_ODOM_X);
-  float y = comm->getFloatValue(BASE_REG_ODOM_Y);
-  float theta = comm->getFloatValue(BASE_REG_ODOM_THETA);
-  float v_xy = comm->getFloatValue(BASE_REG_ODOM_LINEAR_SPD);
-  float v_th = comm->getFloatValue(BASE_REG_ODOM_ANGULAR_SPD);
+  double x = comm->getFloat64Value(BASE_REG_ODOM_X);
+  double y = comm->getFloat64Value(BASE_REG_ODOM_Y);
+  double theta = comm->getFloat64Value(BASE_REG_ODOM_THETA);
+  double v_xy = comm->getFloat64Value(BASE_REG_ODOM_LINEAR_SPD);
+  double v_th = comm->getFloat64Value(BASE_REG_ODOM_ANGULAR_SPD);
 
   current_odometry.pose.position.x = x;
   current_odometry.pose.position.y = y;
@@ -65,9 +67,9 @@ void ControllerApplication::odomTransformService(NS_ServiceType::RequestBase* re
   NS_NaviCommon::console.debug("odometry pose: x:%f, y:%f, theta:%f.",
 		  current_pose.x, current_pose.y, current_pose.theta);
 
-  current_pose.x = comm->getFloatValue(BASE_REG_ODOM_X);
-  current_pose.y = comm->getFloatValue(BASE_REG_ODOM_Y);
-  current_pose.theta = comm->getFloatValue(BASE_REG_ODOM_THETA);
+  current_pose.x = comm->getFloat64Value(BASE_REG_ODOM_X);
+  current_pose.y = comm->getFloat64Value(BASE_REG_ODOM_Y);
+  current_pose.theta = comm->getFloat64Value(BASE_REG_ODOM_THETA);
 
   rep->transform.translation.x = current_pose.x;
   rep->transform.translation.y = current_pose.y;
@@ -90,8 +92,8 @@ void ControllerApplication::twistCallback(NS_DataType::DataBase* twist_data)
   float x = twist->linear.x;
   float theta = twist->angular.z;
 
-  comm->setFloatValue(BASE_REG_LINEAR_SPD, x);
-  comm->setFloatValue(BASE_REG_ANGULAR_SPD, theta);
+  comm->setFloat64Value(BASE_REG_LINEAR_SPD, x);
+  comm->setFloat64Value(BASE_REG_ANGULAR_SPD, theta);
 }
 
 void ControllerApplication::loadParameters()
@@ -118,9 +120,9 @@ void ControllerApplication::loadParameters()
 
 void ControllerApplication::configController()
 {
-  comm->setFloatValue(BASE_REG_DIST_PER_PULSE, distance_per_tick);
-  comm->setFloatValue(BASE_REG_WHEEL_TRACK, wheel_track_);
-  comm->setFloatValue(BASE_REG_CNTL_RATE, control_rate_);
+  comm->setFloat64Value(BASE_REG_DIST_PER_PULSE, distance_per_tick);
+  comm->setFloat64Value(BASE_REG_WHEEL_TRACK, wheel_track_);
+  comm->setFloat64Value(BASE_REG_CNTL_RATE, control_rate_);
 
   comm->setInt32Value(BASE_REG_PID_KP, pid_kp_);
   comm->setInt32Value(BASE_REG_PID_KI, pid_ki_);
@@ -132,7 +134,6 @@ void ControllerApplication::initialize()
 {
   NS_NaviCommon::console.message("controller is initializing!");
   loadParameters();
-  configController();
 
   comm = new SpiComm(comm_dev_name_);
   if(!comm->open())
@@ -140,6 +141,8 @@ void ControllerApplication::initialize()
     NS_NaviCommon::console.error("can't open base controller device!");
     return;
   }
+
+  configController();
 
   dispitcher->subscribe(NS_NaviCommon::DATA_TYPE_TWIST,
   		  boost::bind(&ControllerApplication::twistCallback, this, _1));

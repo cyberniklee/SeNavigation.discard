@@ -40,8 +40,8 @@ public:
   bool getRegister(unsigned short address, int length, unsigned char* bytes);
   bool setRegister(unsigned short address, unsigned char* bytes, int length);
 
-  float getFloatValue(unsigned short address);
-  void setFloatValue(unsigned short address, float value);
+  double getFloat64Value(unsigned short address);
+  void setFloat64Value(unsigned short address, double value);
 
   int getInt32Value(unsigned short address);
   void setInt32Value(unsigned short address, int value);

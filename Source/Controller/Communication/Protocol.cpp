@@ -36,16 +36,23 @@ bool serializeRequest(CntlSpiRequestType& request, unsigned char *buffer, int& l
   memcpy(buffer + position, &request.length, sizeof(request.length));
   position += sizeof(request.length);
 
-  memcpy(buffer + position, request.data, request.length);
-  position += request.length;
+  if(request.rdwr == SPI_WRITE)
+  {
+    memcpy(buffer + position, request.data, request.length);
+    position += request.length;
+  }
 
+  request.checksum = 0;
   for(int i = 0; i < position; i++)
   {
     request.checksum ^= *(buffer + i);
+    printf("\t[chsum : %02x, char+: %02x]\n", request.checksum, *(buffer + i));
   }
 
   memcpy(buffer + position, &request.checksum, sizeof(request.checksum));
   position += sizeof(request.checksum);
+
+  length = position;
 
   return true;
 }
@@ -72,24 +79,40 @@ bool deserializeResponse(unsigned char *buffer, const int& length, CntlSpiRespon
   memcpy(&response.timestamp, buffer + position, sizeof(response.timestamp));
   position += sizeof(response.timestamp);
 
+  memcpy(&response.timestamp_ms, buffer + position, sizeof(response.timestamp_ms));
+  position += sizeof(response.timestamp_ms);
+
   memcpy(&response.length, buffer + position, sizeof(response.length));
   position += sizeof(response.length);
 
+  printf("deserialize length is %d..\n", response.length);
+
+  if(response.length > MAX_SPI_OFFSET)
+  {
+    printf("length error!\n");
+    return false;
+  }
+
   memcpy(&response.data, buffer + position, response.length);
   position += response.length;
-
-  memcpy(&response.checksum, buffer + position, sizeof(response.checksum));
-  position += sizeof(response.checksum);
 
   unsigned char checksum = 0;
   for(int i = 0; i < position; i++)
   {
     checksum ^= *(buffer + i);
+    printf("\t{chsum : %02x, char+: %02x}\n", checksum, *(buffer + i));
   }
+
+  memcpy(&response.checksum, buffer + position, sizeof(response.checksum));
+  position += sizeof(response.checksum);
+
   if(checksum != response.checksum)
   {
     return false;
   }
+
+  memcpy(&response.checksum, buffer + position, sizeof(response.checksum));
+  position += sizeof(response.checksum);
 
   return true;
 }

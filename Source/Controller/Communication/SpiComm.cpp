@@ -10,6 +10,8 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdio.h>
+#include <string.h>
 
 namespace NS_Controller {
 
@@ -46,8 +48,7 @@ bool SpiComm::transfer(unsigned char* tx_buf, unsigned char* rx_buf, size_t tx_l
   if(!is_open)
     return false;
 
-  boost::mutex::scoped_lock dev_mutex(dev_lock);
-
+  //boost::mutex::scoped_lock dev_mutex(dev_lock);
   if(::write(spi_dev, tx_buf, tx_len) != tx_len)
   {
     return false;
@@ -70,7 +71,8 @@ bool SpiComm::getRegister(unsigned short address, int length, unsigned char* byt
   request.sequence = sequence++;
   request.type = SPI_REQUEST_TYPE;
   request.rdwr = SPI_READ;
-  request.length = 0;
+  request.address = address;
+  request.length = length;
 
   unsigned char req_buf[MAX_SPI_OFFSET + 16] = {0};
   int req_buf_len = 0;
@@ -115,6 +117,7 @@ bool SpiComm::setRegister(unsigned short address, unsigned char* bytes, int leng
   request.sequence = sequence++;
   request.type = SPI_REQUEST_TYPE;
   request.rdwr = SPI_WRITE;
+  request.address = address;
   memcpy(request.data, bytes, length);
   request.length = length;
 
@@ -145,18 +148,18 @@ bool SpiComm::setRegister(unsigned short address, unsigned char* bytes, int leng
   return true;
 }
 
-float SpiComm::getFloatValue(unsigned short address)
+double SpiComm::getFloat64Value(unsigned short address)
 {
-  float result = 0.0f;
+  double result = 0.0f;
 
-  getRegister(address, sizeof(float), (unsigned char*)&result);
+  getRegister(address, sizeof(double), (unsigned char*)&result);
 
   return result;
 }
 
-void SpiComm::setFloatValue(unsigned short address, float value)
+void SpiComm::setFloat64Value(unsigned short address, double value)
 {
-  setRegister(address, (unsigned char*)&value, sizeof(float));
+  setRegister(address, (unsigned char*)&value, sizeof(double));
 }
 
 int SpiComm::getInt32Value(unsigned short address)
