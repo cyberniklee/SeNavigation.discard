@@ -29,7 +29,7 @@ SelidarDriver::SelidarDriver()
     , _isScanning(false)
     , _isSupportingMotorCtrl(false)
 {
-    _rxtx = new NS_NaviCommon::Serial();
+    _rxtx = new Serial();
     _cached_scan_node_count = 0;
     _cached_sampleduration_std = LEGACY_SAMPLE_DURATION;
     _cached_sampleduration_express = LEGACY_SAMPLE_DURATION;
@@ -129,7 +129,7 @@ u_result SelidarDriver::getHealth(selidar_response_device_health_t & healthinfo,
             return RESULT_INVALID_DATA;
         }
 
-        if (_rxtx->waitfordata(header_size, timeout) != NS_NaviCommon::Serial::ANS_OK) {
+        if (_rxtx->waitfordata(header_size, timeout) != Serial::ANS_OK) {
         	printf("data timeout in getHealth\n");
             return RESULT_OPERATION_TIMEOUT;
         }
@@ -169,7 +169,7 @@ u_result SelidarDriver::getDeviceInfo(selidar_response_device_info_t & info, uns
             return RESULT_INVALID_DATA;
         }
 
-        if (_rxtx->waitfordata(header_size, timeout) != NS_NaviCommon::Serial::ANS_OK) {
+        if (_rxtx->waitfordata(header_size, timeout) != Serial::ANS_OK) {
             return RESULT_OPERATION_TIMEOUT;
         }
 
@@ -595,9 +595,9 @@ u_result SelidarDriver::_waitNode(selidar_response_measurement_node_t * node, un
         size_t recvSize;
 
         int ans = _rxtx->waitfordata(remainSize, timeout-waitTime, &recvSize);
-        if (ans == NS_NaviCommon::Serial::ANS_DEV_ERR)
+        if (ans == Serial::ANS_DEV_ERR)
             return RESULT_OPERATION_FAIL;
-        else if (ans == NS_NaviCommon::Serial::ANS_TIMEOUT)
+        else if (ans == Serial::ANS_TIMEOUT)
             return RESULT_OPERATION_TIMEOUT;
 
         if (recvSize > remainSize) recvSize = remainSize;
@@ -681,9 +681,9 @@ u_result SelidarDriver::_waitCapsuledNode(selidar_response_capsule_measurement_n
         size_t recvSize;
 
         int ans = _rxtx->waitfordata(remainSize, timeout-waitTime, &recvSize);
-        if (ans == NS_NaviCommon::Serial::ANS_DEV_ERR)
+        if (ans == Serial::ANS_DEV_ERR)
             return RESULT_OPERATION_FAIL;
-        else if (ans == NS_NaviCommon::Serial::ANS_TIMEOUT)
+        else if (ans == Serial::ANS_TIMEOUT)
             return RESULT_OPERATION_TIMEOUT;
 
         if (recvSize > remainSize) recvSize = remainSize;
@@ -818,11 +818,11 @@ u_result SelidarDriver::_waitResponseHeader(selidar_ans_header_t * header, unsig
         size_t remainSize = sizeof(selidar_ans_header_t) - recvPos;
         size_t recvSize;
         int ans = _rxtx->waitfordata(remainSize, timeout - waitTime, &recvSize);
-        if (ans == NS_NaviCommon::Serial::ANS_DEV_ERR) {
+        if (ans == Serial::ANS_DEV_ERR) {
             printf("ANS_DEV_ERR\n");
             return RESULT_OPERATION_FAIL;
         }
-        else if (ans == NS_NaviCommon::Serial::ANS_TIMEOUT) {
+        else if (ans == Serial::ANS_TIMEOUT) {
             printf("ANS_TIMEOUT\n");
             return RESULT_OPERATION_TIMEOUT;
         }
@@ -906,7 +906,7 @@ u_result SelidarDriver::getSampleDuration_uS(selidar_response_sample_rate_t & ra
             return RESULT_INVALID_DATA;
         }
 
-        if (_rxtx->waitfordata(header_size, timeout) != NS_NaviCommon::Serial::ANS_OK) {
+        if (_rxtx->waitfordata(header_size, timeout) != Serial::ANS_OK) {
             return RESULT_OPERATION_TIMEOUT;
         }
         _rxtx->recvdata(reinterpret_cast<unsigned char *>(&rateInfo), sizeof(rateInfo));
@@ -947,7 +947,7 @@ u_result SelidarDriver::checkMotorCtrlSupport(bool & support, unsigned int timeo
             return RESULT_INVALID_DATA;
         }
 
-        if (_rxtx->waitfordata(header_size, timeout) != NS_NaviCommon::Serial::ANS_OK) {
+        if (_rxtx->waitfordata(header_size, timeout) != Serial::ANS_OK) {
             return RESULT_OPERATION_TIMEOUT;
         }
         selidar_response_acc_board_flag_t acc_board_flag;

@@ -2,10 +2,10 @@
 #ifndef _SELIDAR_DRIVER_H_
 #define _SELIDAR_DRIVER_H_
 
-#include <Hardware/Serial.h>
 #include <Thread/Condition.h>
 #include "SelidarTypes.h"
 #include "SelidarCommand.h"
+#include "Serial.h"
 
 namespace NS_Selidar {
 
@@ -77,7 +77,7 @@ protected:
 
 	boost::mutex _lock;
     NS_NaviCommon::Condition _dataEvt;
-    NS_NaviCommon::Serial* _rxtx;
+    Serial* _rxtx;
     selidar_response_measurement_node_t      _cached_scan_node_buf[2048];
     size_t                                   _cached_scan_node_count;
 

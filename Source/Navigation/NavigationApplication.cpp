@@ -30,7 +30,8 @@ NavigationApplication::~NavigationApplication()
 
 void NavigationApplication::loadParameters()
 {
-
+  global_planner_type_ = parameter.getParameter("global_planner_type", "base_global_planner");
+  local_planner_type_ = parameter.getParameter("local_planner_type", "base_local_planner");
 }
 
 bool NavigationApplication::makePlan(const NS_DataType::PoseStamped& goal, std::vector<NS_DataType::PoseStamped>& plan)
