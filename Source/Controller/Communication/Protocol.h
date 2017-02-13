@@ -12,7 +12,7 @@
 
 namespace NS_Controller {
 
-#define MAX_SPI_OFFSET 128
+#define MAX_SPI_OFFSET 32
 
 #define SPI_REQUEST_SYNC 0xA5
 #define SPI_RESPONSE_SYNC 0xB5

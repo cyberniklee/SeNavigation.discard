@@ -6,8 +6,6 @@
  */
 
 #include "NavigationApplication.h"
-#include "Planner/Implements/BaseLocalPlanner/BaseLocalPlanner.h"
-#include "Planner/Implements/DwaLocalPlanner/DwaLocalPlanner.h"
 #include "Planner/Implements/GlobalPlanner/GlobalPlanner.h"
 #include <Transform/DataTypes.h>
 #include <Service/ServiceType/RequestTransform.h>
@@ -186,19 +184,7 @@ void NavigationApplication::initialize()
     global_planner = new NS_Planner::GlobalPlanner();
   }
 
-  //load local planner
-  if(local_planner_type_ == "base_local_planner")
-  {
-    local_planner = new NS_Planner::BaseLocalPlanner();
-  }else if(local_planner_type_ == "dwa_local_planner")
-  {
-    local_planner = new NS_Planner::DwaLocalPlanner();
-  }else{
-    local_planner = new NS_Planner::BaseLocalPlanner();
-  }
-
   global_planner->initialize(global_costmap, dispitcher, service);
-  local_planner->initialize(local_costmap, dispitcher, service);
 
   state = PLANNING;
 
