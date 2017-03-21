@@ -48,7 +48,8 @@ bool SpiComm::transfer(unsigned char* tx_buf, unsigned char* rx_buf, size_t tx_l
   if(!is_open)
     return false;
 
-  //boost::mutex::scoped_lock dev_mutex(dev_lock);
+  boost::mutex::scoped_lock dev_mutex(dev_lock);
+
   if(::write(spi_dev, tx_buf, tx_len) != tx_len)
   {
     return false;
@@ -174,6 +175,20 @@ int SpiComm::getInt32Value(unsigned short address)
 void SpiComm::setInt32Value(unsigned short address, int value)
 {
   setRegister(address, (unsigned char*)&value, sizeof(int));
+}
+
+float SpiComm::getFloat32Value(unsigned short address)
+{
+  float result = 0;
+
+  getRegister(address, sizeof(float), (unsigned char*)&result);
+
+  return result;
+}
+
+void SpiComm::setFloat32Value(unsigned short address, float value)
+{
+  setRegister(address, (unsigned char*)&value, sizeof(float));
 }
 
 } /* namespace NS_Controller */

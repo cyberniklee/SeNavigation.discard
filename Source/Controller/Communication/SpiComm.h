@@ -43,6 +43,9 @@ public:
   double getFloat64Value(unsigned short address);
   void setFloat64Value(unsigned short address, double value);
 
+  float getFloat32Value(unsigned short address);
+  void setFloat32Value(unsigned short address, float value);
+
   int getInt32Value(unsigned short address);
   void setInt32Value(unsigned short address, int value);
 };

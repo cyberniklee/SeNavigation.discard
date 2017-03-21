@@ -46,7 +46,6 @@ bool serializeRequest(CntlSpiRequestType& request, unsigned char *buffer, int& l
   for(int i = 0; i < position; i++)
   {
     request.checksum ^= *(buffer + i);
-    printf("\t[chsum : %02x, char+: %02x]\n", request.checksum, *(buffer + i));
   }
 
   memcpy(buffer + position, &request.checksum, sizeof(request.checksum));
@@ -85,11 +84,8 @@ bool deserializeResponse(unsigned char *buffer, const int& length, CntlSpiRespon
   memcpy(&response.length, buffer + position, sizeof(response.length));
   position += sizeof(response.length);
 
-  printf("deserialize length is %d..\n", response.length);
-
   if(response.length > MAX_SPI_OFFSET)
   {
-    printf("length error!\n");
     return false;
   }
 
@@ -100,7 +96,6 @@ bool deserializeResponse(unsigned char *buffer, const int& length, CntlSpiRespon
   for(int i = 0; i < position; i++)
   {
     checksum ^= *(buffer + i);
-    printf("\t{chsum : %02x, char+: %02x}\n", checksum, *(buffer + i));
   }
 
   memcpy(&response.checksum, buffer + position, sizeof(response.checksum));
