@@ -43,15 +43,15 @@ void SelidarApplication::loadParameters() {
 
 bool SelidarApplication::checkSelidarHealth(SelidarDriver * drv)
 {
-    u_result     op_result;
-    selidar_response_device_health_t healthinfo;
+    int op_result;
+    SelidarHealth healthinfo;
 
     op_result = drv->getHealth(healthinfo);
     if (IS_OK(op_result)) {
-        NS_NaviCommon::console.debug("Selidar health status : %d, opcode: %x \n",
-        		healthinfo.status, op_result);
+        NS_NaviCommon::console.debug("Selidar health status : %d, errcode: %d \n",
+        		healthinfo.status, healthinfo.err_code);
 
-        if (healthinfo.status == SELIDAR_STATUS_ERROR) {
+        if (healthinfo.status != StatusFine) {
             return false;
         } else {
             return true;
@@ -64,16 +64,18 @@ bool SelidarApplication::checkSelidarHealth(SelidarDriver * drv)
 
 bool SelidarApplication::checkSelidarInfo(SelidarDriver * drv)
 {
-  u_result     op_result;
-  selidar_response_device_info_t device_info;
+  int op_result;
+  SelidarInfo device_info;
 
   op_result = drv->getDeviceInfo(device_info);
   if (IS_OK(op_result)) {
-	  NS_NaviCommon::console.debug("Selidar device model : %d, opcode: %x \n",
-			  device_info.model, op_result);
-	  return true;
+    NS_NaviCommon::console.debug("Selidar device info : \n");
+    NS_NaviCommon::console.debug("\t model : %d \n", device_info.model);
+    NS_NaviCommon::console.debug("\t hw ver : %d \n", device_info.hw_id);
+    NS_NaviCommon::console.debug("\t fw ver : %d.%d \n", device_info.fw_major, device_info.fw_minor);
+    return true;
   } else {
-	  return false;
+    return false;
   }
 
 }
@@ -85,9 +87,8 @@ bool SelidarApplication::stopScanService(NS_ServiceType::RequestBase* request,
 	if(!drv.isConnected())
        return false;
 
-	NS_NaviCommon::console.message("Stop motor");
     drv.stop();
-    drv.stopMotor();
+
     return true;
 }
 
@@ -98,7 +99,7 @@ bool SelidarApplication::startScanService(NS_ServiceType::RequestBase* request,
        return false;
 
 	NS_NaviCommon::console.message("Start motor");
-    drv.startMotor();
+
     drv.startScan();
     return true;
 }
@@ -161,14 +162,14 @@ void SelidarApplication::publishScan(selidar_response_measurement_node_t *nodes,
 
 void SelidarApplication::scanLoop()
 {
-	u_result     op_result;
-	drv.startMotor();
+	int op_result;
+
 	drv.startScan();
 	NS_NaviCommon::Time start_scan_time;
 	NS_NaviCommon::Time end_scan_time;
 	double scan_duration;
 	while ( running ) {
-		selidar_response_measurement_node_t nodes[360*2];
+		SelidarMeasurementNode nodes[360*2];
 		size_t   count = _countof(nodes);
 		start_scan_time = NS_NaviCommon::Time::now();
 		op_result = drv.grabScanData(nodes, count);
@@ -185,8 +186,8 @@ void SelidarApplication::scanLoop()
 					const int angle_compensate_nodes_count = 360;
 					const int angle_compensate_multiple = 1;
 					int angle_compensate_offset = 0;
-					selidar_response_measurement_node_t angle_compensate_nodes[angle_compensate_nodes_count];
-					memset(angle_compensate_nodes, 0, angle_compensate_nodes_count*sizeof(selidar_response_measurement_node_t));
+					SelidarMeasurementNode angle_compensate_nodes[angle_compensate_nodes_count];
+					memset(angle_compensate_nodes, 0, angle_compensate_nodes_count*sizeof(SelidarMeasurementNode));
 					int i = 0, j = 0;
 					for( ; i < count; i++ ) {
 						if (nodes[i].distance_q2 != 0) {
@@ -279,7 +280,7 @@ void SelidarApplication::quit()
     scan_thread.join();
 
     drv.stop();
-    drv.stopMotor();
+
     drv.disconnect();
 }
 
