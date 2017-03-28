@@ -41,7 +41,7 @@ private:
   {
     SelidarApplication* selidar = new SelidarApplication;
     applications.push_back(selidar);
-
+/*
 	GMappingApplication* gmapping = new GMappingApplication;
     applications.push_back(gmapping);
 
@@ -50,6 +50,7 @@ private:
 
     NavigationApplication* navigation = new NavigationApplication;
     applications.push_back(navigation);
+    */
   }
 
   void quitApplications();

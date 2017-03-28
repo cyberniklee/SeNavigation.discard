@@ -4,6 +4,7 @@
 #include "SelidarDriver.h"
 #include "SelidarTypes.h"
 #include <Time/Utils.h>
+#include <Console/Console.h>
 
 #ifndef min
 #define min(a,b)            (((a) < (b)) ? (a) : (b))
@@ -84,7 +85,8 @@ int SelidarDriver::sendCommand(unsigned char cmd)
     return Failure;
 
   header->sync_word = SELIDAR_CMD_SYNC_BYTE;
-  header->cmd_word = cmd;
+  header->cmd.error = 0;
+  header->cmd.cmd_word = cmd;
   header->payload_len = 0;
   header->length = sizeof(SelidarPacketHead) + 1;
 
@@ -100,6 +102,7 @@ int SelidarDriver::sendCommand(unsigned char cmd)
   pkg_size++;
 
   rxtx->senddata(pkg, pkg_size);
+  NS_NaviCommon::console.dump(pkg, pkg_size);
 
   return Success;
 }
@@ -203,12 +206,7 @@ int SelidarDriver::getHealth(SelidarHealth & health_info, unsigned int timeout)
       return ans;
     }
 
-    // verify whether we got a correct header
-    if (response_header.cmd.bits.dir != Lidar2Host) {
-      return Invalid;
-    }
-
-    if (response_header.cmd.bits.cmd_word != GetHealthRep) {
+    if (response_header.cmd.cmd_word != GetHealthRep) {
       return Invalid;
     }
 
@@ -223,13 +221,13 @@ int SelidarDriver::getHealth(SelidarHealth & health_info, unsigned int timeout)
     rxtx->recvdata(health_data, data_size);
 
     health_info.head = response_header;
-    memcpy(&health_info + sizeof(SelidarPacketHead), health_data, data_size - 1);
+    memcpy(reinterpret_cast<unsigned char *>(&health_info) + sizeof(SelidarPacketHead), health_data, data_size - 1);
 
     unsigned char checksum = 0;
 
     for (size_t i = 0; i < sizeof(SelidarHealth); i++)
     {
-      checksum ^= ((unsigned char*)&health_info + i);
+      checksum ^= *((unsigned char*)&health_info + i);
     }
 
     if(checksum != health_data[data_size - 1])
@@ -263,12 +261,7 @@ int SelidarDriver::getDeviceInfo(SelidarInfo & info, unsigned int timeout)
 	  return ans;
 	}
 
-	// verify whether we got a correct header
-	if (response_header.cmd.bits.dir != Lidar2Host) {
-	  return Invalid;
-	}
-
-	if (response_header.cmd.bits.cmd_word != GetInfoRep) {
+	if (response_header.cmd.cmd_word != GetInfoRep) {
 	  return Invalid;
 	}
 
@@ -283,13 +276,13 @@ int SelidarDriver::getDeviceInfo(SelidarInfo & info, unsigned int timeout)
 	rxtx->recvdata(info_data, data_size);
 
 	info.head = response_header;
-	memcpy(&info + sizeof(SelidarPacketHead), info_data, data_size - 1);
+	memcpy(reinterpret_cast<unsigned char *>(&info) + sizeof(SelidarPacketHead), info_data, data_size - 1);
 
 	unsigned char checksum = 0;
 
 	for (size_t i = 0; i < sizeof(SelidarInfo); i++)
 	{
-	  checksum ^= ((unsigned char*)&info + i);
+	  checksum ^= *((unsigned char*)&info + i);
 	}
 
 	if(checksum != info_data[data_size - 1])
@@ -320,7 +313,7 @@ int SelidarDriver::cacheScanData()
                 return Timeout;
             }
         }
-        rxtx_lock.lock();
+        boost::mutex::scoped_lock auto_lock(rxtx_lock);
         if(range == SELIDAR_START_RANGES)
         {
         	cached_scan_node_count = 0;
@@ -341,7 +334,6 @@ int SelidarDriver::cacheScanData()
 		{
         	data_cond.set();
 		}
-        rxtx_lock.unlock();
     }
     scanning = false;
     return Success;
@@ -359,18 +351,13 @@ int SelidarDriver::waitScanData(unsigned short& angle_range, SelidarMeasurementN
     return ans;
   }
 
-  // verify whether we got a correct header
-  if (response_header.cmd.bits.dir != Lidar2Host) {
-    return Invalid;
-  }
-
-  if (response_header.cmd.bits.cmd_word != StartScanRep) {
+  if (response_header.cmd.cmd_word != StartScanRep) {
     return Invalid;
   }
 
   for (size_t i = 0; i < sizeof(SelidarPacketHead); i++)
   {
-    checksum ^= ((unsigned char*)&response_header + i);
+    checksum ^= *((unsigned char*)&response_header + i);
   }
 
   //discard first packet
@@ -387,7 +374,7 @@ int SelidarDriver::waitScanData(unsigned short& angle_range, SelidarMeasurementN
 
   for (size_t i = 0; i < data_size - 1; i++)
   {
-    checksum ^= (scan_data + i);
+    checksum ^= scan_data[i];
   }
 
   if(checksum != scan_data[data_size - 1])
@@ -466,7 +453,7 @@ int SelidarDriver::grabScanData(SelidarMeasurementNode * nodebuffer, size_t & co
 
             size_t size_to_copy = min(count, cached_scan_node_count);
 
-            memcpy(nodebuffer, cached_scan_node_count, size_to_copy*sizeof(SelidarMeasurementNode));
+            memcpy(nodebuffer, cached_scan_node_buf, size_to_copy*sizeof(SelidarMeasurementNode));
             count = size_to_copy;
             cached_scan_node_count = 0;
         }

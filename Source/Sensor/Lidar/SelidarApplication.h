@@ -37,7 +37,7 @@ private:
 	void loadParameters();
 	bool startScanService(NS_ServiceType::RequestBase* request, NS_ServiceType::ResponseBase* response);
 	bool stopScanService(NS_ServiceType::RequestBase* request, NS_ServiceType::ResponseBase* response);
-	void publishScan(selidar_response_measurement_node_t *nodes,
+	void publishScan(SelidarMeasurementNode *nodes,
 	                  size_t node_count, NS_NaviCommon::Time start,
 	                  double scan_time, float angle_min, float angle_max);
 	void scanLoop();

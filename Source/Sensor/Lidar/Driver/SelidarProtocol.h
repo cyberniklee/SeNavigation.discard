@@ -6,19 +6,9 @@ namespace NS_Selidar{
 
 #define SELIDAR_CMD_SYNC_BYTE        0xA5
 
-enum SelidarCmdDir
-{
-  Lidar2Host = 1,
-  Host2Lidar = 0,
-};
-
-typedef union {
-  unsigned char byte;
-  struct {
-    unsigned error:1;
-    unsigned cmd_word:6;
-    unsigned dir:1;
-  }bits;
+typedef struct {
+  unsigned char cmd_word:6;
+  unsigned char error:1;
 }SelidarCommand;
 
 typedef struct {
