@@ -12,43 +12,58 @@
 #include "Protocol.h"
 #include <boost/thread/thread.hpp>
 
-namespace NS_Controller {
+namespace NS_Controller
+{
+  
+  class SpiComm
+  {
+  public:
+    SpiComm (std::string device_name);
+    virtual
+    ~SpiComm ();
 
-class SpiComm {
-public:
-  SpiComm(std::string device_name);
-  virtual ~SpiComm();
+  private:
+    std::string dev_name;
 
-private:
-  std::string dev_name;
+    bool is_open;
 
-  bool is_open;
+    int spi_dev;
 
-  int spi_dev;
+    boost::mutex dev_lock;
 
-  boost::mutex dev_lock;
+    bool
+    transfer (unsigned char* tx_buf, unsigned char* rx_buf, size_t tx_len,
+              size_t rx_len);
 
-  bool transfer(unsigned char* tx_buf, unsigned char* rx_buf, size_t tx_len, size_t rx_len);
+    unsigned short sequence;
 
-  unsigned short sequence;
+  public:
+    bool
+    open ();
 
-public:
-  bool open();
+    void
+    close ();
 
-  void close();
+    bool
+    getRegister (unsigned short address, int length, unsigned char* bytes);
+    bool
+    setRegister (unsigned short address, unsigned char* bytes, int length);
 
-  bool getRegister(unsigned short address, int length, unsigned char* bytes);
-  bool setRegister(unsigned short address, unsigned char* bytes, int length);
+    double
+    getFloat64Value (unsigned short address);
+    void
+    setFloat64Value (unsigned short address, double value);
 
-  double getFloat64Value(unsigned short address);
-  void setFloat64Value(unsigned short address, double value);
+    float
+    getFloat32Value (unsigned short address);
+    void
+    setFloat32Value (unsigned short address, float value);
 
-  float getFloat32Value(unsigned short address);
-  void setFloat32Value(unsigned short address, float value);
-
-  int getInt32Value(unsigned short address);
-  void setInt32Value(unsigned short address, int value);
-};
+    int
+    getInt32Value (unsigned short address);
+    void
+    setInt32Value (unsigned short address, int value);
+  };
 
 } /* namespace NS_Controller */
 

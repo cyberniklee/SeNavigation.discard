@@ -12,84 +12,94 @@
 
 static ApplicationManager* instance;
 
-void ApplicationManager::signalAction(int signal)
+void
+ApplicationManager::signalAction (int signal)
 {
-  NS_NaviCommon::console.warning("received a signal, id:%d!", signal);
-  instance->quitApplications();
+  NS_NaviCommon::console.warning ("received a signal, id:%d!", signal);
+  instance->quitApplications ();
 }
 
-void ApplicationManager::applicationsPending()
+void
+ApplicationManager::applicationsPending ()
 {
-  while(running)
+  while (running)
   {
   }
 }
 
-ApplicationManager::ApplicationManager() {
-	// TODO Auto-generated constructor stub
+ApplicationManager::ApplicationManager ()
+{
+  // TODO Auto-generated constructor stub
   instance = this;
   running = false;
 }
 
-ApplicationManager::~ApplicationManager() {
-	// TODO Auto-generated destructor stub
-}
-
-void ApplicationManager::registerSignal()
+ApplicationManager::~ApplicationManager ()
 {
-  signal(SIGINT, signalAction);
+  // TODO Auto-generated destructor stub
 }
 
-void ApplicationManager::quitApplications()
+void
+ApplicationManager::registerSignal ()
+{
+  signal (SIGINT, signalAction);
+}
+
+void
+ApplicationManager::quitApplications ()
 {
   std::vector<Application*>::iterator it;
-  for(it = applications.begin(); it != applications.end(); it++)
+  for (it = applications.begin (); it != applications.end (); it++)
   {
-	(*it)->quit();
+    (*it)->quit ();
   }
   running = false;
 }
 
-bool ApplicationManager::initialize()
+bool
+ApplicationManager::initialize ()
 {
-  Application::globalInitialize();
-  registerSignal();
-  registerApplications();
-
+  Application::globalInitialize ();
+  registerSignal ();
+  registerApplications ();
+  
   std::vector<Application*>::iterator it;
-  for(it = applications.begin(); it != applications.end(); it++)
+  for (it = applications.begin (); it != applications.end (); it++)
   {
-	(*it)->initialize();
-	if((*it)->isInitialized() == false)
-	{
-      NS_NaviCommon::console.error("Initialize not complete!");
-      return false;
-	}
-  }
-  return true;
-}
-
-bool ApplicationManager::run()
-{
-  std::vector<Application*>::iterator it;
-  for(it = applications.begin(); it != applications.end(); it++)
-  {
-    (*it)->run();
-    if((*it)->isRunning() == false)
+    (*it)->initialize ();
+    if ((*it)->isInitialized () == false)
     {
-      NS_NaviCommon::console.error("Application not set running!");
+      NS_NaviCommon::console.error ("Initialize not complete!");
       return false;
     }
   }
-
-  running = true;
-
-  applications_pending_thread = boost::thread(boost::bind(&ApplicationManager::applicationsPending, this));
-
   return true;
 }
 
-void ApplicationManager::pending()
+bool
+ApplicationManager::run ()
 {
-  applications_pending_thread.join();
+  std::vector<Application*>::iterator it;
+  for (it = applications.begin (); it != applications.end (); it++)
+  {
+    (*it)->run ();
+    if ((*it)->isRunning () == false)
+    {
+      NS_NaviCommon::console.error ("Application not set running!");
+      return false;
+    }
+  }
+  
+  running = true;
+  
+  applications_pending_thread = boost::thread (
+      boost::bind (&ApplicationManager::applicationsPending, this));
+  
+  return true;
+}
+
+void
+ApplicationManager::pending ()
+{
+  applications_pending_thread.join ();
 }

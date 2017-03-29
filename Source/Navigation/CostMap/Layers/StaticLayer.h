@@ -9,53 +9,65 @@
 
 namespace NS_CostMap
 {
+  
+  class StaticLayer: public CostmapLayer
+  {
+  public:
+    StaticLayer ();
+    virtual
+    ~StaticLayer ();
+    virtual void
+    onInitialize ();
+    virtual void
+    activate ();
+    virtual void
+    deactivate ();
+    virtual void
+    reset ();
 
-class StaticLayer : public CostmapLayer
-{
-public:
-  StaticLayer();
-  virtual ~StaticLayer();
-  virtual void onInitialize();
-  virtual void activate();
-  virtual void deactivate();
-  virtual void reset();
+    virtual void
+    updateBounds (double robot_x, double robot_y, double robot_yaw,
+                  double* min_x, double* min_y, double* max_x, double* max_y);
+    virtual void
+    updateCosts (Costmap2D& master_grid, int min_i, int min_j, int max_i,
+                 int max_j);
 
-  virtual void updateBounds(double robot_x, double robot_y, double robot_yaw, double* min_x, double* min_y,
-                            double* max_x, double* max_y);
-  virtual void updateCosts(Costmap2D& master_grid, int min_i, int min_j, int max_i, int max_j);
+    virtual void
+    matchSize ();
 
-  virtual void matchSize();
+  private:
+    
+    unsigned char
+    interpretValue (unsigned char value);
 
-private:
+  private:
+    unsigned int x_, y_, width_, height_;
+    bool track_unknown_space_;
+    bool use_maximum_;
+    bool first_map_only_; ///< @brief Store the first static map and reuse it on reinitializing
+    bool trinary_costmap_;
 
-  unsigned char interpretValue(unsigned char value);
+    unsigned char lethal_threshold_, unknown_cost_value_;
 
-private:
-  unsigned int x_, y_, width_, height_;
-  bool track_unknown_space_;
-  bool use_maximum_;
-  bool first_map_only_;      ///< @brief Store the first static map and reuse it on reinitializing
-  bool trinary_costmap_;
+    double map_update_frequency_;
 
-  unsigned char lethal_threshold_, unknown_cost_value_;
+  private:
+    
+    bool active;
 
-  double map_update_frequency_;
+    boost::thread static_layer_loop;
 
-private:
+    bool map_received;
 
-  bool active;
+    bool has_updated_data;
 
-  boost::thread static_layer_loop;
+    void
+    loopStaticMap ();
 
-  bool map_received;
-
-  bool has_updated_data;
-
-  void loopStaticMap();
-
-  void processMap(const NS_DataType::OccupancyGrid& new_map);
-
-};
+    void
+    processMap (const NS_DataType::OccupancyGrid& new_map);
+    
+  };
 
 }  // namespace costmap_2d
 

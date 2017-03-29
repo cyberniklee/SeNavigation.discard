@@ -12,37 +12,41 @@
 static NS_NaviCommon::Dispitcher global_dispitcher;
 static NS_NaviCommon::Service global_service;
 
-Application::Application()
+Application::Application ()
 {
   dispitcher = &global_dispitcher;
   service = &global_service;
 }
 
-Application::~Application()
+Application::~Application ()
 {
   dispitcher = NULL;
   service = NULL;
 }
 
-void Application::globalInitialize()
+void
+Application::globalInitialize ()
 {
-  NS_NaviCommon::Time::init();
-
-  global_dispitcher.initialize();
-  global_service.initialize();
+  NS_NaviCommon::Time::init ();
+  
+  global_dispitcher.initialize ();
+  global_service.initialize ();
 }
 
-void Application::initialize()
+void
+Application::initialize ()
 {
-  NS_NaviCommon::console.warning("initializing with base application class!");
+  NS_NaviCommon::console.warning ("initializing with base application class!");
 }
 
-void Application::run()
+void
+Application::run ()
 {
-  NS_NaviCommon::console.warning("running with base application class!");
+  NS_NaviCommon::console.warning ("running with base application class!");
 }
 
-void Application::quit()
+void
+Application::quit ()
 {
-  NS_NaviCommon::console.warning("quitting with base application class!");
+  NS_NaviCommon::console.warning ("quitting with base application class!");
 }

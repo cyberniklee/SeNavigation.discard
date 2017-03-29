@@ -17,37 +17,50 @@
 #include "Driver/SelidarDriver.h"
 #include <boost/thread/thread.hpp>
 
-namespace NS_Selidar {
+namespace NS_Selidar
+{
+  
+  class SelidarApplication: public Application
+  {
+  public:
+    SelidarApplication ();
+    ~SelidarApplication ();
+  private:
+    std::string serial_port;
+    int serial_baudrate;
+    std::string frame_id;
+    bool inverted;
+    bool angle_compensate;
+    SelidarDriver drv;
+    boost::thread scan_thread;
+  private:
+    bool
+    checkSelidarHealth (SelidarDriver * drv);
+    bool
+    checkSelidarInfo (SelidarDriver * drv);
+    void
+    loadParameters ();
+    bool
+    startScanService (NS_ServiceType::RequestBase* request,
+                      NS_ServiceType::ResponseBase* response);
+    bool
+    stopScanService (NS_ServiceType::RequestBase* request,
+                     NS_ServiceType::ResponseBase* response);
+    void
+    publishScan (SelidarMeasurementNode *nodes, size_t node_count,
+                 NS_NaviCommon::Time start, double scan_time, float angle_min,
+                 float angle_max);
+    void
+    scanLoop ();
 
-class SelidarApplication: public Application {
-public:
-	SelidarApplication();
-	~SelidarApplication();
-private:
-	std::string serial_port;
-	int serial_baudrate;
-	std::string frame_id;
-	bool inverted;
-	bool angle_compensate;
-	SelidarDriver drv;
-	boost::thread scan_thread;
-private:
-	bool checkSelidarHealth(SelidarDriver * drv);
-	bool checkSelidarInfo(SelidarDriver * drv);
-	void loadParameters();
-	bool startScanService(NS_ServiceType::RequestBase* request, NS_ServiceType::ResponseBase* response);
-	bool stopScanService(NS_ServiceType::RequestBase* request, NS_ServiceType::ResponseBase* response);
-	void publishScan(SelidarMeasurementNode *nodes,
-	                  size_t node_count, NS_NaviCommon::Time start,
-	                  double scan_time, float angle_min, float angle_max);
-	void scanLoop();
-
-public:
-	virtual void initialize();
-    virtual void run();
-    virtual void quit();
-};
+  public:
+    virtual void
+    initialize ();
+    virtual void
+    run ();
+    virtual void
+    quit ();
+  };
 }
-
 
 #endif /* SELIDARAPPLICATION_H_ */

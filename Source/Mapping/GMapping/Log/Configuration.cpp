@@ -1,8 +1,11 @@
 #include "Configuration.h"
 
-namespace NS_GMapping {
+namespace NS_GMapping
+{
+  
+  Configuration::~Configuration ()
+  {
+  }
 
-Configuration::~Configuration(){
 }
-
-};
+;

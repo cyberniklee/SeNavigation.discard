@@ -4,21 +4,34 @@
 #include <string>
 #include <map>
 
-namespace NS_GMapping{
+namespace NS_GMapping
+{
+  
+  class Sensor
+  {
+  public:
+    Sensor (const std::string& name = "");
+    virtual
+    ~Sensor ();
+    inline std::string
+    getName () const
+    {
+      return m_name;
+    }
+    inline void
+    setName (const std::string& name)
+    {
+      m_name = name;
+    }
+  protected:
+    std::string m_name;
+  };
+  
+  typedef std::map<std::string, Sensor*> SensorMap;
 
-class Sensor{
-	public:
-		Sensor(const std::string& name="");
-		virtual ~Sensor();
-		inline std::string getName() const {return m_name;}
-		inline void setName(const std::string& name) {m_name=name;}
-	protected:
-		std::string m_name;
-};
-
-typedef std::map<std::string, Sensor*> SensorMap;
-
-}; //end namespace
+}
+;
+//end namespace
 
 #endif
 

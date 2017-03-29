@@ -25,8 +25,9 @@ using namespace NS_Navigation;
 class ApplicationManager
 {
 public:
-  ApplicationManager();
-  virtual ~ApplicationManager();
+  ApplicationManager ();
+  virtual
+  ~ApplicationManager ();
 
 private:
   bool running;
@@ -35,36 +36,44 @@ private:
 
   boost::thread applications_pending_thread;
 
-  void applicationsPending();
+  void
+  applicationsPending ();
 
-  void registerApplications()
+  void
+  registerApplications ()
   {
     SelidarApplication* selidar = new SelidarApplication;
-    applications.push_back(selidar);
-
-	GMappingApplication* gmapping = new GMappingApplication;
-    applications.push_back(gmapping);
-
+    applications.push_back (selidar);
+    
+    GMappingApplication* gmapping = new GMappingApplication;
+    applications.push_back (gmapping);
+    
     ControllerApplication* controller = new ControllerApplication;
-    applications.push_back(controller);
-/*
-    NavigationApplication* navigation = new NavigationApplication;
-    applications.push_back(navigation);
-*/
+    applications.push_back (controller);
+    /*
+     NavigationApplication* navigation = new NavigationApplication;
+     applications.push_back(navigation);
+     */
   }
+  
+  void
+  quitApplications ();
 
-  void quitApplications();
+  static void
+  signalAction (int signal);
 
-  static void signalAction(int signal);
-
-  void registerSignal();
+  void
+  registerSignal ();
 
 public:
+  
+  bool
+  initialize ();
+  bool
+  run ();
 
-  bool initialize();
-  bool run();
-
-  void pending();
+  void
+  pending ();
 };
 
 #endif /* APPLICATION_APPLICATIONMANAGER_H_ */

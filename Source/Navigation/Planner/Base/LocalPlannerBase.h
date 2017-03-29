@@ -14,35 +14,52 @@
 #include <DataSet/DataType/Twist.h>
 #include "../../CostMap/CostmapWrapper.h"
 
-namespace NS_Planner {
+namespace NS_Planner
+{
+  
+  class LocalPlannerBase
+  {
+  public:
+    LocalPlannerBase ()
+    {
+    }
+    ;
+    virtual
+    ~LocalPlannerBase ()
+    {
+    }
+    ;
 
-class LocalPlannerBase {
-public:
-	LocalPlannerBase(){};
-	virtual ~LocalPlannerBase(){};
+  public:
+    void
+    initialize (NS_CostMap::CostmapWrapper* costmap_,
+                NS_NaviCommon::Dispitcher* dispitcher_,
+                NS_NaviCommon::Service* service_)
+    {
+      dispitcher = dispitcher_;
+      service = service_;
+      costmap = costmap_;
+      onInitialize ();
+    }
+    ;
 
-public:
-	void initialize(NS_CostMap::CostmapWrapper* costmap_, NS_NaviCommon::Dispitcher* dispitcher_, NS_NaviCommon::Service* service_)
-	{
-		dispitcher = dispitcher_;
-		service = service_;
-		costmap = costmap_;
-		onInitialize();
-	};
+    virtual void
+    onInitialize () = 0;
 
-	virtual void onInitialize() = 0;
+    virtual bool
+    computeVelocityCommands (NS_DataType::Twist& cmd_vel) = 0;
 
-	virtual bool computeVelocityCommands(NS_DataType::Twist& cmd_vel) = 0;
+    virtual bool
+    isGoalReached () = 0;
 
-	virtual bool isGoalReached() = 0;
+    virtual bool
+    setPlan (const std::vector<NS_DataType::PoseStamped>& plan) = 0;
 
-	virtual bool setPlan(const std::vector<NS_DataType::PoseStamped>& plan) = 0;
-
-protected:
-	NS_NaviCommon::Dispitcher* dispitcher;
-	NS_NaviCommon::Service* service;
-	NS_CostMap::CostmapWrapper* costmap;
-};
+  protected:
+    NS_NaviCommon::Dispitcher* dispitcher;
+    NS_NaviCommon::Service* service;
+    NS_CostMap::CostmapWrapper* costmap;
+  };
 
 } /* namespace NS_Planner */
 

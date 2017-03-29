@@ -8,18 +8,27 @@
 #ifndef _RECOVERYBEHAVIOR_H_
 #define _RECOVERYBEHAVIOR_H_
 
-class RecoveryBehavior{
+class RecoveryBehavior
+{
 public:
-	RecoveryBehavior(){};
-	virtual ~RecoveryBehavior(){};
+  RecoveryBehavior ()
+  {
+  }
+  ;
+  virtual
+  ~RecoveryBehavior ()
+  {
+  }
+  ;
 public:
-	void initialize();
+  void
+  initialize ();
 
-	virtual void onInitialize() = 0;
+  virtual void
+  onInitialize () = 0;
 
-	virtual void run() = 0;
+  virtual void
+  run () = 0;
 };
-
-
 
 #endif /* NAVIGATION_PLANNER_BASE_RECOVERYBEHAVIOR_H_ */

@@ -15,33 +15,42 @@
 class Application
 {
 public:
-	Application();
-	virtual ~Application();
+  Application ();
+  virtual
+  ~Application ();
 
 protected:
-	bool running;
-	bool initialized;
+  bool running;
+  bool initialized;
 
-	NS_NaviCommon::Parameter parameter;
-	NS_NaviCommon::Dispitcher* dispitcher;
-	NS_NaviCommon::Service* service;
+  NS_NaviCommon::Parameter parameter;
+  NS_NaviCommon::Dispitcher* dispitcher;
+  NS_NaviCommon::Service* service;
 
 public:
-	static void globalInitialize();
+  static void
+  globalInitialize ();
 
-	virtual void initialize();
-	virtual void run();
-	virtual void quit();
+  virtual void
+  initialize ();
+  virtual void
+  run ();
+  virtual void
+  quit ();
 
-	bool isRunning()
-	{
-		return running;
-	};
+  bool
+  isRunning ()
+  {
+    return running;
+  }
+  ;
 
-	bool isInitialized()
-	{
-		return initialized;
-	};
+  bool
+  isInitialized ()
+  {
+    return initialized;
+  }
+  ;
 };
 
 #endif /* APPLICATION_APPLICATION_H_ */

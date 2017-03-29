@@ -8,22 +8,23 @@
 #include "Application/ApplicationManager.h"
 #include "Global.h"
 
-int main(int argc, char* argv[])
+int
+main (int argc, char* argv[])
 {
-	ApplicationManager manager;
-
-	if(!manager.initialize())
-	{
-		return -1;
-	}
-
-	if(!manager.run())
-	{
-		return -1;
-	}
-
-	manager.pending();
-
-	return 0;
+  ApplicationManager manager;
+  
+  if (!manager.initialize ())
+  {
+    return -1;
+  }
+  
+  if (!manager.run ())
+  {
+    return -1;
+  }
+  
+  manager.pending ();
+  
+  return 0;
 }
 
