@@ -57,13 +57,16 @@ void GMappingApplication::laserDataCallback(NS_DataType::DataBase* laser_data)
 {
   NS_DataType::LaserScan* laser = (NS_DataType::LaserScan*)laser_data;
   laser_count++;
+///////////////////////////////////////////////////////////////////////////
 /*
   for(int i = 0; i < laser->ranges.size(); i++)
   {
 	float degree = RAD2DEG(laser->angle_min + laser->angle_increment * i);
-	//NS_NaviCommon::console.debug("--->   angle: %f, range: %f", degree, laser->ranges[i]);
+	NS_NaviCommon::console.debug("--->   angle: %f, range: %f", degree, laser->ranges[i]);
   }
+  return;
 */
+////////////////////////////////////////////////////////////////////////////
   if(throttle_scans_ != 0)
   {
     if((laser_count % throttle_scans_) != 0)
@@ -437,7 +440,7 @@ void GMappingApplication::loadParameters()
   angular_update_ = parameter.getParameter("angular_update", 0.5f);
   temporal_update_ = parameter.getParameter("temporal_update", -1.0f);
   resample_threshold_ = parameter.getParameter("resample_threshold", 0.5f);
-  particles_ = parameter.getParameter("particles", 30);
+  particles_ = parameter.getParameter("particles", 80);
 
   xmin_ = parameter.getParameter("xmin", -100.0f);
   ymin_ = parameter.getParameter("ymin", -100.0f);

@@ -395,10 +395,7 @@ int SelidarDriver::waitScanData(unsigned short& angle_range, SelidarMeasurementN
 
   for(size_t i = 0; i < node_count; i++)
   {
-    unsigned short angle, distance;
-
-    memcpy(&angle, scan_data + data_pos, sizeof(angle));
-    data_pos += sizeof(angle);
+    unsigned short distance;
 
     memcpy(&distance, scan_data + data_pos, sizeof(distance));
     data_pos += sizeof(distance);

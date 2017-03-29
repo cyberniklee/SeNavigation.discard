@@ -36,9 +36,9 @@ enum SelidarRepType
   StartScanRep = 0x0D,
 };
 
-#define SELIDAR_START_RANGES 2813
+#define SELIDAR_START_RANGES 1687
 #define SELIDAR_MIDDLE_RANGES 2250
-#define SELIDAR_END_RANGES 1687
+#define SELIDAR_END_RANGES 2813
 
 
 typedef struct {

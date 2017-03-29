@@ -66,11 +66,11 @@ void ControllerApplication::odomTransformService(NS_ServiceType::RequestBase* re
 
   NS_NaviCommon::console.debug("odometry pose: x:%f, y:%f, theta:%f.",
 		  current_pose.x, current_pose.y, current_pose.theta);
-
+/*
   current_pose.x = comm->getFloat64Value(BASE_REG_ODOM_X);
   current_pose.y = comm->getFloat64Value(BASE_REG_ODOM_Y);
   current_pose.theta = comm->getFloat64Value(BASE_REG_ODOM_THETA);
-
+*/
   rep->transform.translation.x = current_pose.x;
   rep->transform.translation.y = current_pose.y;
   rep->transform.translation.z = 0.0;

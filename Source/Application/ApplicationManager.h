@@ -41,16 +41,16 @@ private:
   {
     SelidarApplication* selidar = new SelidarApplication;
     applications.push_back(selidar);
-/*
+
 	GMappingApplication* gmapping = new GMappingApplication;
     applications.push_back(gmapping);
 
     ControllerApplication* controller = new ControllerApplication;
     applications.push_back(controller);
-
+/*
     NavigationApplication* navigation = new NavigationApplication;
     applications.push_back(navigation);
-    */
+*/
   }
 
   void quitApplications();
