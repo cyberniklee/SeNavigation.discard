@@ -16,11 +16,13 @@
 #include "../Mapping/GMapping/GMappingApplication.h"
 #include "../Controller/ControllerApplication.h"
 #include "../Navigation/NavigationApplication.h"
+#include "../Communication/CommunicatorApplication.h"
 
 using namespace NS_GMapping;
 using namespace NS_Controller;
 using namespace NS_Selidar;
 using namespace NS_Navigation;
+using namespace NS_Communication;
 
 class ApplicationManager
 {
@@ -54,6 +56,9 @@ private:
      NavigationApplication* navigation = new NavigationApplication;
      applications.push_back(navigation);
      */
+
+    CommunicatorApplication* communicator = new CommunicatorApplication;
+    applications.push_back(communicator);
   }
   
   void
