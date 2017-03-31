@@ -170,8 +170,8 @@ namespace NS_Controller
   ControllerApplication::quit ()
   {
     NS_NaviCommon::console.message ("controller is quitting!");
+
     running = false;
-    controller_loop_thread.join ();
   }
 
 } /* namespace NS_Controller */

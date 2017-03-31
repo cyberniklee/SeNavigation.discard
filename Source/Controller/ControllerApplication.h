@@ -39,7 +39,6 @@ namespace NS_Controller
     virtual
     ~ControllerApplication ();
   private:
-    boost::thread controller_loop_thread;
     SpiComm* comm;
 
     boost::mutex odom_lock;
