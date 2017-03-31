@@ -462,16 +462,12 @@ namespace NS_GMapping
         m_infoStream << "update frame " << m_readingCount << endl
             << "update ld=" << m_linearDistance << " ad=" << m_angularDistance
             << endl;
-      /*
+/*
       cerr << "Laser Pose= " << reading.getPose ().x << " "
           << reading.getPose ().y << " " << reading.getPose ().theta << endl;
-      */
-      printf("-----1------\n");
-
+*/
       //this is for converting the reading in a scan-matcher feedable form
       assert(reading.size () == m_beams);
-
-      printf("-----2------\n");
 
       double * plainReading = new double[m_beams];
       for (unsigned int i = 0; i < m_beams; i++)
