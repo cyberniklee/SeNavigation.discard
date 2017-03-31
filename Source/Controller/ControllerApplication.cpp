@@ -44,11 +44,9 @@ namespace NS_Controller
     
     boost::mutex::scoped_lock locker_ (odom_lock);
     
-    double x = comm->getFloat64Value (BASE_REG_ODOM_X);
-    double y = comm->getFloat64Value (BASE_REG_ODOM_Y);
-    double theta = comm->getFloat64Value (BASE_REG_ODOM_THETA);
-    double v_xy = comm->getFloat64Value (BASE_REG_ODOM_LINEAR_SPD);
-    double v_th = comm->getFloat64Value (BASE_REG_ODOM_ANGULAR_SPD);
+    float x = comm->getFloat32Value (BASE_REG_ODOM_X);
+    float y = comm->getFloat32Value (BASE_REG_ODOM_Y);
+    float theta = comm->getFloat32Value (BASE_REG_ODOM_THETA);
     
     current_odometry.pose.position.x = x;
     current_odometry.pose.position.y = y;
@@ -56,9 +54,6 @@ namespace NS_Controller
     current_odometry.pose.orientation.y = 0.0f;
     current_odometry.pose.orientation.z = sin (theta / 2.0);
     current_odometry.pose.orientation.w = cos (theta / 2.0);
-    current_odometry.twist.linear.x = v_xy;
-    current_odometry.twist.linear.y = 0.0f;
-    current_odometry.twist.angular.z = v_th;
     
     rep->odom = current_odometry;
     
@@ -79,11 +74,11 @@ namespace NS_Controller
     NS_NaviCommon::console.debug ("odometry pose: x:%f, y:%f, theta:%f.",
                                   current_pose.x, current_pose.y,
                                   current_pose.theta);
-    /*
-     current_pose.x = comm->getFloat64Value(BASE_REG_ODOM_X);
-     current_pose.y = comm->getFloat64Value(BASE_REG_ODOM_Y);
-     current_pose.theta = comm->getFloat64Value(BASE_REG_ODOM_THETA);
-     */
+
+    current_pose.x = comm->getFloat32Value(BASE_REG_ODOM_X);
+    current_pose.y = comm->getFloat32Value(BASE_REG_ODOM_Y);
+    current_pose.theta = comm->getFloat32Value(BASE_REG_ODOM_THETA);
+
     rep->transform.translation.x = current_pose.x;
     rep->transform.translation.y = current_pose.y;
     rep->transform.translation.z = 0.0;
@@ -100,22 +95,10 @@ namespace NS_Controller
   }
   
   void
-  ControllerApplication::twistCallback (NS_DataType::DataBase* twist_data)
-  {
-    NS_DataType::Twist* twist = (NS_DataType::Twist*) twist_data;
-    
-    float x = twist->linear.x;
-    float theta = twist->angular.z;
-    
-    comm->setFloat64Value (BASE_REG_LINEAR_SPD, x);
-    comm->setFloat64Value (BASE_REG_ANGULAR_SPD, theta);
-  }
-  
-  void
   ControllerApplication::loadParameters ()
   {
     parameter.loadConfigurationFile ("controller.xml");
-    comm_dev_name_ = parameter.getParameter ("device", "/dev/seeing-stm32");
+    comm_dev_name_ = parameter.getParameter ("device", "/dev/stm32");
     control_rate_ = parameter.getParameter ("control_rate", 10.0f);
     control_timeout_ = parameter.getParameter ("control_timeout", 1.0f);
     wheel_diameter_ = parameter.getParameter ("wheel_diameter", 0.068f);
@@ -139,9 +122,8 @@ namespace NS_Controller
   void
   ControllerApplication::configController ()
   {
-    comm->setFloat64Value (BASE_REG_DIST_PER_PULSE, distance_per_tick);
-    comm->setFloat64Value (BASE_REG_WHEEL_TRACK, wheel_track_);
-    comm->setFloat64Value (BASE_REG_CNTL_RATE, control_rate_);
+    comm->setFloat32Value (BASE_REG_DIST_PER_PULSE, distance_per_tick);
+    comm->setFloat32Value (BASE_REG_WHEEL_TRACK, wheel_track_);
     
     comm->setInt32Value (BASE_REG_PID_KP, pid_kp_);
     comm->setInt32Value (BASE_REG_PID_KI, pid_ki_);
@@ -163,10 +145,6 @@ namespace NS_Controller
     }
     
     configController ();
-    
-    dispitcher->subscribe (
-        NS_NaviCommon::DATA_TYPE_TWIST,
-        boost::bind (&ControllerApplication::twistCallback, this, _1));
     
     service->advertise (
         NS_NaviCommon::SERVICE_TYPE_RAW_ODOMETRY,

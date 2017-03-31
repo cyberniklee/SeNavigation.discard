@@ -27,9 +27,9 @@ namespace NS_Controller
   
   typedef struct
   {
-    double x;
-    double y;
-    double theta;
+    float x;
+    float y;
+    float theta;
   } PoseState;
   
   class ControllerApplication: public Application
@@ -49,13 +49,13 @@ namespace NS_Controller
   private:
     std::string comm_dev_name_;
 
-    double control_rate_;
-    double control_timeout_;
-    double wheel_diameter_;
+    float control_rate_;
+    float control_timeout_;
+    float wheel_diameter_;
     int encoder_resolution_;
     int gear_reduction_;
-    double wheel_track_;
-    double accel_limit_;
+    float wheel_track_;
+    float accel_limit_;
 
     /*
      * PID parameters
@@ -65,8 +65,8 @@ namespace NS_Controller
     int pid_ki_;
     int pid_ko_;
 
-    double ticks_per_meter;
-    double distance_per_tick;
+    float ticks_per_meter;
+    float distance_per_tick;
   private:
     
     void
@@ -75,8 +75,7 @@ namespace NS_Controller
     void
     odomTransformService (NS_ServiceType::RequestBase* request,
                           NS_ServiceType::ResponseBase* response);
-    void
-    twistCallback (NS_DataType::DataBase* twist_data);
+
     void
     loadParameters ();
     void
