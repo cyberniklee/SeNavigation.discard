@@ -75,7 +75,7 @@ namespace NS_Communication
   void
   CommunicatorApplication::saveMapInPGM ()
   {
-    mapDataFile = "/home/nico/git/SeNavigation/Debug/map.pgm";
+    mapDataFile = "/tmp/map.pgm";
     FILE* out = fopen (mapDataFile.c_str (), "w");
     if (!out)
     {
