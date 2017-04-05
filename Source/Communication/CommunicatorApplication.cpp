@@ -17,6 +17,7 @@ namespace NS_Communication
   CommunicatorApplication::CommunicatorApplication ()
   {
     instance = this;
+    setChild(this);
   }
   
   CommunicatorApplication::~CommunicatorApplication ()
