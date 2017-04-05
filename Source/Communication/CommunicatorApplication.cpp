@@ -116,7 +116,6 @@ namespace NS_Communication
   void
   CommunicatorApplication::onReceive (CommData* message)
   {
-    //assert(1 == 0);//--
     if (message != NULL)
     {
       if (message->reason == COMMUNICATION_DATA_REASON_MAP_SIZE)
@@ -124,7 +123,7 @@ namespace NS_Communication
         if (respMap == NULL)
           respMap = new NS_ServiceType::ResponseMap;
         
-        service->call (SERVICE_TYPE_MAP, NULL, respMap);
+        service->call (SERVICE_TYPE_COSTMAP, NULL, respMap);
         CommData* response = this->createResponseByRequest (message);
         response->payload_length = sizeof(respMap->map.data.size ());
         
@@ -192,6 +191,7 @@ namespace NS_Communication
     
     loadParameters ();
     instance->initialize (6689, 6688);
+
     initialized = true;
     
   }

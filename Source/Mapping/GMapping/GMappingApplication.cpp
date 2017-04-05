@@ -127,6 +127,7 @@ namespace NS_GMapping
     }
   }
   
+
   void
   GMappingApplication::mapService (NS_ServiceType::RequestBase* request,
                                    NS_ServiceType::ResponseBase* response)
@@ -146,6 +147,7 @@ namespace NS_GMapping
     }
   }
   
+
   void
   GMappingApplication::mapTransformService (
       NS_ServiceType::RequestBase* request,
@@ -524,11 +526,11 @@ namespace NS_GMapping
     dispitcher->subscribe (
         NS_NaviCommon::DATA_TYPE_LASER_SCAN,
         boost::bind (&GMappingApplication::laserDataCallback, this, _1));
-    
+
     service->advertise (
         NS_NaviCommon::SERVICE_TYPE_MAP,
         boost::bind (&GMappingApplication::mapService, this, _1, _2));
-    
+
     initialized = true;
   }
   
