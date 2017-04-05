@@ -31,12 +31,8 @@ namespace NS_Planner
 
   public:
     void
-    initialize (NS_CostMap::CostmapWrapper* costmap_,
-                NS_NaviCommon::Dispitcher* dispitcher_,
-                NS_NaviCommon::Service* service_)
+    initialize (NS_CostMap::CostmapWrapper* costmap_)
     {
-      dispitcher = dispitcher_;
-      service = service_;
       costmap = costmap_;
       onInitialize ();
     }
@@ -60,8 +56,6 @@ namespace NS_Planner
     }
     ;
   protected:
-    NS_NaviCommon::Dispitcher* dispitcher;
-    NS_NaviCommon::Service* service;
     NS_CostMap::CostmapWrapper* costmap;
   };
 

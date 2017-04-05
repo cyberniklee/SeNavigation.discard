@@ -32,8 +32,6 @@ namespace NS_Navigation
   {
     global_planner_type_ = parameter.getParameter ("global_planner_type",
                                                    "base_global_planner");
-    local_planner_type_ = parameter.getParameter ("local_planner_type",
-                                                  "base_local_planner");
   }
   
   bool
@@ -72,9 +70,10 @@ namespace NS_Navigation
   void
   NavigationApplication::planLoop ()
   {
+    NS_NaviCommon::Rate rate (0.1);
     while (running)
     {
-      
+      rate.sleep ();
     }
   }
   
@@ -196,10 +195,9 @@ namespace NS_Navigation
     //set up plan triple buffer
     global_planner_plan = new std::vector<NS_DataType::PoseStamped> ();
     latest_plan = new std::vector<NS_DataType::PoseStamped> ();
-    local_planner_plan = new std::vector<NS_DataType::PoseStamped> ();
     
     global_costmap = new NS_CostMap::CostmapWrapper (dispitcher, service);
-    local_costmap = new NS_CostMap::CostmapWrapper (dispitcher, service);
+    global_costmap->initialize();
     
     //load global planner
     if (global_planner_type_ == "base_global_planner")
@@ -211,7 +209,7 @@ namespace NS_Navigation
       global_planner = new NS_Planner::GlobalPlanner ();
     }
     
-    global_planner->initialize (global_costmap, dispitcher, service);
+    global_planner->initialize (global_costmap);
     
     state = PLANNING;
     
