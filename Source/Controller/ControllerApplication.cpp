@@ -16,6 +16,7 @@
 #include <Transform/LinearMath/Quaternion.h>
 #include <Transform/LinearMath/Vector3.h>
 #include <Time/Rate.h>
+#include <DataSet/DataType/PoseStamped.h>
 
 namespace NS_Controller
 {
@@ -95,6 +96,12 @@ namespace NS_Controller
   }
   
   void
+  ControllerApplication::poseStampedCallback (NS_DataType::DataBase* pose_stamped)
+  {
+    NS_DataType::PoseStamped* pose = (NS_DataType::PoseStamped*) pose_stamped;
+  }
+
+  void
   ControllerApplication::loadParameters ()
   {
     parameter.loadConfigurationFile ("controller.xml");
@@ -146,6 +153,10 @@ namespace NS_Controller
     
     configController ();
     
+    dispitcher->subscribe (
+        NS_NaviCommon::DATA_TYPE_POSE_STAMPED,
+        boost::bind (&ControllerApplication::poseStampedCallback, this, _1));
+
     service->advertise (
         NS_NaviCommon::SERVICE_TYPE_RAW_ODOMETRY,
         boost::bind (&ControllerApplication::odomService, this, _1, _2));

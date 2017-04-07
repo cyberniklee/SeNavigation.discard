@@ -121,23 +121,19 @@ namespace NS_Navigation
     goal = *target;
     
     new_goal_trigger = true;
-    /*
-     if(!isQuaternionValid(goal->pose.orientation))
-     {
-     NS_NaviCommon::console.error("It's a illegal pose!");
-     return;
-     }
-     */
-  }
-  
-  void
-  NavigationApplication::publishZeroVelocity ()
-  {
-    NS_DataType::Twist* cmd_vel = new NS_DataType::Twist;
-    cmd_vel->linear.x = 0.0;
-    cmd_vel->linear.y = 0.0;
-    cmd_vel->angular.z = 0.0;
-    dispitcher->publish (NS_NaviCommon::DATA_TYPE_TWIST, cmd_vel);
+
+    if(!isQuaternionValid(goal.pose.orientation))
+    {
+      NS_NaviCommon::console.error("It's a illegal pose!");
+      return;
+    }
+
+    if(!makePlan(*target, *global_planner_plan))
+    {
+      NS_NaviCommon::console.error("Make plan failure!");
+      return;
+    }
+
   }
   
   bool

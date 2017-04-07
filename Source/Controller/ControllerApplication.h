@@ -76,6 +76,9 @@ namespace NS_Controller
                           NS_ServiceType::ResponseBase* response);
 
     void
+    poseStampedCallback (NS_DataType::DataBase* pose_stamped);
+
+    void
     loadParameters ();
     void
     configController ();

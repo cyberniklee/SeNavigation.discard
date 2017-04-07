@@ -135,6 +135,8 @@ namespace NS_GMapping
     NS_ServiceType::RequestMap* req = (NS_ServiceType::RequestMap*) request;
     NS_ServiceType::ResponseMap* rep = (NS_ServiceType::ResponseMap*) response;
     
+    NS_NaviCommon::console.debug ("Map info ---> width : %d, height : %d !\n", map.info.width, map.info.height);
+
     boost::mutex::scoped_lock map_mutex (map_lock);
     if (got_map && map.info.width && map.info.height)
     {
@@ -143,6 +145,7 @@ namespace NS_GMapping
     }
     else
     {
+      NS_NaviCommon::console.warning ("Get map failure!");
       rep->result = false;
     }
   }

@@ -47,8 +47,6 @@ namespace NS_Navigation
     NS_DataType::PoseStamped
     goalToGlobalFrame (NS_DataType::PoseStamped& goal);
 
-    void
-    publishZeroVelocity ();
     bool
     isQuaternionValid (const NS_DataType::Quaternion& q);
     double
