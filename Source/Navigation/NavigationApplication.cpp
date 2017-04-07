@@ -220,11 +220,15 @@ namespace NS_Navigation
     running = true;
     plan_thread = boost::thread (
         boost::bind (&NavigationApplication::planLoop, this));
+
+    global_costmap->start();
   }
   
   void
   NavigationApplication::quit ()
   {
+    global_costmap->stop();
+
     running = false;
     plan_thread.join ();
   }

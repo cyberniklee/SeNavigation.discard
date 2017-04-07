@@ -242,8 +242,10 @@ namespace NS_CostMap
     NS_ServiceType::RequestMap* req = (NS_ServiceType::RequestMap*) request;
     NS_ServiceType::ResponseMap* rep = (NS_ServiceType::ResponseMap*) response;
     
+    NS_NaviCommon::console.debug ("Costmap info ---> width : %d, height : %d !\n", map.info.width, map.info.height);
+
     boost::mutex::scoped_lock map_mutex (map_lock);
-    if (got_map && map.info.width && map.info.height)
+    if (map.info.width && map.info.height)
     {
       rep->map = map;
       rep->result = true;
@@ -296,6 +298,10 @@ namespace NS_CostMap
         (unsigned int) (map_height_meters_ / resolution_), resolution_,
         origin_x_, origin_y_);
     
+    service->advertise (
+        NS_NaviCommon::SERVICE_TYPE_COSTMAP,
+        boost::bind (&CostmapWrapper::mapService, this, _1, _2));
+
   }
   
   void
@@ -303,6 +309,14 @@ namespace NS_CostMap
   {
     NS_NaviCommon::console.message ("costmap is running!");
     
+    layered_costmap = new LayeredCostmap (track_unknown_space_);
+
+    CostMapLayersIterator it;
+    for (it = layers.begin (); it != layers.end (); it++)
+    {
+      (*it)->activate();
+    }
+
     running = true;
     
     update_map_thread = boost::thread (
@@ -314,6 +328,13 @@ namespace NS_CostMap
   CostmapWrapper::stop ()
   {
     NS_NaviCommon::console.message ("costmap is quitting!");
+
+    CostMapLayersIterator it;
+    for (it = layers.begin (); it != layers.end (); it++)
+    {
+      (*it)->deactivate();
+    }
+
     running = false;
     update_map_thread.join ();
   }

@@ -72,9 +72,6 @@ namespace NS_CostMap
     x_ = y_ = 0;
     width_ = height_ = 0;
     
-    static_layer_loop = boost::thread (
-        boost::bind (&StaticLayer::loopStaticMap, this));
-    
   }
   
   void
@@ -165,7 +162,9 @@ namespace NS_CostMap
   void
   StaticLayer::activate ()
   {
-    onInitialize ();
+    active = true;
+    static_layer_loop = boost::thread (
+      boost::bind (&StaticLayer::loopStaticMap, this));
   }
   
   void
