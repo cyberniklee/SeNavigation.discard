@@ -61,22 +61,20 @@ namespace NS_GMapping
     NS_DataType::LaserScan* laser = (NS_DataType::LaserScan*) laser_data;
     laser_count++;
 ///////////////////////////////////////////////////////////////////////////
-    /*
+/*
      for(int i = 0; i < laser->ranges.size(); i++)
      {
      float degree = RAD2DEG(laser->angle_min + laser->angle_increment * i);
      NS_NaviCommon::console.debug("--->   angle: %f, range: %f", degree, laser->ranges[i]);
      }
      return;
-     */
+*/
 ////////////////////////////////////////////////////////////////////////////
     if (throttle_scans_ != 0)
     {
       if ((laser_count % throttle_scans_) != 0)
         return;
     }
-    
-    static NS_NaviCommon::Time last_map_update (0, 0);
     
     if (!got_first_scan)
     {
@@ -87,6 +85,8 @@ namespace NS_GMapping
     
     OrientedPoint odom_pose;
     
+    static NS_NaviCommon::Time last_map_update (0, 0);
+
     if (addScan (*laser, odom_pose))
     {
       NS_NaviCommon::console.message ("Add scan process..");
@@ -111,7 +111,7 @@ namespace NS_GMapping
       map_to_odom_lock.lock ();
       map_to_odom = (odom_to_laser * laser_to_map).inverse ();
       map_to_odom_lock.unlock ();
-      
+
       if (!got_map
           || (laser->header.stamp - last_map_update) > map_update_interval_)
       {
@@ -119,7 +119,6 @@ namespace NS_GMapping
         last_map_update = laser->header.stamp;
         NS_NaviCommon::console.message ("Updated the map...");
       }
-      
     }
     else
     {
@@ -134,8 +133,6 @@ namespace NS_GMapping
   {
     NS_ServiceType::RequestMap* req = (NS_ServiceType::RequestMap*) request;
     NS_ServiceType::ResponseMap* rep = (NS_ServiceType::ResponseMap*) response;
-    
-    NS_NaviCommon::console.debug ("Map info ---> width : %d, height : %d !\n", map.info.width, map.info.height);
 
     boost::mutex::scoped_lock map_mutex (map_lock);
     if (got_map && map.info.width && map.info.height)
@@ -207,7 +204,7 @@ namespace NS_GMapping
     
     return true;
   }
-  
+
   bool
   GMappingApplication::initMapper (NS_DataType::LaserScan& laser_data)
   {
@@ -317,10 +314,14 @@ namespace NS_GMapping
     matcher.setlaserMaxRange (max_range_);
     matcher.setusableRange (max_u_range_);
     matcher.setgenerateMap (true);
-    
+
     GridSlamProcessor::Particle best =
         gsp->getParticles ()[gsp->getBestParticleIndex ()];
-    
+    /*
+    double entropy = computePoseEntropy();
+    NS_NaviCommon::console.debug ("Entropy : %f", entropy);
+    */
+
     if (!got_map)
     {
       map.info.resolution = delta_;
@@ -337,6 +338,12 @@ namespace NS_GMapping
     center.x = (xmin_ + xmax_) / 2.0;
     center.y = (ymin_ + ymax_) / 2.0;
     
+    NS_NaviCommon::console.debug ("Smap info :");
+
+    NS_NaviCommon::console.debug ("  x [%.3f, %.3f] , y [%.3f, %.3f]:", xmin_, xmax_, ymin_, ymax_);
+
+    NS_NaviCommon::console.debug ("  resolution [%.3f]:", delta_);
+
     ScanMatcherMap smap (center, xmin_, ymin_, xmax_, ymax_, delta_);
     
     NS_NaviCommon::console.debug ("Trajectory tree:");
@@ -350,8 +357,10 @@ namespace NS_GMapping
         NS_NaviCommon::console.warning ("Null node!");
         continue;
       }
+      NS_NaviCommon::console.debug ("Processing node!");
       matcher.invalidateActiveArea ();
       matcher.computeActiveArea (smap, n->pose, &((*n->reading)[0]));
+      matcher.setgenerateMap (true);
       matcher.registerScan (smap, n->pose, &((*n->reading)[0]));
     }
     
@@ -390,6 +399,7 @@ namespace NS_GMapping
         IntPoint p (x, y);
         double occ = smap.cell (p);
         assert(occ <= 1.0);
+
         if (occ < 0)
         {
           map.data[MAP_IDX(map.info.width, x, y)] = -1;
@@ -423,7 +433,7 @@ namespace NS_GMapping
       NS_NaviCommon::console.debug ("Laser beam count number is not correct!");
       return false;
     }
-    
+
     double* ranges_double = new double[laser_data.ranges.size ()];
     
     if (do_reverse_range)
@@ -454,6 +464,7 @@ namespace NS_GMapping
         {
           ranges_double[i] = (double) laser_data.ranges[i];
         }
+
       }
     }
     
@@ -477,32 +488,34 @@ namespace NS_GMapping
     else up_mounted = false;
     
     max_range_ = parameter.getParameter ("max_range", 6.0f);
-    max_u_range_ = parameter.getParameter ("max_u_range", 6.0f);
+    max_u_range_ = parameter.getParameter ("max_u_range", 4.0f);
     minimum_score_ = parameter.getParameter ("minimum_score", 0.0f);
     sigma_ = parameter.getParameter ("sigma", 0.05f);
     kernel_size_ = parameter.getParameter ("kernel_size", 1);
+
     lstep_ = parameter.getParameter ("lstep", 0.05f);
     astep_ = parameter.getParameter ("astep", 0.05f);
+
     iterations_ = parameter.getParameter ("iterations", 5);
     lsigma_ = parameter.getParameter ("lsigma", 0.075f);
     ogain_ = parameter.getParameter ("ogain", 3.0f);
-    lskip_ = parameter.getParameter ("lskip", 0);
+    lskip_ = parameter.getParameter ("lskip", 1);
     
     srr_ = parameter.getParameter ("srr", 0.1f);
     srt_ = parameter.getParameter ("srt", 0.2f);
     str_ = parameter.getParameter ("str", 0.1f);
     stt_ = parameter.getParameter ("stt", 0.2f);
     
-    linear_update_ = parameter.getParameter ("linear_update", 1.0f);
-    angular_update_ = parameter.getParameter ("angular_update", 0.5f);
+    linear_update_ = parameter.getParameter ("linear_update", 0.0f);
+    angular_update_ = parameter.getParameter ("angular_update", 0.0f);
     temporal_update_ = parameter.getParameter ("temporal_update", -1.0f);
     resample_threshold_ = parameter.getParameter ("resample_threshold", 0.5f);
-    particles_ = parameter.getParameter ("particles", 80);
+    particles_ = parameter.getParameter ("particles", 30);
     
-    xmin_ = parameter.getParameter ("xmin", -100.0f);
-    ymin_ = parameter.getParameter ("ymin", -100.0f);
-    xmax_ = parameter.getParameter ("xmax", 100.0f);
-    ymax_ = parameter.getParameter ("ymax", 100.0f);
+    xmin_ = parameter.getParameter ("xmin", -25.0f);
+    ymin_ = parameter.getParameter ("ymin", -25.0f);
+    xmax_ = parameter.getParameter ("xmax", 25.0f);
+    ymax_ = parameter.getParameter ("ymax", 25.0f);
     delta_ = parameter.getParameter ("delta", 0.05f);
     
     occ_thresh_ = parameter.getParameter ("occ_thresh", 0.25f);
@@ -515,7 +528,7 @@ namespace NS_GMapping
     throttle_scans_ = parameter.getParameter ("throttle_scans", 2);
     
     double map_update_interval_sec = parameter.getParameter (
-        "map_update_interval", 3.0f);
+        "map_update_interval", 1.0f);
     map_update_interval_ = NS_NaviCommon::Duration (map_update_interval_sec);
   }
   

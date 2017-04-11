@@ -23,7 +23,9 @@ namespace NS_GMapping
     assert(n_beams == rs->beams ().size ());
     resize (n_beams);
     for (unsigned int i = 0; i < size (); i++)
+    {
       (*this)[i] = d[i];
+    }
   }
   
   RangeReading::~RangeReading ()

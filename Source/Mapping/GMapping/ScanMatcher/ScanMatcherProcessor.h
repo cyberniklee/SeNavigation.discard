@@ -2,9 +2,9 @@
 #define _SCANMATCHERPROCESSOR_H_
 
 #include "../Log/SensorLog.h"
-#include "../ScanMatcher/ScanMatcher.h"
 #include "../Sensor/SensorRange/RangeReading.h"
 #include "../Sensor/SensorRange/RangeSensor.h"
+#include "ScanMatcher.h"
 //#include <gsl/gsl_eigen.h>
 
 namespace NS_GMapping

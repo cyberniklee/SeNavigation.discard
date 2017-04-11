@@ -81,6 +81,7 @@ namespace NS_CostMap
     resizeMap (master->getSizeInCellsX (), master->getSizeInCellsY (),
                master->getResolution (), master->getOriginX (),
                master->getOriginY ());
+
   }
   
   unsigned char
@@ -124,7 +125,7 @@ namespace NS_CostMap
                                    new_map.info.origin.position.x,
                                    new_map.info.origin.position.y, true);
     }
-    else if (size_x_ != size_x || size_y_ != size_y
+    if (size_x_ != size_x || size_y_ != size_y
         || resolution_ != new_map.info.resolution
         || origin_x_ != new_map.info.origin.position.x
         || origin_y_ != new_map.info.origin.position.y)
@@ -137,9 +138,9 @@ namespace NS_CostMap
                  new_map.info.origin.position.x,
                  new_map.info.origin.position.y);
     }
-    
+
     unsigned int index = 0;
-    
+
     // initialize the costmap with static data
     for (unsigned int i = 0; i < size_y; ++i)
     {

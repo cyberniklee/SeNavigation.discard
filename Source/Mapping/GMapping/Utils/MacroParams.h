@@ -35,4 +35,5 @@ setqualifier: inline void set##name(type name) {member.name=name;}
 getqualifier: inline type get##name() const {return member.name;}\
 
 #define convertStringArgument(var,val,buf) if (!strcmp(buf,#val)) var=val
+
 #endif

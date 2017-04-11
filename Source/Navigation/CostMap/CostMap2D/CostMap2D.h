@@ -22,7 +22,7 @@ namespace NS_CostMap
    */
   class Costmap2D
   {
-    friend class CostmapTester;  // Need this for gtest to work correctly
+
   public:
     /**
      * @brief  Constructor for a costmap

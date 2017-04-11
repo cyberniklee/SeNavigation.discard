@@ -10,8 +10,6 @@
 
 #include "../../Application/Application.h"
 
-#include "GridFastSlam/GridSlamProcessor.h"
-
 #include <DataSet/DataType/DataBase.h>
 #include <Service/ServiceType/RequestBase.h>
 #include <Service/ServiceType/ResponseBase.h>
@@ -20,6 +18,7 @@
 #include <DataSet/DataType/OccupancyGrid.h>
 #include <Time/Time.h>
 #include <Time/Duration.h>
+#include "GridFastSlam/GridSlamProcessor.h"
 
 namespace NS_GMapping
 {

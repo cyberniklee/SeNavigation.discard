@@ -85,7 +85,7 @@ namespace NS_Communication
     fprintf (out, "P5\n# CREATOR: Map_generator.cpp %.3f m/pix\n%d %d\n255\n",
              respMap->map.info.resolution, respMap->map.info.width,
              respMap->map.info.height);
-    
+
     for (unsigned long y = 0; y < respMap->map.info.height; y++)
     {
       for (unsigned long x = 0; x < respMap->map.info.width; x++)
@@ -123,7 +123,7 @@ namespace NS_Communication
         if (respMap == NULL)
           respMap = new NS_ServiceType::ResponseMap;
         
-        service->call (SERVICE_TYPE_COSTMAP, NULL, respMap);
+        service->call (SERVICE_TYPE_MAP, NULL, respMap);
         CommData* response = this->createResponseByRequest (message);
         response->payload_length = sizeof(respMap->map.data.size ());
         
@@ -148,9 +148,9 @@ namespace NS_Communication
         unsigned int len = mapDataFile.length ();
         memcpy (response->payload, mapPath, len);
         
-        NS_NaviCommon::console.message ("receive mapPath len: %d>>>>>>", len);
-        NS_NaviCommon::console.message ("receive mapPath: %s>>>>>>", mapPath);
-        NS_NaviCommon::console.message ("receive payload: %s>>>>>>",
+        NS_NaviCommon::console.debug ("receive mapPath len: %d", len);
+        NS_NaviCommon::console.debug ("receive mapPath: %s", mapPath);
+        NS_NaviCommon::console.debug ("receive payload: %s",
                                         response->payload);
         response->payload_length = len;
         

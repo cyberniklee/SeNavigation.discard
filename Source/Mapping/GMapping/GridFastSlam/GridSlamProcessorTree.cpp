@@ -5,10 +5,8 @@
 #include <set>
 #include <fstream>
 
-#include "../GridFastSlam/GridSlamProcessor.h"
-//#include <gsl/gsl_blas.h>
-
 #include "../Utils/Stat.h"
+#include "GridSlamProcessor.h"
 
 namespace NS_GMapping
 {

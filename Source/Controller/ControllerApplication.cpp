@@ -88,11 +88,12 @@ namespace NS_Controller
     rep->transform.rotation.y = 0.0;
     rep->transform.rotation.z = sin (current_pose.theta / 2.0);
     rep->transform.rotation.w = cos (current_pose.theta / 2.0);
-    
+    /*
     NS_NaviCommon::console.debug (
         "odometry transform: x:%f, y:%f, rz:%f, rw:%f",
         rep->transform.translation.x, rep->transform.translation.y,
         rep->transform.rotation.z, rep->transform.rotation.w);
+    */
   }
   
   void
