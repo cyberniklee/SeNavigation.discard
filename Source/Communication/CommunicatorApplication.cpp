@@ -130,7 +130,7 @@ namespace NS_Communication
         response->payload_length = sizeof(respMap->map.data.size ());
         
         mapStream = writeInPGM (); // transform respMap to map stream of PGM format.
-            
+
         char* mapSize_str = new char[10];
         sprintf (mapSize_str, "%ld", respMap->map.data.size ());
         memcpy (response->payload, mapSize_str, 10);
