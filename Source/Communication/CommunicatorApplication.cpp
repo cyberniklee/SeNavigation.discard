@@ -27,7 +27,10 @@ namespace NS_Communication
   void
   CommunicatorApplication::loadParameters ()
   {
-    // TODO
+    local_port_ = parameter.getParameter ("local_port", 6689);
+    remote_port_ = parameter.getParameter ("remote_port", 6688);
+
+    map_file_ = parameter.getParameter ("map_file", "/tmp/gmap.pgm");
   }
   
   void
@@ -75,12 +78,11 @@ namespace NS_Communication
   void
   CommunicatorApplication::saveMapInPGM ()
   {
-    mapDataFile = "/tmp/map.pgm";
-    FILE* out = fopen (mapDataFile.c_str (), "w");
+    FILE* out = fopen (map_file_.c_str (), "w");
     if (!out)
     {
       NS_NaviCommon::console.warning ("Couldn't save map file to %s",
-                                      mapDataFile.c_str ());
+                                      map_file_.c_str ());
     }
     fprintf (out, "P5\n# CREATOR: Map_generator.cpp %.3f m/pix\n%d %d\n255\n",
              respMap->map.info.resolution, respMap->map.info.width,
@@ -109,7 +111,7 @@ namespace NS_Communication
     
     fclose (out);
     NS_NaviCommon::console.message ("write PGM finish, path: %s",
-                                    mapDataFile.c_str ());
+                                    map_file_.c_str ());
     
   }
   
@@ -144,8 +146,8 @@ namespace NS_Communication
         CommData* response = this->createResponseByRequest (message);
         
         saveMapInPGM ();
-        const u_char* mapPath = (const u_char*) mapDataFile.c_str ();
-        unsigned int len = mapDataFile.length ();
+        const u_char* mapPath = (const u_char*) map_file_.c_str ();
+        unsigned int len = map_file_.length ();
         memcpy (response->payload, mapPath, len);
         
         NS_NaviCommon::console.debug ("receive mapPath len: %d", len);
@@ -190,7 +192,7 @@ namespace NS_Communication
     mapStream = NULL;
     
     loadParameters ();
-    instance->initialize (6689, 6688);
+    instance->initialize (local_port_, remote_port_);
 
     initialized = true;
     

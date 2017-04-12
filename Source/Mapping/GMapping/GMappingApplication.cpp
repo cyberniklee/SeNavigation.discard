@@ -124,6 +124,8 @@ namespace NS_GMapping
     {
       NS_NaviCommon::console.warning ("Can not process the scan!");
     }
+
+    delete laser_data;
   }
   
 
@@ -516,7 +518,7 @@ namespace NS_GMapping
     ymin_ = parameter.getParameter ("ymin", -25.0f);
     xmax_ = parameter.getParameter ("xmax", 25.0f);
     ymax_ = parameter.getParameter ("ymax", 25.0f);
-    delta_ = parameter.getParameter ("delta", 0.05f);
+    delta_ = parameter.getParameter ("delta", 0.1f);
     
     occ_thresh_ = parameter.getParameter ("occ_thresh", 0.25f);
     
@@ -525,10 +527,10 @@ namespace NS_GMapping
     lasamplerange_ = parameter.getParameter ("lasamplerange", 0.005f);
     lasamplestep_ = parameter.getParameter ("lasamplestep", 0.005f);
     
-    throttle_scans_ = parameter.getParameter ("throttle_scans", 2);
+    throttle_scans_ = parameter.getParameter ("throttle_scans", 5);
     
     double map_update_interval_sec = parameter.getParameter (
-        "map_update_interval", 1.0f);
+        "map_update_interval", 3.0f);
     map_update_interval_ = NS_NaviCommon::Duration (map_update_interval_sec);
   }
   

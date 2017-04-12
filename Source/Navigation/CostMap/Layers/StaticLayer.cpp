@@ -67,7 +67,7 @@ namespace NS_CostMap
     else trinary_costmap_ = false;
     
     map_update_frequency_ = parameter.getParameter ("map_update_frequency",
-                                                    5.0f);
+                                                    3.0f);
     
     x_ = y_ = 0;
     width_ = height_ = 0;

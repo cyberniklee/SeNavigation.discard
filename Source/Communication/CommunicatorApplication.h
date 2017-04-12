@@ -45,7 +45,11 @@ namespace NS_Communication
   private:
     NS_ServiceType::ResponseMap* respMap;
     unsigned char* mapStream;
-    std::string mapDataFile;
+
+  private:
+    int local_port_;
+    int remote_port_;
+    std::string map_file_;
 
   private:
     u_char*
