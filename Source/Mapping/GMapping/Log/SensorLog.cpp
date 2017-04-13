@@ -101,7 +101,7 @@ namespace NS_GMapping
     assert(size == rs->beams ().size ());
     
     RangeReading* reading = new RangeReading (rs);
-    //cerr << "#R=" << size << endl;
+    //cout << "#R=" << size << endl;
     reading->resize (size);
     for (unsigned int i = 0; i < size; i++)
     {

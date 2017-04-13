@@ -267,7 +267,7 @@ namespace NS_GMapping
       {
         Array2D<Cell>* patch = createPatch (IntPoint (x, y));
         this->m_cells[c.x][c.y] = autoptr<Array2D<Cell> > (patch);
-        //cerr << "!!! FATAL: your dick is going to fall down" << endl;
+        //cout << "!!! FATAL: your dick is going to fall down" << endl;
       }
       autoptr<Array2D<Cell> >& ptr = this->m_cells[c.x][c.y];
       return (*ptr).cell (

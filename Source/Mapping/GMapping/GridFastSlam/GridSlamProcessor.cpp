@@ -56,13 +56,13 @@ namespace NS_GMapping
     m_angularDistance = gsp.m_angularDistance;
     m_neff = gsp.m_neff;
     
-    cerr << "FILTER COPY CONSTRUCTOR" << endl;
-    cerr << "m_odoPose=" << m_odoPose.x << " " << m_odoPose.y << " "
+    cout << "FILTER COPY CONSTRUCTOR" << endl;
+    cout << "m_odoPose=" << m_odoPose.x << " " << m_odoPose.y << " "
         << m_odoPose.theta << endl;
-    cerr << "m_lastPartPose=" << m_lastPartPose.x << " " << m_lastPartPose.y
+    cout << "m_lastPartPose=" << m_lastPartPose.x << " " << m_lastPartPose.y
         << " " << m_lastPartPose.theta << endl;
-    cerr << "m_linearDistance=" << m_linearDistance << endl;
-    cerr << "m_angularDistance=" << m_linearDistance << endl;
+    cout << "m_linearDistance=" << m_linearDistance << endl;
+    cout << "m_angularDistance=" << m_linearDistance << endl;
     
     m_xmin = gsp.m_xmin;
     m_ymin = gsp.m_ymin;
@@ -79,7 +79,7 @@ namespace NS_GMapping
     m_obsSigmaGain = gsp.m_obsSigmaGain;
     
 #ifdef MAP_CONSISTENCY_CHECK
-    cerr << __PRETTY_FUNCTION__ << ": trajectories copy.... ";
+    cout << __PRETTY_FUNCTION__ << ": trajectories copy.... ";
 #endif
     TNodeVector v = gsp.getTrajectories ();
     for (unsigned int i = 0; i < v.size (); i++)
@@ -87,13 +87,13 @@ namespace NS_GMapping
       m_particles[i].node = v[i];
     }
 #ifdef MAP_CONSISTENCY_CHECK
-    cerr << "end" << endl;
+    cout << "end" << endl;
 #endif
     
-    cerr
+    cout
         << "Tree: normalizing, resetting and propagating weights within copy construction/cloneing ...";
     updateTreeWeights (false);
-    cerr << ".done!" << endl;
+    cout << ".done!" << endl;
   }
   
   GridSlamProcessor::GridSlamProcessor (std::ostream& infoS)
@@ -110,7 +110,7 @@ namespace NS_GMapping
   GridSlamProcessor::clone () const
   {
 # ifdef MAP_CONSISTENCY_CHECK
-    cerr << __PRETTY_FUNCTION__ << ": performing preclone_fit_test" << endl;
+    cout << __PRETTY_FUNCTION__ << ": performing preclone_fit_test" << endl;
     typedef std::map<autoptr< Array2D<PointAccumulator> >::reference* const, int> PointerMap;
     PointerMap pmap;
     for (ParticleVector::const_iterator it=m_particles.begin(); it!=m_particles.end(); it++)
@@ -133,17 +133,17 @@ namespace NS_GMapping
         }
       }
     }
-    cerr << __PRETTY_FUNCTION__ << ": Number of allocated chunks" << pmap.size() << endl;
+    cout << __PRETTY_FUNCTION__ << ": Number of allocated chunks" << pmap.size() << endl;
     for(PointerMap::const_iterator it=pmap.begin(); it!=pmap.end(); it++)
     assert(it->first->shares==(unsigned int)it->second);
 
-    cerr << __PRETTY_FUNCTION__ << ": SUCCESS, the error is somewhere else" << endl;
+    cout << __PRETTY_FUNCTION__ << ": SUCCESS, the error is somewhere else" << endl;
 # endif
     GridSlamProcessor* cloned = new GridSlamProcessor (*this);
     
 # ifdef MAP_CONSISTENCY_CHECK
-    cerr << __PRETTY_FUNCTION__ << ": trajectories end" << endl;
-    cerr << __PRETTY_FUNCTION__ << ": performing afterclone_fit_test" << endl;
+    cout << __PRETTY_FUNCTION__ << ": trajectories end" << endl;
+    cout << __PRETTY_FUNCTION__ << ": performing afterclone_fit_test" << endl;
     ParticleVector::const_iterator jt=cloned->m_particles.begin();
     for (ParticleVector::const_iterator it=m_particles.begin(); it!=m_particles.end(); it++)
     { 
@@ -163,15 +163,15 @@ namespace NS_GMapping
         }
       }
     }
-    cerr << __PRETTY_FUNCTION__ << ": SUCCESS, the error is somewhere else" << endl;
+    cout << __PRETTY_FUNCTION__ << ": SUCCESS, the error is somewhere else" << endl;
 # endif
     return cloned;
   }
   
   GridSlamProcessor::~GridSlamProcessor ()
   {
-    cerr << __PRETTY_FUNCTION__ << ": Start" << endl;
-    cerr << __PRETTY_FUNCTION__ << ": Deleting tree" << endl;
+    cout << __PRETTY_FUNCTION__ << ": Start" << endl;
+    cout << __PRETTY_FUNCTION__ << ": Deleting tree" << endl;
     for (std::vector<Particle>::iterator it = m_particles.begin ();
         it != m_particles.end (); it++)
     {
@@ -179,7 +179,7 @@ namespace NS_GMapping
       TNode* node=it->node;
       while(node)
       node=node->parent;
-      cerr << "@" << endl;
+      cout << "@" << endl;
 #endif
       if (it->node)
         delete it->node;
@@ -187,7 +187,7 @@ namespace NS_GMapping
     }
     
 # ifdef MAP_CONSISTENCY_CHECK
-    cerr << __PRETTY_FUNCTION__ << ": performing predestruction_fit_test" << endl;
+    cout << __PRETTY_FUNCTION__ << ": performing predestruction_fit_test" << endl;
     typedef std::map<autoptr< Array2D<PointAccumulator> >::reference* const, int> PointerMap;
     PointerMap pmap;
     for (ParticleVector::const_iterator it=m_particles.begin(); it!=m_particles.end(); it++)
@@ -210,10 +210,10 @@ namespace NS_GMapping
         }
       }
     }
-    cerr << __PRETTY_FUNCTION__ << ": Number of allocated chunks" << pmap.size() << endl;
+    cout << __PRETTY_FUNCTION__ << ": Number of allocated chunks" << pmap.size() << endl;
     for(PointerMap::const_iterator it=pmap.begin(); it!=pmap.end(); it++)
     assert(it->first->shares>=(unsigned int)it->second);
-    cerr << __PRETTY_FUNCTION__ << ": SUCCESS, the error is somewhere else" << endl;
+    cout << __PRETTY_FUNCTION__ << ": SUCCESS, the error is somewhere else" << endl;
 # endif
   }
   
@@ -287,7 +287,7 @@ namespace NS_GMapping
     SensorMap::const_iterator laser_it = smap.find (std::string ("FLASER"));
     if (laser_it == smap.end ())
     {
-      cerr << "Attempting to load the new carmen log format" << endl;
+      cout << "Attempting to load the new carmen log format" << endl;
       laser_it = smap.find (std::string ("ROBOTLASER1"));
       assert(laser_it != smap.end ());
     }
@@ -420,30 +420,30 @@ namespace NS_GMapping
     // if the robot jumps throw a warning
     if (m_linearDistance > m_distanceThresholdCheck)
     {
-      cerr
+      cout
           << "***********************************************************************"
           << endl;
-      cerr
+      cout
           << "********** Error: m_distanceThresholdCheck overridden!!!! *************"
           << endl;
-      cerr << "m_distanceThresholdCheck=" << m_distanceThresholdCheck << endl;
-      cerr << "Old Odometry Pose= " << m_odoPose.x << " " << m_odoPose.y << " "
+      cout << "m_distanceThresholdCheck=" << m_distanceThresholdCheck << endl;
+      cout << "Old Odometry Pose= " << m_odoPose.x << " " << m_odoPose.y << " "
           << m_odoPose.theta << endl;
-      cerr << "New Odometry Pose (reported from observation)= " << relPose.x
+      cout << "New Odometry Pose (reported from observation)= " << relPose.x
           << " " << relPose.y << " " << relPose.theta << endl;
-      cerr
+      cout
           << "***********************************************************************"
           << endl;
-      cerr
+      cout
           << "** The Odometry has a big jump here. This is probably a bug in the   **"
           << endl;
-      cerr
+      cout
           << "** odometry/laser input. We continue now, but the result is probably **"
           << endl;
-      cerr
+      cout
           << "** crap or can lead to a core dump since the map doesn't fit.... C&G **"
           << endl;
-      cerr
+      cout
           << "***********************************************************************"
           << endl;
     }
@@ -472,7 +472,7 @@ namespace NS_GMapping
             << "update ld=" << m_linearDistance << " ad=" << m_angularDistance
             << endl;
       
-      cerr << "Laser Pose= " << reading.getPose ().x << " "
+      cout << "Laser Pose= " << reading.getPose ().x << " "
           << reading.getPose ().y << " " << reading.getPose ().theta << endl;
       
       //this is for converting the reading in a scan-matcher feedable form
@@ -550,9 +550,9 @@ namespace NS_GMapping
           it->node = node;
         }
       }
-      //		cerr  << "Tree: normalizing, resetting and propagating weights at the end..." ;
+      //		cout  << "Tree: normalizing, resetting and propagating weights at the end..." ;
       updateTreeWeights (false);
-      //		cerr  << ".done!" <<endl;
+      //		cout  << ".done!" <<endl;
       
       delete[] plainReading;
       m_lastPartPose = m_odoPose; //update the past pose for the next iteration

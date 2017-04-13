@@ -8,6 +8,7 @@
 #include "Application.h"
 #include <Console/Console.h>
 #include <Time/Time.h>
+#include <Parameter/Parameter.h>
 
 static NS_NaviCommon::Dispitcher global_dispitcher;
 static NS_NaviCommon::Service global_service;
@@ -27,6 +28,22 @@ Application::~Application ()
 void
 Application::globalInitialize ()
 {
+  NS_NaviCommon::Parameter para;
+  para.loadConfigurationFile ("application.xml");
+
+  if (para.getParameter ("disable_stdout", 1) == 1)
+  {
+    NS_NaviCommon::disableStdoutStream ();
+    NS_NaviCommon::console.warning ("Stdout stream has been disabled!");
+  }
+
+  string redir_log = para.getParameter ("redirect_stdout_file", "");
+  if (redir_log != "")
+  {
+    NS_NaviCommon::redirectStdoutStream (redir_log);
+    NS_NaviCommon::console.warning ("Stdout stream has been redirected to %s!", redir_log.c_str());
+  }
+
   NS_NaviCommon::Time::init ();
   
   global_dispitcher.initialize ();

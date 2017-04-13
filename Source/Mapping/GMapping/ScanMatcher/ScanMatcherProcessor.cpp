@@ -103,9 +103,9 @@ namespace NS_GMapping
     double lin_move = move * move;
     if (lin_move > m_maxMove)
     {
-      cerr << "Too big jump in the log file: " << lin_move << endl;
-      cerr << "relPose=" << relPose.x << " " << relPose.y << endl;
-      cerr << "ignoring" << endl;
+      cout << "Too big jump in the log file: " << lin_move << endl;
+      cout << "relPose=" << relPose.x << " " << relPose.y << endl;
+      cout << "ignoring" << endl;
       return;
       //assert(0);
       dth = 0;
@@ -197,7 +197,7 @@ namespace NS_GMapping
       {
         if (useICP)
         {
-          cerr << "USING ICP" << endl;
+          cout << "USING ICP" << endl;
           score = m_matcher.icpOptimize (newPose, m_map, m_pose, plainReading);
         }
         else score = m_matcher.optimize (newPose, m_map, m_pose, plainReading);

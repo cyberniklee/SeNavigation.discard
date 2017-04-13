@@ -84,14 +84,14 @@ namespace NS_GMapping
   RangeReading*
   SensorStream::parseRange (std::istream& is, const RangeSensor* rs)
   {
-    //cerr << __PRETTY_FUNCTION__ << endl;
+    //cout << __PRETTY_FUNCTION__ << endl;
     if (rs->newFormat)
     {
       string laser_type, start_angle, field_of_view, angular_resolution,
           maximum_range, accuracy, remission_mode;
       is >> laser_type >> start_angle >> field_of_view >> angular_resolution
           >> maximum_range >> accuracy >> remission_mode;
-      //cerr << " New format laser msg" << endl;
+      //cout << " New format laser msg" << endl;
     }
     unsigned int size;
     is >> size;

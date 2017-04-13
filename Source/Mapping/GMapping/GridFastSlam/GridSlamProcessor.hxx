@@ -125,10 +125,10 @@ GridSlamProcessor::resample (const double* plainReading, int adaptSize,
     unsigned int j = 0;
     std::vector<unsigned int> deletedParticles; //this is for deleteing the particles which have been resampled away.
     
-    //		cerr << "Existing Nodes:" ;
+    //		cout << "Existing Nodes:" ;
     for (unsigned int i = 0; i < m_indexes.size (); i++)
     {
-      //			cerr << " " << m_indexes[i];
+      //			cout << " " << m_indexes[i];
       while (j < m_indexes[i])
       {
         deletedParticles.push_back (j);
@@ -139,11 +139,11 @@ GridSlamProcessor::resample (const double* plainReading, int adaptSize,
       Particle & p = m_particles[m_indexes[i]];
       TNode* node = 0;
       TNode* oldNode = oldGeneration[m_indexes[i]];
-      //			cerr << i << "->" << m_indexes[i] << "B("<<oldNode->childs <<") ";
+      //			cout << i << "->" << m_indexes[i] << "B("<<oldNode->childs <<") ";
       node = new TNode (p.pose, 0, oldNode, 0);
       //node->reading=0;
       node->reading = reading;
-      //			cerr << "A("<<node->parent->childs <<") " <<endl;
+      //			cout << "A("<<node->parent->childs <<") " <<endl;
       
       temp.push_back (p);
       temp.back ().node = node;
@@ -154,21 +154,21 @@ GridSlamProcessor::resample (const double* plainReading, int adaptSize,
       deletedParticles.push_back (j);
       j++;
     }
-    //		cerr << endl;
-    std::cerr << "Deleting Nodes:";
+    //		cout << endl;
+    std::cout << "Deleting Nodes:";
     for (unsigned int i = 0; i < deletedParticles.size (); i++)
     {
-      std::cerr << " " << deletedParticles[i];
+      std::cout << " " << deletedParticles[i];
       delete m_particles[deletedParticles[i]].node;
       m_particles[deletedParticles[i]].node = 0;
     }
-    std::cerr << " Done" << std::endl;
+    std::cout << " Done" << std::endl;
     
     //END: BUILDING TREE
-    std::cerr << "Deleting old particles...";
+    std::cout << "Deleting old particles...";
     m_particles.clear ();
-    std::cerr << "Done" << std::endl;
-    std::cerr << "Copying Particles and  Registering  scans...";
+    std::cout << "Done" << std::endl;
+    std::cout << "Copying Particles and  Registering  scans...";
     for (ParticleVector::iterator it = temp.begin (); it != temp.end (); it++)
     {
       it->setWeight (0);
@@ -176,13 +176,13 @@ GridSlamProcessor::resample (const double* plainReading, int adaptSize,
       m_matcher.registerScan (it->map, it->pose, plainReading);
       m_particles.push_back (*it);
     }
-    std::cerr << " Done" << std::endl;
+    std::cout << " Done" << std::endl;
     hasResampled = true;
   }
   else
   {
     int index = 0;
-    std::cerr << "Registering Scans:";
+    std::cout << "Registering Scans:";
     TNodeVector::iterator node_it = oldGeneration.begin ();
     for (ParticleVector::iterator it = m_particles.begin ();
         it != m_particles.end (); it++)
@@ -204,7 +204,7 @@ GridSlamProcessor::resample (const double* plainReading, int adaptSize,
       node_it++;
       
     }
-    std::cerr << "Done" << std::endl;
+    std::cout << "Done" << std::endl;
     
   }
   //END: BUILDING TREE

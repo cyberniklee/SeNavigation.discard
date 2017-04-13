@@ -466,7 +466,6 @@ namespace NS_GMapping
         {
           ranges_double[i] = (double) laser_data.ranges[i];
         }
-
       }
     }
     

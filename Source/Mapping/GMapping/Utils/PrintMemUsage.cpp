@@ -18,12 +18,12 @@ namespace NS_GMapping
       if (line == "VmData:")
       {
         is >> line;
-        cerr << "#VmData:\t" << line << endl;
+        cout << "#VmData:\t" << line << endl;
       }
       if (line == "VmSize:")
       {
         is >> line;
-        cerr << "#VmSize:\t" << line << endl;
+        cout << "#VmSize:\t" << line << endl;
       }
       
     }

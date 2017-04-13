@@ -56,7 +56,7 @@ namespace NS_GMapping
       int it = 0;
       double lstep = params.linearStep, astep = params.angularStep;
       bool increase;
-      /*	cerr << "bestScore=" << bestScore << endl;;*/
+      /*	cout << "bestScore=" << bestScore << endl;;*/
       do
       {
         increase = false;
@@ -105,14 +105,14 @@ namespace NS_GMapping
           {
             itBestScore = testBestScore;
             itBestPose = testBestPose;
-            /*				cerr << "s=" << itBestScore << " ";*/
+            /*				cout << "s=" << itBestScore << " ";*/
             itIncrease = true;
           }
         }
         while (itIncrease);
         if (itBestScore > bestScore)
         {
-          /*			cerr << "S(" << itBestScore << "," <<  bestScore<< ")";*/
+          /*			cout << "S(" << itBestScore << "," <<  bestScore<< ")";*/
           bestScore = itBestScore;
           bestPose = itBestPose;
           increase = true;
@@ -125,8 +125,8 @@ namespace NS_GMapping
         }
       }
       while (it < params.iterations);
-      /*	cerr << "FinalBestScore" << bestScore << endl;*/
-      cerr << endl;
+      /*	cout << "FinalBestScore" << bestScore << endl;*/
+      cout << endl;
       return bestPose;
     }
   
@@ -141,7 +141,7 @@ namespace NS_GMapping
       int it = 0;
       double lstep = params.linearStep, astep = params.angularStep;
       bool increase;
-      /*	cerr << "bestScore=" << bestScore << endl;;*/
+      /*	cout << "bestScore=" << bestScore << endl;;*/
       do
       {
         increase = false;
@@ -190,14 +190,14 @@ namespace NS_GMapping
           {
             itBestScore = testBestScore;
             itBestPose = testBestPose;
-            /*				cerr << "s=" << itBestScore << " ";*/
+            /*				cout << "s=" << itBestScore << " ";*/
             itIncrease = true;
           }
         }
         while (itIncrease);
         if (itBestScore > bestScore)
         {
-          /*			cerr << "S(" << itBestScore << "," <<  bestScore<< ")";*/
+          /*			cout << "S(" << itBestScore << "," <<  bestScore<< ")";*/
           bestScore = itBestScore;
           bestPose = itBestPose;
           increase = true;
@@ -210,8 +210,8 @@ namespace NS_GMapping
         }
       }
       while (it < params.iterations);
-      /*	cerr << "FinalBestScore" << bestScore << endl;*/
-      cerr << endl;
+      /*	cout << "FinalBestScore" << bestScore << endl;*/
+      cout << endl;
       return bestPose;
     }
 

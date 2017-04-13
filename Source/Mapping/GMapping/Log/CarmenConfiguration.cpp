@@ -89,7 +89,7 @@ namespace NS_GMapping
       vector<string> v;
       v.push_back (beams);
       insert (make_pair ("laser_beams", v));
-      cerr << "FRONT LASER BEAMS FROM LOG: " << beams << endl;
+      cout << "FRONT LASER BEAMS FROM LOG: " << beams << endl;
       v.clear ();
       v.push_back ("on");
       insert (make_pair ("robot_use_laser", v));
@@ -99,7 +99,7 @@ namespace NS_GMapping
       vector<string> v;
       v.push_back (rbeams);
       insert (make_pair ("rear_laser_beams", v));
-      cerr << "REAR LASER BEAMS FROM LOG: " << beams << endl;
+      cout << "REAR LASER BEAMS FROM LOG: " << beams << endl;
       v.clear ();
       v.push_back ("on");
       insert (make_pair ("robot_use_rear_laser", v));
@@ -133,7 +133,7 @@ namespace NS_GMapping
       if (key != end ())
       {
         maxrange = atof (key->second.front ().c_str ());
-        cerr << "max sonar:" << maxrange << endl;
+        cout << "max sonar:" << maxrange << endl;
       }
       
       unsigned int sonar_num = 0;
@@ -141,7 +141,7 @@ namespace NS_GMapping
       if (key != end ())
       {
         sonar_num = atoi (key->second.front ().c_str ());
-        cerr << "robot_num_sonars" << sonar_num << endl;
+        cout << "robot_num_sonars" << sonar_num << endl;
       }
       
       key = find ("robot_sonar_offsets");
@@ -151,14 +151,14 @@ namespace NS_GMapping
         
         if ((soff.size () / 3 < sonar_num))
         {
-          cerr << __PRETTY_FUNCTION__ << ": Error " << soff.size ()
+          cout << __PRETTY_FUNCTION__ << ": Error " << soff.size ()
               << " parameters for defining the sonar offsets"
               << " while the specified number of sonars requires "
               << sonar_num * 3 << " parameters at least" << endl;
         }
         else
         {
-          cerr << __PRETTY_FUNCTION__ << ": Ok " << soff.size ()
+          cout << __PRETTY_FUNCTION__ << ": Ok " << soff.size ()
               << " parameters for defining the sonar offsets of " << sonar_num
               << " devices" << endl;
         }
@@ -173,9 +173,9 @@ namespace NS_GMapping
           beam.pose.theta = atof (soff[i + 2].c_str ());
           beam.maxRange = maxrange;
           sonar->m_beams.push_back (beam);
-          cerr << "beam_x" << beam.pose.x;
-          cerr << " beam_y" << beam.pose.y;
-          cerr << " beam_theta" << beam.pose.theta << endl;
+          cout << "beam_x" << beam.pose.x;
+          cout << " beam_y" << beam.pose.y;
+          cout << " beam_theta" << beam.pose.theta << endl;
           ;
         }
       }
@@ -196,7 +196,7 @@ namespace NS_GMapping
       if (key != end ())
       {
         laser->m_pose.x = atof (key->second.front ().c_str ());
-        cerr << "FRONT OFFSET= " << laser->m_pose.x << endl;
+        cout << "FRONT OFFSET= " << laser->m_pose.x << endl;
       }
       
       RangeSensor::Beam beam;
@@ -208,7 +208,7 @@ namespace NS_GMapping
       if (key != end ())
       {
         beam_no = atoi (key->second.front ().c_str ());
-        cerr << "FRONT BEAMS=" << beam_no << endl;
+        cout << "FRONT BEAMS=" << beam_no << endl;
       }
       
       double maxrange = 50;
@@ -241,7 +241,7 @@ namespace NS_GMapping
         if (key != end ())
         {
           resolution = atof (key->second.front ().c_str ());
-          cerr << "FRONT RES " << resolution << endl;
+          cout << "FRONT RES " << resolution << endl;
         }
       }
       
@@ -267,8 +267,8 @@ namespace NS_GMapping
       }
       laser->updateBeamsLookup ();
       smap.insert (make_pair (laser->getName (), laser));
-      cerr << "front beams " << beam_no << endl;
-      cerr << "maxrange " << maxrange << endl;
+      cout << "front beams " << beam_no << endl;
+      cout << "maxrange " << maxrange << endl;
     }
     
     key = find ("robot_use_laser");
@@ -276,14 +276,14 @@ namespace NS_GMapping
     {
       RangeSensor* laser = new RangeSensor ("ROBOTLASER1");
       laser->newFormat = true;
-      cerr << "ROBOTLASER1 inserted" << endl;
+      cout << "ROBOTLASER1 inserted" << endl;
       //by default the center of the robot is the center of the laser
       laser->m_pose.x = laser->m_pose.y = laser->m_pose.theta = 0;
       key = find ("robot_frontlaser_offset");
       if (key != end ())
       {
         laser->m_pose.x = atof (key->second.front ().c_str ());
-        cerr << "FRONT OFFSET=" << laser->m_pose.x << endl;
+        cout << "FRONT OFFSET=" << laser->m_pose.x << endl;
       }
       
       RangeSensor::Beam beam;
@@ -295,7 +295,7 @@ namespace NS_GMapping
       if (key != end ())
       {
         beam_no = atoi (key->second.front ().c_str ());
-        cerr << "FRONT BEAMS=" << beam_no << endl;
+        cout << "FRONT BEAMS=" << beam_no << endl;
       }
       
       double maxrange = 50;
@@ -320,7 +320,7 @@ namespace NS_GMapping
         if (key != end ())
         {
           resolution = atof (key->second.front ().c_str ());
-          cerr << "FRONT RES" << resolution << endl;
+          cout << "FRONT RES" << resolution << endl;
         }
       }
       
@@ -346,7 +346,7 @@ namespace NS_GMapping
       }
       laser->updateBeamsLookup ();
       smap.insert (make_pair (laser->getName (), laser));
-      cerr << "front beams" << beam_no << endl;
+      cout << "front beams" << beam_no << endl;
     }
     
     //vertical laser
@@ -363,7 +363,7 @@ namespace NS_GMapping
       if (key != end ())
       {
         laser->m_pose.x = atof (key->second.front ().c_str ());
-        cerr << "REAR OFFSET = " << laser->m_pose.x << endl;
+        cout << "REAR OFFSET = " << laser->m_pose.x << endl;
       }
       
       RangeSensor::Beam beam;
@@ -375,7 +375,7 @@ namespace NS_GMapping
       if (key != end ())
       {
         beam_no = atoi (key->second.front ().c_str ());
-        cerr << "REAR BEAMS=" << beam_no << endl;
+        cout << "REAR BEAMS=" << beam_no << endl;
       }
       
       double maxrange = 89;
@@ -395,7 +395,7 @@ namespace NS_GMapping
         if (key != end ())
         {
           resolution = atof (key->second.front ().c_str ());
-          cerr << "REAR RES" << resolution << endl;
+          cout << "REAR RES" << resolution << endl;
         }
       }
       
@@ -421,7 +421,7 @@ namespace NS_GMapping
       }
       laser->updateBeamsLookup ();
       smap.insert (make_pair (laser->getName (), laser));
-      cerr << "rear beams" << beam_no << endl;
+      cout << "rear beams" << beam_no << endl;
     }
     
     key = find ("robot_use_rear_laser");
@@ -429,7 +429,7 @@ namespace NS_GMapping
     {
       RangeSensor* laser = new RangeSensor ("ROBOTLASER2");
       laser->newFormat = true;
-      cerr << "ROBOTLASER2 inserted" << endl;
+      cout << "ROBOTLASER2 inserted" << endl;
       //by default the center of the robot is the center of the laser
       laser->m_pose.x = laser->m_pose.y = 0;
       laser->m_pose.theta = M_PI;
@@ -437,7 +437,7 @@ namespace NS_GMapping
       if (key != end ())
       {
         // laser->m_pose.x==atof(key->second.front().c_str());
-        cerr << "REAR OFFSET not used" << laser->m_pose.x << endl;
+        cout << "REAR OFFSET not used" << laser->m_pose.x << endl;
       }
       
       RangeSensor::Beam beam;
@@ -449,7 +449,7 @@ namespace NS_GMapping
       if (key != end ())
       {
         beam_no = atoi (key->second.front ().c_str ());
-        cerr << "REAR BEAMS=" << beam_no << endl;
+        cout << "REAR BEAMS=" << beam_no << endl;
       }
       
       double maxrange = 50;
@@ -469,7 +469,7 @@ namespace NS_GMapping
         if (key != end ())
         {
           resolution = atof (key->second.front ().c_str ());
-          cerr << "REAR RES" << resolution << endl;
+          cout << "REAR RES" << resolution << endl;
         }
       }
       
@@ -495,7 +495,7 @@ namespace NS_GMapping
       }
       laser->updateBeamsLookup ();
       smap.insert (make_pair (laser->getName (), laser));
-      cerr << "rear beams" << beam_no << endl;
+      cout << "rear beams" << beam_no << endl;
     }
     
     return smap;

@@ -107,9 +107,9 @@ namespace NS_GMapping
       }
       if (debug)
       {
-        std::cerr << __PRETTY_FUNCTION__ << std::endl;
-        std::cerr << "m_xsize= " << m_xsize << std::endl;
-        std::cerr << "m_ysize= " << m_ysize << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << std::endl;
+        std::cout << "m_xsize= " << m_xsize << std::endl;
+        std::cout << "m_ysize= " << m_ysize << std::endl;
       }
     }
   
@@ -134,9 +134,9 @@ namespace NS_GMapping
       
       if (debug)
       {
-        std::cerr << __PRETTY_FUNCTION__ << std::endl;
-        std::cerr << "m_xsize= " << m_xsize << std::endl;
-        std::cerr << "m_ysize= " << m_ysize << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << std::endl;
+        std::cout << "m_xsize= " << m_xsize << std::endl;
+        std::cout << "m_ysize= " << m_ysize << std::endl;
       }
       return *this;
     }
@@ -155,9 +155,9 @@ namespace NS_GMapping
       }
       if (debug)
       {
-        std::cerr << __PRETTY_FUNCTION__ << std::endl;
-        std::cerr << "m_xsize= " << m_xsize << std::endl;
-        std::cerr << "m_ysize= " << m_ysize << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << std::endl;
+        std::cout << "m_xsize= " << m_xsize << std::endl;
+        std::cout << "m_ysize= " << m_ysize << std::endl;
       }
     }
   
@@ -166,9 +166,9 @@ namespace NS_GMapping
     {
       if (debug)
       {
-        std::cerr << __PRETTY_FUNCTION__ << std::endl;
-        std::cerr << "m_xsize= " << m_xsize << std::endl;
-        std::cerr << "m_ysize= " << m_ysize << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << std::endl;
+        std::cout << "m_xsize= " << m_xsize << std::endl;
+        std::cout << "m_ysize= " << m_ysize << std::endl;
       }
       for (int i = 0; i < m_xsize; i++)
       {
@@ -185,9 +185,9 @@ namespace NS_GMapping
     {
       if (debug)
       {
-        std::cerr << __PRETTY_FUNCTION__ << std::endl;
-        std::cerr << "m_xsize= " << m_xsize << std::endl;
-        std::cerr << "m_ysize= " << m_ysize << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << std::endl;
+        std::cout << "m_xsize= " << m_xsize << std::endl;
+        std::cout << "m_ysize= " << m_ysize << std::endl;
       }
       for (int i = 0; i < m_xsize; i++)
       {

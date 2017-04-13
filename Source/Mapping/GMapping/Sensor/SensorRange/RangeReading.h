@@ -38,6 +38,5 @@ namespace NS_GMapping
   };
 
 }
-;
 
 #endif

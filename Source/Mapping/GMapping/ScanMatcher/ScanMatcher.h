@@ -160,14 +160,14 @@ namespace NS_GMapping
       if (found)
       {
         pairs.push_back (std::make_pair (phit, bestCell));
-        //std::cerr << "(" << phit.x-bestCell.x << "," << phit.y-bestCell.y << ") ";
+        //std::cout << "(" << phit.x-bestCell.x << "," << phit.y-bestCell.y << ") ";
       }
-      //std::cerr << std::endl;
+      //std::cout << std::endl;
     }
     
     OrientedPoint result (0, 0, 0);
     //double icpError=icpNonlinearStep(result,pairs);
-    std::cerr << "result(" << pairs.size () << ")=" << result.x << " "
+    std::cout << "result(" << pairs.size () << ")=" << result.x << " "
         << result.y << " " << result.theta << std::endl;
     pret.x = p.x + result.x;
     pret.y = p.y + result.y;

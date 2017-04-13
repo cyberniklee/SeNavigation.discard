@@ -14,6 +14,7 @@ namespace NS_GMapping
   RangeReading::RangeReading (const RangeSensor* rs, double time)
       : SensorReading (rs, time)
   {
+
   }
   
   RangeReading::RangeReading (unsigned int n_beams, const double* d,
@@ -26,11 +27,12 @@ namespace NS_GMapping
     {
       (*this)[i] = d[i];
     }
+
   }
   
   RangeReading::~RangeReading ()
   {
-//	cerr << __PRETTY_FUNCTION__ << ": CAZZZZZZZZZZZZZZZZZZZZOOOOOOOOOOO" << endl;
+//	cout << __PRETTY_FUNCTION__ << ": CAZZZZZZZZZZZZZZZZZZZZOOOOOOOOOOO" << endl;
   }
   
   unsigned int
@@ -64,8 +66,8 @@ namespace NS_GMapping
           lastPoint = lp;
           v[i] = (*this)[i];
         }
-        //std::cerr<< __PRETTY_FUNCTION__ << std::endl;
-        //std::cerr<< "suppressed " << suppressed <<"/"<<size() << std::endl;
+        //std::cout<< __PRETTY_FUNCTION__ << std::endl;
+        //std::cout<< "suppressed " << suppressed <<"/"<<size() << std::endl;
       }
     }
     //	return size();
@@ -99,8 +101,8 @@ namespace NS_GMapping
         lastPoint = lp;
         ab++;
       }
-      //std::cerr<< __PRETTY_FUNCTION__ << std::endl;
-      //std::cerr<< "suppressed " << suppressed <<"/"<<size() << std::endl;
+      //std::cout<< __PRETTY_FUNCTION__ << std::endl;
+      //std::cout<< "suppressed " << suppressed <<"/"<<size() << std::endl;
     }
     return ab;
   }

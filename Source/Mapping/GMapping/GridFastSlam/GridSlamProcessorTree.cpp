@@ -67,24 +67,24 @@ namespace NS_GMapping
       if (newnode->parent)
       {
         parentCache.insert (make_pair (newnode->parent, newnode));
-        //cerr << __PRETTY_FUNCTION__ << ": node " << newnode->parent << " flag=" << newnode->parent->flag<< endl;
+        //cout << __PRETTY_FUNCTION__ << ": node " << newnode->parent << " flag=" << newnode->parent->flag<< endl;
         if (!newnode->parent->flag)
         {
-          //cerr << __PRETTY_FUNCTION__ << ": node " << newnode->parent << " flag=" << newnode->parent->flag<< endl;
+          //cout << __PRETTY_FUNCTION__ << ": node " << newnode->parent << " flag=" << newnode->parent->flag<< endl;
           newnode->parent->flag = true;
           border.push_back (newnode->parent);
         }
       }
     }
     
-    //cerr << __PRETTY_FUNCTION__ << ": border.size(INITIAL)=" << border.size() << endl;
-    //cerr << __PRETTY_FUNCTION__ << ": parentCache.size()=" << parentCache.size() << endl;
+    //cout << __PRETTY_FUNCTION__ << ": border.size(INITIAL)=" << border.size() << endl;
+    //cout << __PRETTY_FUNCTION__ << ": parentCache.size()=" << parentCache.size() << endl;
     while (!border.empty ())
     {
-      //cerr << __PRETTY_FUNCTION__ << ": border.size(PREPROCESS)=" << border.size() << endl;
-      //cerr << __PRETTY_FUNCTION__ << ": parentCache.size(PREPROCESS)=" << parentCache.size() << endl;
+      //cout << __PRETTY_FUNCTION__ << ": border.size(PREPROCESS)=" << border.size() << endl;
+      //cout << __PRETTY_FUNCTION__ << ": parentCache.size(PREPROCESS)=" << parentCache.size() << endl;
       const TNode* node = border.front ();
-      //cerr << __PRETTY_FUNCTION__ << ": node " << node << endl;
+      //cout << __PRETTY_FUNCTION__ << ": node " << node << endl;
       border.pop_front ();
       if (!node)
         continue;
@@ -100,12 +100,12 @@ namespace NS_GMapping
       {
         assert(it->second->parent == it->first);
         (it->second)->parent = newnode;
-        //cerr << "PS(" << it->first << ", "<< it->second << ")";
+        //cout << "PS(" << it->first << ", "<< it->second << ")";
         childs++;
       }
-      ////cerr << endl;
+      ////cout << endl;
       parentCache.erase (p.first, p.second);
-      //cerr << __PRETTY_FUNCTION__ << ": parentCache.size(POSTERASE)=" << parentCache.size() << endl;
+      //cout << __PRETTY_FUNCTION__ << ": parentCache.size(POSTERASE)=" << parentCache.size() << endl;
       assert(childs == newnode->childs);
       
       //unmark the node
@@ -120,16 +120,16 @@ namespace NS_GMapping
       }
       //insert the parent in the cache
     }
-    //cerr << __PRETTY_FUNCTION__ << " : checking cloned trajectories" << endl;
+    //cout << __PRETTY_FUNCTION__ << " : checking cloned trajectories" << endl;
     for (unsigned int i = 0; i < v.size (); i++)
     {
       TNode* node = v[i];
       while (node)
       {
-        //cerr <<".";
+        //cout <<".";
         node = node->parent;
       }
-      //cerr << endl;
+      //cout << endl;
     }
     
     return v;
@@ -291,8 +291,8 @@ namespace NS_GMapping
     
     if (fabs (aw - 1.0) > 0.0001 || fabs (lastNodeWeight - 1.0) > 0.0001)
     {
-      cerr << "ERROR: ";
-      cerr << "root->accWeight=" << lastNodeWeight << "    sum_leaf_weights="
+      cout << "ERROR: ";
+      cout << "root->accWeight=" << lastNodeWeight << "    sum_leaf_weights="
           << aw << endl;
       assert(0);
     }
