@@ -83,6 +83,9 @@ namespace NS_Controller
     void
     configController ();
 
+    bool
+    checkDevice ();
+
   public:
     virtual void
     initialize ();

@@ -88,12 +88,12 @@ namespace NS_Controller
     rep->transform.rotation.y = 0.0;
     rep->transform.rotation.z = sin (current_pose.theta / 2.0);
     rep->transform.rotation.w = cos (current_pose.theta / 2.0);
-    /*
+
     NS_NaviCommon::console.debug (
         "odometry transform: x:%f, y:%f, rz:%f, rw:%f",
         rep->transform.translation.x, rep->transform.translation.y,
         rep->transform.rotation.z, rep->transform.rotation.w);
-    */
+
   }
   
   void
@@ -139,6 +139,23 @@ namespace NS_Controller
     comm->setInt32Value (BASE_REG_PID_KO, pid_ko_);
   }
   
+  bool
+  ControllerApplication::checkDevice ()
+  {
+    unsigned int test_code = 1234;
+    unsigned int test_val = 0;
+    comm->setInt32Value(BASE_REG_TEST, test_code);
+    test_val = comm->getInt32Value(BASE_REG_TEST);
+    if(test_val != test_code)
+    {
+      NS_NaviCommon::console.debug ("test stm32 connection... check code [%d], but get [%d]!",
+                                    test_code, test_val);
+      return false;
+    }
+
+    return true;
+  }
+
   void
   ControllerApplication::initialize ()
   {
@@ -152,6 +169,12 @@ namespace NS_Controller
       return;
     }
     
+    if (!checkDevice ())
+    {
+      NS_NaviCommon::console.error ("test base controller failure!");
+      return;
+    }
+
     configController ();
     
     dispitcher->subscribe (

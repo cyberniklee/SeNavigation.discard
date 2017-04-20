@@ -29,10 +29,12 @@ namespace NS_Controller
   
   enum
   {
-    BASE_REG_PID_KP = 0x00,
-    BASE_REG_PID_KI = 0x04,
-    BASE_REG_PID_KD = 0x08,
-    BASE_REG_PID_KO = 0x0C,
+    BASE_REG_TEST = 0x00,
+
+    BASE_REG_PID_KP = 0x10,
+    BASE_REG_PID_KI = 0x14,
+    BASE_REG_PID_KD = 0x18,
+    BASE_REG_PID_KO = 0x1C,
 
     BASE_REG_DIST_PER_PULSE = 0x20,
     BASE_REG_WHEEL_TRACK = 0x24,
