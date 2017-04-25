@@ -36,7 +36,7 @@ namespace NS_Controller
     BASE_REG_PID_KD = 0x18,
     BASE_REG_PID_KO = 0x1C,
 
-    BASE_REG_DIST_PER_PULSE = 0x20,
+    BASE_REG_TICKS_PER_METER = 0x20,
     BASE_REG_WHEEL_TRACK = 0x24,
 
     BASE_REG_TARGET_X = 0x30,

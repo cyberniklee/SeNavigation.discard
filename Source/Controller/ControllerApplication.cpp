@@ -17,6 +17,7 @@
 #include <Transform/LinearMath/Vector3.h>
 #include <Time/Rate.h>
 #include <DataSet/DataType/PoseStamped.h>
+#include <Time/Utils.h>
 
 namespace NS_Controller
 {
@@ -123,20 +124,22 @@ namespace NS_Controller
     
     ticks_per_meter = (encoder_resolution_ * gear_reduction_)
         / (wheel_diameter_ * M_PI);
-    distance_per_tick = (wheel_diameter_ * M_PI)
-        / (encoder_resolution_ * gear_reduction_);
   }
   
   void
   ControllerApplication::configController ()
   {
-    comm->setFloat32Value (BASE_REG_DIST_PER_PULSE, distance_per_tick);
+    comm->setFloat32Value (BASE_REG_TICKS_PER_METER, ticks_per_meter);
+    NS_NaviCommon::delay(100);
     comm->setFloat32Value (BASE_REG_WHEEL_TRACK, wheel_track_);
-    
+    NS_NaviCommon::delay(100);
+    /*
     comm->setInt32Value (BASE_REG_PID_KP, pid_kp_);
     comm->setInt32Value (BASE_REG_PID_KI, pid_ki_);
     comm->setInt32Value (BASE_REG_PID_KD, pid_kd_);
     comm->setInt32Value (BASE_REG_PID_KO, pid_ko_);
+    */
+    NS_NaviCommon::console.debug ("finish config base parameter!");
   }
   
   bool
@@ -145,6 +148,8 @@ namespace NS_Controller
     unsigned int test_code = 1234;
     unsigned int test_val = 0;
     comm->setInt32Value(BASE_REG_TEST, test_code);
+    NS_NaviCommon::delay (100);
+    comm->setInt32Value(BASE_REG_TEST, test_code);
     test_val = comm->getInt32Value(BASE_REG_TEST);
     if(test_val != test_code)
     {
@@ -152,6 +157,7 @@ namespace NS_Controller
                                     test_code, test_val);
       return false;
     }
+    NS_NaviCommon::console.debug ("test stm32 connection...ok!");
 
     return true;
   }
