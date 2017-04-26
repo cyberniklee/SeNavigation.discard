@@ -52,7 +52,7 @@ namespace NS_Communication
     std::string map_file_;
 
   private:
-    u_char*
+    unsigned char*
     writeInPGM ();
     void
     saveMapInPGM ();

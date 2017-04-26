@@ -40,7 +40,7 @@ namespace NS_Communication
       delete timeout_message;
   }
   
-  u_char*
+  unsigned char*
   CommunicatorApplication::writeInPGM ()
   {
     unsigned long mapSize = respMap->map.data.size ();
@@ -146,7 +146,7 @@ namespace NS_Communication
         CommData* response = this->createResponseByRequest (message);
         
         saveMapInPGM ();
-        const u_char* mapPath = (const u_char*) map_file_.c_str ();
+        const char* mapPath = (const char*) map_file_.c_str ();
         unsigned int len = map_file_.length ();
         memcpy (response->payload, mapPath, len);
         
