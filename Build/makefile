@@ -68,7 +68,7 @@ main-build: SeNavigation
 SeNavigation: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross G++ Linker'
-	arm-openwrt-linux-muslgnueabi-g++ -L$(SENAVICOMMON_PATH)/Build -L$(STAGING_DIR)/usr/lib -o "SeNavigation" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-openwrt-linux-muslgnueabi-g++ -L$(SENAVICOMMON_PATH)/Build -L$(TOPDIR)/prebuilt/gcc/linux-x86/arm/toolchain-sunxi/toolchain/lib -L$(STAGING_DIR)/usr/lib -o "SeNavigation" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

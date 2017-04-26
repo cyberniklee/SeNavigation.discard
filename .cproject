@@ -212,6 +212,7 @@
 								</option>
 								<option id="gnu.cpp.link.option.paths.186461109" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="$(SENAVICOMMON_PATH)/Build"/>
+									<listOptionValue builtIn="false" value="$(TOPDIR)/prebuilt/gcc/linux-x86/arm/toolchain-sunxi/toolchain/lib"/>
 									<listOptionValue builtIn="false" value="$(STAGING_DIR)/usr/lib"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1559203083" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
