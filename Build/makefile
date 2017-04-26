@@ -65,7 +65,7 @@ all: SeNavigation
 SeNavigation: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross G++ Linker'
-	arm-openwrt-linux-muslgnueabi-g++ -L"/home/seeing/SeeingNavi/SeNaviCommon/Debug" -o "SeNavigation" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-openwrt-linux-muslgnueabi-g++ -L$(SENAVICOMMON_PATH)/Build -o "SeNavigation" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
