@@ -59,7 +59,10 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: SeNavigation
+all: pre-build main-build
+
+# Main-build Target
+main-build: SeNavigation
 
 # Tool invocations
 SeNavigation: $(OBJS) $(USER_OBJS)
@@ -74,7 +77,11 @@ clean:
 	-$(RM) $(CC_DEPS)$(C++_DEPS)$(EXECUTABLES)$(OBJS)$(C_UPPER_DEPS)$(CXX_DEPS)$(C_DEPS)$(CPP_DEPS) SeNavigation
 	-@echo ' '
 
+pre-build:
+	-export SENAVICOMMON_PATH="$(PKG_BUILD_DIR)/SeNaviCommon"
+	-@echo ' '
+
 .PHONY: all clean dependents
-.SECONDARY:
+.SECONDARY: main-build pre-build
 
 -include ../makefile.targets
