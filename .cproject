@@ -177,7 +177,7 @@
 					<folderInfo id="cdt.managedbuild.config.gnu.cross.exe.debug.594635583.654007267." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.cross.exe.debug.1053588189" name="Cross GCC" superClass="cdt.managedbuild.toolchain.gnu.cross.exe.debug">
 							<option id="cdt.managedbuild.option.gnu.cross.path.99870921" name="Path" superClass="cdt.managedbuild.option.gnu.cross.path" value="/usr/bin/" valueType="string"/>
-							<option id="cdt.managedbuild.option.gnu.cross.prefix.763786300" name="Prefix" superClass="cdt.managedbuild.option.gnu.cross.prefix" value="openwrt" valueType="string"/>
+							<option id="cdt.managedbuild.option.gnu.cross.prefix.763786300" name="Prefix" superClass="cdt.managedbuild.option.gnu.cross.prefix" value="arm-openwrt-linux-muslgnueabi-" valueType="string"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.targetPlatform.gnu.cross.1347706003" isAbstract="false" osList="all" superClass="cdt.managedbuild.targetPlatform.gnu.cross"/>
 							<builder buildPath="${workspace_loc:/SeNavigation}/Debug" id="cdt.managedbuild.builder.gnu.cross.625444618" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross">
 								<outputEntries>
