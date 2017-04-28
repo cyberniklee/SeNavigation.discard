@@ -134,6 +134,9 @@ namespace NS_Communication
         char* mapSize_str = new char[10];
         sprintf (mapSize_str, "%ld", respMap->map.data.size ());
         memcpy (response->payload, mapSize_str, 10);
+
+        NS_NaviCommon::console.debug ("map size request return response...");
+
         this->sendResponse (response);
         
       }
