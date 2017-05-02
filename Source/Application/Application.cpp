@@ -44,6 +44,7 @@ Application::globalInitialize ()
     NS_NaviCommon::console.warning ("Stdout stream has been redirected to %s!", redir_log.c_str());
   }
 
+  NS_NaviCommon::console.dbg_msg_on = false;
   NS_NaviCommon::Time::init ();
   
   global_dispitcher.initialize ();
