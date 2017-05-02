@@ -181,6 +181,9 @@ namespace NS_Communication
       {
         NS_NaviCommon::console.message (
             "receive message: COMMUNICATION_DATA_REASON_MAP_META!");
+      }else{
+        NS_NaviCommon::console.error (
+            "invalid message: reason %d !", message->reason);
       }
       
     }
