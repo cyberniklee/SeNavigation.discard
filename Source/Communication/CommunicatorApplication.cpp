@@ -118,41 +118,44 @@ namespace NS_Communication
   void
   CommunicatorApplication::onReceive (CommData* message)
   {
+printf("-----------------------1--------------------------\n");
     if (message != NULL)
     {
       if (message->reason == COMMUNICATION_DATA_REASON_MAP_SIZE)
       {
+printf("-----------------------2--------------------------\n");
         if (respMap == NULL)
           respMap = new NS_ServiceType::ResponseMap;
         
         service->call (SERVICE_TYPE_MAP, NULL, respMap);
         CommData* response = this->createResponseByRequest (message);
         response->payload_length = sizeof(respMap->map.data.size ());
-        
+printf("-----------------------2.1--------------------------\n");
         mapStream = writeInPGM (); // transform respMap to map stream of PGM format.
-
+printf("-----------------------2.2--------------------------\n");
         char* mapSize_str = new char[10];
         sprintf (mapSize_str, "%ld", respMap->map.data.size ());
         memcpy (response->payload, mapSize_str, 10);
 
         NS_NaviCommon::console.debug ("map size request return response...");
-
+printf("-----------------------2.3--------------------------\n");
         this->sendResponse (response);
-        
+printf("-----------------------2.4--------------------------\n");
       }
       else if (message->reason == COMMUNICATION_DATA_REASON_MAP)
       {
         if (respMap == NULL)
           NS_NaviCommon::console.message (
               "you have to get map size before request Map data!");
-        
+printf("-----------------------3--------------------------\n");
         CommData* response = this->createResponseByRequest (message);
-        
+printf("-----------------------3.1--------------------------\n");
         saveMapInPGM ();
+printf("-----------------------3.2--------------------------\n");
         const char* mapPath = (const char*) map_file_.c_str ();
         unsigned int len = map_file_.length ();
         memcpy (response->payload, mapPath, len);
-        
+printf("-----------------------3.3--------------------------\n");
         NS_NaviCommon::console.debug ("receive mapPath len: %d", len);
         NS_NaviCommon::console.debug ("receive mapPath: %s", mapPath);
         NS_NaviCommon::console.debug ("receive payload: %s",
@@ -173,9 +176,9 @@ namespace NS_Communication
          for (unsigned long i = dataStart, j = 0; j < response->payload_length; ++i, ++j)
          response->payload[j] = mapStream[i];
          */
-
+printf("-----------------------3.4--------------------------\n");
         this->sendResponse (response);
-        
+printf("-----------------------3.5--------------------------\n");
       }
       else if (message->reason == COMMUNICATION_DATA_REASON_MAP_META)
       {
