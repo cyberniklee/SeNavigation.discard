@@ -89,7 +89,7 @@ namespace NS_GMapping
 
     if (addScan (*laser, odom_pose))
     {
-      NS_NaviCommon::console.message ("Add scan process..");
+      NS_NaviCommon::console.debug ("Add scan process..");
       OrientedPoint mpose =
           gsp->getParticles ()[gsp->getBestParticleIndex ()].pose;
       
@@ -117,12 +117,12 @@ namespace NS_GMapping
       {
         updateMap (*laser);
         last_map_update = laser->header.stamp;
-        NS_NaviCommon::console.message ("Updated the map...");
+        NS_NaviCommon::console.debug ("Updated the map...");
       }
     }
     else
     {
-      NS_NaviCommon::console.warning ("Can not process the scan!");
+      NS_NaviCommon::console.debug ("Can not process the scan!");
     }
 
     delete laser_data;
@@ -356,7 +356,7 @@ namespace NS_GMapping
                                     n->pose.theta);
       if (!n->reading)
       {
-        NS_NaviCommon::console.warning ("Null node!");
+        NS_NaviCommon::console.debug ("Null node!");
         continue;
       }
       NS_NaviCommon::console.debug ("Processing node!");
