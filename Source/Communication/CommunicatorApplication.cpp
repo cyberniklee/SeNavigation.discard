@@ -29,7 +29,6 @@ namespace NS_Communication
   {
     local_port_ = parameter.getParameter ("local_port", 6689);
     remote_port_ = parameter.getParameter ("remote_port", 6688);
-
     map_file_ = parameter.getParameter ("map_file", "/tmp/gmap.pgm");
   }
   
