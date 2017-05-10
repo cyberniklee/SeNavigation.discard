@@ -27,9 +27,9 @@ namespace NS_Controller
   
   typedef struct
   {
-    float x;
-    float y;
-    float theta;
+    double x;
+    double y;
+    double theta;
   } PoseState;
   
   class ControllerApplication: public Application
@@ -48,13 +48,13 @@ namespace NS_Controller
   private:
     std::string comm_dev_name_;
 
-    float control_rate_;
-    float control_timeout_;
-    float wheel_diameter_;
+    double control_rate_;
+    double control_timeout_;
+    double wheel_diameter_;
     int encoder_resolution_;
     int gear_reduction_;
-    float wheel_track_;
-    float accel_limit_;
+    double wheel_track_;
+    double accel_limit_;
 
     /*
      * PID parameters
@@ -64,8 +64,8 @@ namespace NS_Controller
     int pid_ki_;
     int pid_ko_;
 
-    float ticks_per_meter;
-    float distance_per_tick;
+    double ticks_per_meter;
+    double distance_per_tick;
   private:
     
     void

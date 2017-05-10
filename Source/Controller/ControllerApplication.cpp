@@ -46,9 +46,9 @@ namespace NS_Controller
     
     boost::mutex::scoped_lock locker_ (odom_lock);
     
-    float x = comm->getFloat32Value (BASE_REG_ODOM_X);
-    float y = comm->getFloat32Value (BASE_REG_ODOM_Y);
-    float theta = comm->getFloat32Value (BASE_REG_ODOM_THETA);
+    double x = comm->getFloat64Value (BASE_REG_ODOM_X);
+    double y = comm->getFloat64Value (BASE_REG_ODOM_Y);
+    double theta = comm->getFloat64Value (BASE_REG_ODOM_THETA);
     
     current_odometry.pose.position.x = x;
     current_odometry.pose.position.y = y;

@@ -37,17 +37,17 @@ namespace NS_Controller
     BASE_REG_PID_KO = 0x1C,
 
     BASE_REG_TICKS_PER_METER = 0x20,
-    BASE_REG_WHEEL_TRACK = 0x24,
+    BASE_REG_WHEEL_TRACK = 0x28,
 
     BASE_REG_TARGET_X = 0x30,
-    BASE_REG_TARGET_Y = 0x34,
-    BASE_REG_TARGET_THETA = 0x38,
+    BASE_REG_TARGET_Y = 0x38,
+    BASE_REG_TARGET_THETA = 0x40,
 
-    BASE_REG_ODOM_X = 0x40,
-    BASE_REG_ODOM_Y = 0x44,
-    BASE_REG_ODOM_THETA = 0x48,
+    BASE_REG_ODOM_X = 0x50,
+    BASE_REG_ODOM_Y = 0x58,
+    BASE_REG_ODOM_THETA = 0x60,
 
-    BASE_REG_END = 0x50,
+    BASE_REG_END = 0x70,
   };
   
   typedef struct
