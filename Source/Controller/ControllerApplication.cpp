@@ -96,7 +96,7 @@ namespace NS_Controller
         rep->transform.rotation.z, rep->transform.rotation.w);
 
   }
-  
+
   void
   ControllerApplication::poseStampedCallback (NS_DataType::DataBase* pose_stamped)
   {
@@ -129,9 +129,9 @@ namespace NS_Controller
   void
   ControllerApplication::configController ()
   {
-    comm->setFloat32Value (BASE_REG_TICKS_PER_METER, ticks_per_meter);
+    comm->setFloat64Value (BASE_REG_TICKS_PER_METER, ticks_per_meter);
     NS_NaviCommon::delay(100);
-    comm->setFloat32Value (BASE_REG_WHEEL_TRACK, wheel_track_);
+    comm->setFloat64Value (BASE_REG_WHEEL_TRACK, wheel_track_);
     NS_NaviCommon::delay(100);
     /*
     comm->setInt32Value (BASE_REG_PID_KP, pid_kp_);
@@ -147,10 +147,10 @@ namespace NS_Controller
   {
     unsigned int test_code = 1234;
     unsigned int test_val = 0;
-    comm->setInt32Value(BASE_REG_TEST, test_code);
+    comm->setInt32Value (BASE_REG_TEST, test_code);
     NS_NaviCommon::delay (100);
-    comm->setInt32Value(BASE_REG_TEST, test_code);
-    test_val = comm->getInt32Value(BASE_REG_TEST);
+    comm->setInt32Value (BASE_REG_TEST, test_code);
+    test_val = comm->getInt32Value (BASE_REG_TEST);
     if(test_val != test_code)
     {
       NS_NaviCommon::console.debug ("test stm32 connection... check code [%d], but get [%d]!",
