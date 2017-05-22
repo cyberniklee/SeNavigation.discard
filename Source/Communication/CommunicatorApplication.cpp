@@ -74,7 +74,7 @@ namespace NS_Communication
     }
     
     fclose (out);
-    NS_NaviCommon::console.message ("write PGM finish, path: %s",
+    NS_NaviCommon::console.debug ("write PGM finish, path: %s",
                                     map_file_.c_str ());
     
   }
@@ -87,16 +87,18 @@ namespace NS_Communication
       if (message->reason == COMMUNICATION_DATA_REASON_MAP_SIZE)
       {
         NS_ServiceType::ResponseMap map_resp;
-        
-        service->call (SERVICE_TYPE_MAP, NULL, &map_resp);
-        CommData* response = this->createResponseByRequest (message);
-        response->payload_length = sizeof(map_resp.map.data.size ());
-
-        saveMapInPGM(map_resp.map, map_file_);
-
         char mapSize_str[16] = {0};
-        sprintf (mapSize_str, "%ld", map_resp.map.data.size ());
-        memcpy (response->payload, mapSize_str, sizeof(mapSize_str));
+        CommData* response = this->createResponseByRequest (message);
+        
+        if (service->call (SERVICE_TYPE_MAP, NULL, &map_resp))
+        {
+          response->payload_length = sizeof(map_resp.map.data.size ());
+          saveMapInPGM(map_resp.map, map_file_);
+          sprintf (mapSize_str, "%ld", map_resp.map.data.size ());
+          memcpy (response->payload, mapSize_str, sizeof(mapSize_str));
+        }else{
+          response->payload_length = 0;
+        }
 
         this->sendResponse (response);
       }
@@ -120,9 +122,7 @@ namespace NS_Communication
         NS_NaviCommon::console.error (
             "invalid message: reason %d !", message->reason);
       }
-      
     }
-    
   }
   
   void
