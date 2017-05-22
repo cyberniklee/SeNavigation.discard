@@ -14,6 +14,7 @@
 #include <Communication/DataType/DataTypes.h>
 #include <Communication/NetTranceiver.h>
 #include <Service/ServiceType/ResponseMap.h>
+#include <DataSet/DataType/OccupancyGrid.h>
 
 namespace NS_Communication
 {
@@ -43,19 +44,13 @@ namespace NS_Communication
     quit ();
 
   private:
-    NS_ServiceType::ResponseMap* respMap;
-    unsigned char* mapStream;
-
-  private:
     int local_port_;
     int remote_port_;
     std::string map_file_;
 
   private:
-    unsigned char*
-    writeInPGM ();
     void
-    saveMapInPGM ();
+    saveMapInPGM (NS_DataType::OccupancyGrid& map, std::string map_file);
   };
 }
 

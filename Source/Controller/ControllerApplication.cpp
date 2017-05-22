@@ -122,6 +122,8 @@ namespace NS_Controller
     pid_ki_ = parameter.getParameter ("pid_ki", 0);
     pid_ko_ = parameter.getParameter ("pid_ko", 50);
     
+    tolerance_ = parameter.getParameter ("tolerance", 0.01f);
+
     ticks_per_meter = (encoder_resolution_ * gear_reduction_)
         / (wheel_diameter_ * M_PI);
   }
@@ -132,6 +134,8 @@ namespace NS_Controller
     comm->setFloat64Value (BASE_REG_TICKS_PER_METER, ticks_per_meter);
     NS_NaviCommon::delay(100);
     comm->setFloat64Value (BASE_REG_WHEEL_TRACK, wheel_track_);
+    NS_NaviCommon::delay(100);
+    comm->setFloat64Value (BASE_REG_TOLERANCE, tolerance_);
     NS_NaviCommon::delay(100);
     /*
     comm->setInt32Value (BASE_REG_PID_KP, pid_kp_);

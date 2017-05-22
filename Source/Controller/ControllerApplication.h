@@ -56,6 +56,8 @@ namespace NS_Controller
     double wheel_track_;
     double accel_limit_;
 
+    double tolerance_;
+
     /*
      * PID parameters
      */

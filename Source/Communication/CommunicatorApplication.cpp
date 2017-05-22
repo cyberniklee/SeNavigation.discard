@@ -39,65 +39,30 @@ namespace NS_Communication
       delete timeout_message;
   }
   
-  unsigned char*
-  CommunicatorApplication::writeInPGM ()
-  {
-    unsigned long mapSize = respMap->map.data.size ();
-    unsigned char* out = new unsigned char[mapSize];
-    
-    unsigned long count = 0;
-    out[count++] = respMap->map.info.resolution;
-    out[count++] = respMap->map.info.width;
-    out[count++] = respMap->map.info.height;
-    
-    for (unsigned long y = 0; y < respMap->map.info.height; y++)
-    {
-      for (unsigned long x = 0; x < respMap->map.info.width; x++)
-      {
-        unsigned long i = x
-            + (respMap->map.info.height - y - 1) * respMap->map.info.width;
-        if (respMap->map.data[i] == 0)
-        { //occ [0,0.1)
-          out[count++] = 254;
-        }
-        else if (respMap->map.data[i] == +100)
-        { //occ (0.65,1]
-          out[count++] = 000;
-        }
-        else
-        { //occ [0.1,0.65]
-          out[count++] = 205;
-        }
-      }
-    }
-    
-    return out;
-  }
-  
   void
-  CommunicatorApplication::saveMapInPGM ()
+  CommunicatorApplication::saveMapInPGM (NS_DataType::OccupancyGrid& map, std::string map_file)
   {
-    FILE* out = fopen (map_file_.c_str (), "w");
+    FILE* out = fopen (map_file.c_str (), "w");
     if (!out)
     {
       NS_NaviCommon::console.warning ("Couldn't save map file to %s",
-                                      map_file_.c_str ());
+                                      map_file.c_str ());
     }
     fprintf (out, "P5\n# CREATOR: Map_generator.cpp %.3f m/pix\n%d %d\n255\n",
-             respMap->map.info.resolution, respMap->map.info.width,
-             respMap->map.info.height);
+             map.info.resolution, map.info.width,
+             map.info.height);
 
-    for (unsigned long y = 0; y < respMap->map.info.height; y++)
+    for (unsigned long y = 0; y < map.info.height; y++)
     {
-      for (unsigned long x = 0; x < respMap->map.info.width; x++)
+      for (unsigned long x = 0; x < map.info.width; x++)
       {
         unsigned long i = x
-            + (respMap->map.info.height - y - 1) * respMap->map.info.width;
-        if (respMap->map.data[i] == 0)
+            + (map.info.height - y - 1) * map.info.width;
+        if (map.data[i] == 0)
         { //occ [0,0.1)
           fputc (254, out);
         }
-        else if (respMap->map.data[i] == +100)
+        else if (map.data[i] == +100)
         { //occ (0.65,1]
           fputc (000, out);
         }
@@ -121,50 +86,29 @@ namespace NS_Communication
     {
       if (message->reason == COMMUNICATION_DATA_REASON_MAP_SIZE)
       {
-        if (respMap == NULL)
-          respMap = new NS_ServiceType::ResponseMap;
+        NS_ServiceType::ResponseMap map_resp;
         
-        service->call (SERVICE_TYPE_MAP, NULL, respMap);
+        service->call (SERVICE_TYPE_MAP, NULL, &map_resp);
         CommData* response = this->createResponseByRequest (message);
-        response->payload_length = sizeof(respMap->map.data.size ());
+        response->payload_length = sizeof(map_resp.map.data.size ());
 
-        mapStream = writeInPGM (); // transform respMap to map stream of PGM format.
+        saveMapInPGM(map_resp.map, map_file_);
 
-        char* mapSize_str = new char[10];
-        sprintf (mapSize_str, "%ld", respMap->map.data.size ());
-        memcpy (response->payload, mapSize_str, 10);
+        char mapSize_str[16] = {0};
+        sprintf (mapSize_str, "%ld", map_resp.map.data.size ());
+        memcpy (response->payload, mapSize_str, sizeof(mapSize_str));
 
         this->sendResponse (response);
       }
       else if (message->reason == COMMUNICATION_DATA_REASON_MAP)
       {
-        if (respMap == NULL)
-          NS_NaviCommon::console.message (
-              "you have to get map size before request Map data!");
-
         CommData* response = this->createResponseByRequest (message);
 
-        saveMapInPGM ();
-        const char* mapPath = (const char*) map_file_.c_str ();
+        const char* map_path = (const char*) map_file_.c_str ();
         unsigned int len = map_file_.length ();
-        memcpy (response->payload, mapPath, len);
+        memcpy (response->payload, map_path, len);
 
         response->payload_length = len;
-        
-        //process for PGM stream
-        /*
-         unsigned long dataStart = atoi((char*)message->payload);
-         NS_NaviCommon::console.message("Map data start from : %ld!", dataStart);//--
-         unsigned long mapSize = respMap->map.data.size();
-         unsigned long dataEnd = (mapSize-dataStart > 500)? dataStart + 500 : mapSize;
-         //NS_NaviCommon::console.message("mapSize is : %ld, dataEnd is %ld!", mapSize,dataEnd);//--
-
-         CommData* response = this->createResponseByRequest(message);
-         response->payload_length = dataEnd - dataStart;
-         //NS_NaviCommon::console.message("dataSize is : %ld", response->payload_length);//--
-         for (unsigned long i = dataStart, j = 0; j < response->payload_length; ++i, ++j)
-         response->payload[j] = mapStream[i];
-         */
 
         this->sendResponse (response);
       }
@@ -185,11 +129,9 @@ namespace NS_Communication
   CommunicatorApplication::initialize ()
   {
     NS_NaviCommon::console.message ("Communion is initializing!");
-    respMap = NULL;
-    mapStream = NULL;
     
     loadParameters ();
-    instance->initialize (local_port_, remote_port_);
+    Communicator::initialize (local_port_, remote_port_);
 
     initialized = true;
     
