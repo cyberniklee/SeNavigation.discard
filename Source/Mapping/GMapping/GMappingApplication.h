@@ -110,6 +110,8 @@ namespace NS_GMapping
     boost::mutex map_to_odom_lock;
     boost::mutex map_lock;
 
+    bool laser_data_processing;
+
   public:
     virtual void
     initialize ();

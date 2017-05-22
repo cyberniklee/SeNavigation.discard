@@ -101,6 +101,8 @@ namespace NS_Controller
   ControllerApplication::poseStampedCallback (NS_DataType::DataBase* pose_stamped)
   {
     NS_DataType::PoseStamped* pose = (NS_DataType::PoseStamped*) pose_stamped;
+
+    delete pose_stamped;
   }
 
   void

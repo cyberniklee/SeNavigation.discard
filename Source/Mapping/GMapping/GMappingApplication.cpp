@@ -73,13 +73,27 @@ namespace NS_GMapping
     if (throttle_scans_ != 0)
     {
       if ((laser_count % throttle_scans_) != 0)
+      {
+        delete laser_data;
         return;
+      }
+    }
+
+    if (laser_data_processing)
+    {
+      delete laser_data;
+      return;
     }
     
+    laser_data_processing = true;
+
     if (!got_first_scan)
     {
       if (!initMapper (*laser))
+      {
+        delete laser_data;
         return;
+      }
       got_first_scan = true;
     }
     
@@ -125,6 +139,7 @@ namespace NS_GMapping
       NS_NaviCommon::console.debug ("Can not process the scan!");
     }
 
+    laser_data_processing = false;
     delete laser_data;
   }
   
