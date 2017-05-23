@@ -77,9 +77,11 @@ namespace NS_Controller
     current_pose.y = comm->getFloat64Value(BASE_REG_ODOM_Y);
     current_pose.theta = comm->getFloat64Value(BASE_REG_ODOM_THETA);
     
-    NS_NaviCommon::console.message ("odometry pose: x:%f, y:%f, theta:%f.",
+    /*
+    NS_NaviCommon::console.debug ("odometry pose: x:%f, y:%f, theta:%f.",
                                   current_pose.x, current_pose.y,
                                   current_pose.theta);
+    */
 
     rep->transform.translation.x = current_pose.x;
     rep->transform.translation.y = current_pose.y;
@@ -90,10 +92,12 @@ namespace NS_Controller
     rep->transform.rotation.z = sin (current_pose.theta / 2.0);
     rep->transform.rotation.w = cos (current_pose.theta / 2.0);
 
-    NS_NaviCommon::console.message (
+    /*
+    NS_NaviCommon::console.debug (
         "odometry transform: x:%f, y:%f, rz:%f, rw:%f",
         rep->transform.translation.x, rep->transform.translation.y,
         rep->transform.rotation.z, rep->transform.rotation.w);
+    */
 
   }
 

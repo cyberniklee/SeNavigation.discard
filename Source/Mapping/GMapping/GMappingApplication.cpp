@@ -218,7 +218,7 @@ namespace NS_GMapping
     
     gmap_pose = OrientedPoint (odom_transform.transform.translation.x,
                                odom_transform.transform.translation.y, yaw);
-    
+
     return true;
   }
 
