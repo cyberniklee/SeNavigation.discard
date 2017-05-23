@@ -45,13 +45,13 @@ namespace NS_Controller
     BASE_REG_TARGET_Y = 0x58,
     BASE_REG_TARGET_THETA = 0x60,
     BASE_REG_TARGET_SETTED = 0x68,
-    BASE_REG_TARGET_REACHED = 0x6C,
+    BASE_REG_TARGET_REACHED = 0x70,
 
-    BASE_REG_ODOM_X = 0x70,
-    BASE_REG_ODOM_Y = 0x78,
-    BASE_REG_ODOM_THETA = 0x80,
+    BASE_REG_ODOM_X = 0x80,
+    BASE_REG_ODOM_Y = 0x88,
+    BASE_REG_ODOM_THETA = 0x90,
 
-    BASE_REG_END = 0x90,
+    BASE_REG_END = 0xA0,
   };
   
   typedef struct
