@@ -312,8 +312,8 @@ namespace NS_Selidar
 #define BAUD_CONV( _baud_) case _baud_:  return B##_baud_ 
     switch (baud)
     {
-      BAUD_CONV(1200)
-;      BAUD_CONV(1800);
+      BAUD_CONV(1200);
+      BAUD_CONV(1800);
       BAUD_CONV(2400);
       BAUD_CONV(4800);
       BAUD_CONV(9600);

@@ -109,7 +109,7 @@ namespace NS_Selidar
     pkg_size++;
     
     rxtx->senddata (pkg, pkg_size);
-    NS_NaviCommon::console.dump (pkg, pkg_size);
+    //NS_NaviCommon::console.dump (pkg, pkg_size);
     
     return Success;
   }
