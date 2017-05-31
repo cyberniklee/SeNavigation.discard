@@ -48,23 +48,33 @@ namespace NS_Controller
   private:
     std::string comm_dev_name_;
 
-    double control_rate_;
-    double control_timeout_;
     double wheel_diameter_;
     int encoder_resolution_;
     int gear_reduction_;
     double wheel_track_;
     double accel_limit_;
 
-    double tolerance_;
+    int tolerance_;
 
     /*
      * PID parameters
      */
-    int pid_kp_;
-    int pid_kd_;
-    int pid_ki_;
-    int pid_ko_;
+    int pid_kp_right_;
+    int pid_kd_right_;
+    int pid_ki_right_;
+    int pid_ko_right_;
+    int pid_max_right_;
+    int pid_min_right_;
+
+    int pid_kp_left_;
+    int pid_kd_left_;
+    int pid_ki_left_;
+    int pid_ko_left_;
+    int pid_max_left_;
+    int pid_min_left_;
+
+    int control_duration_;
+
 
     double ticks_per_meter;
     double distance_per_tick;

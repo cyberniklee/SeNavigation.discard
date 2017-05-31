@@ -114,8 +114,6 @@ namespace NS_Controller
   {
     parameter.loadConfigurationFile ("controller.xml");
     comm_dev_name_ = parameter.getParameter ("device", "/dev/stm32");
-    control_rate_ = parameter.getParameter ("control_rate", 10.0f);
-    control_timeout_ = parameter.getParameter ("control_timeout", 1.0f);
     wheel_diameter_ = parameter.getParameter ("wheel_diameter", 0.068f);
     encoder_resolution_ = parameter.getParameter ("encoder_resolution", 16);
     gear_reduction_ = parameter.getParameter ("gear_reduction", 62);
@@ -123,12 +121,23 @@ namespace NS_Controller
     wheel_track_ = parameter.getParameter ("wheel_track", 0.265f);
     accel_limit_ = parameter.getParameter ("accel_limit", 1.0f);
     
-    pid_kp_ = parameter.getParameter ("pid_kp", 20);
-    pid_kd_ = parameter.getParameter ("pid_kd", 12);
-    pid_ki_ = parameter.getParameter ("pid_ki", 0);
-    pid_ko_ = parameter.getParameter ("pid_ko", 50);
+    pid_kp_right_ = parameter.getParameter ("pid_kp_r", 20);
+    pid_kd_right_ = parameter.getParameter ("pid_kd_r", 12);
+    pid_ki_right_ = parameter.getParameter ("pid_ki_r", 0);
+    pid_ko_right_ = parameter.getParameter ("pid_ko_r", 50);
+    pid_max_right_ = parameter.getParameter ("pid_max_r", 90);
+    pid_min_right_ = parameter.getParameter ("pid_min_r", 30);
     
+    pid_kp_left_ = parameter.getParameter ("pid_kp_l", 20);
+    pid_kd_left_ = parameter.getParameter ("pid_kd_l", 12);
+    pid_ki_left_ = parameter.getParameter ("pid_ki_l", 0);
+    pid_ko_left_ = parameter.getParameter ("pid_ko_l", 50);
+    pid_max_left_ = parameter.getParameter ("pid_max_l", 90);
+    pid_min_left_ = parameter.getParameter ("pid_min_l", 30);
+
     tolerance_ = parameter.getParameter ("tolerance", 0.01f);
+
+    control_duration_ = parameter.getParameter ("control_duration", 100);
 
     ticks_per_meter = (encoder_resolution_ * gear_reduction_)
         / (wheel_diameter_ * M_PI);
@@ -138,17 +147,27 @@ namespace NS_Controller
   ControllerApplication::configController ()
   {
     comm->setFloat64Value (BASE_REG_TICKS_PER_METER, ticks_per_meter);
-    NS_NaviCommon::delay(100);
     comm->setFloat64Value (BASE_REG_WHEEL_TRACK, wheel_track_);
-    NS_NaviCommon::delay(100);
     comm->setFloat64Value (BASE_REG_TOLERANCE, tolerance_);
-    NS_NaviCommon::delay(100);
-    /*
-    comm->setInt32Value (BASE_REG_PID_KP, pid_kp_);
-    comm->setInt32Value (BASE_REG_PID_KI, pid_ki_);
-    comm->setInt32Value (BASE_REG_PID_KD, pid_kd_);
-    comm->setInt32Value (BASE_REG_PID_KO, pid_ko_);
-    */
+
+    comm->setInt32Value (BASE_REG_PID_KP_RIGHT, pid_kp_right_);
+    comm->setInt32Value (BASE_REG_PID_KI_RIGHT, pid_ki_right_);
+    comm->setInt32Value (BASE_REG_PID_KD_RIGHT, pid_kd_right_);
+    comm->setInt32Value (BASE_REG_PID_KO_RIGHT, pid_ko_right_);
+    comm->setInt32Value (BASE_REG_PID_MAX_RIGHT, pid_max_right_);
+    comm->setInt32Value (BASE_REG_PID_MIN_RIGHT, pid_min_right_);
+
+    comm->setInt32Value (BASE_REG_PID_KP_LEFT, pid_kp_left_);
+    comm->setInt32Value (BASE_REG_PID_KI_LEFT, pid_ki_left_);
+    comm->setInt32Value (BASE_REG_PID_KD_LEFT, pid_kd_left_);
+    comm->setInt32Value (BASE_REG_PID_KO_LEFT, pid_ko_left_);
+    comm->setInt32Value (BASE_REG_PID_MAX_LEFT, pid_max_left_);
+    comm->setInt32Value (BASE_REG_PID_MIN_LEFT, pid_min_left_);
+
+    comm->setInt32Value (BASE_REG_CNTL_DURATION, control_duration_);
+
+    comm->setInt32Value (BASE_REG_CFG_DONE, 1);
+
     NS_NaviCommon::console.debug ("finish config base parameter!");
   }
   
