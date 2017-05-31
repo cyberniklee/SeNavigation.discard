@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+#include <Time/Utils.h>
 
 namespace NS_Controller
 {
@@ -157,6 +158,8 @@ namespace NS_Controller
       return false;
     }
     
+    NS_NaviCommon::delay(50);
+
     return true;
   }
   
