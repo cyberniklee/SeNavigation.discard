@@ -149,19 +149,22 @@ namespace NS_Controller
     comm->setFloat64Value (BASE_REG_GEAR_REDUCTION, gear_reduction_);
     comm->setFloat64Value (BASE_REG_ACCEL_LIMIT, accel_limit_);
 
-    comm->setInt32Value (BASE_REG_PID_KP_RIGHT, pid_kp_right_);
-    comm->setInt32Value (BASE_REG_PID_KI_RIGHT, pid_ki_right_);
-    comm->setInt32Value (BASE_REG_PID_KD_RIGHT, pid_kd_right_);
-    comm->setInt32Value (BASE_REG_PID_MAX_RIGHT, pid_max_right_);
-    comm->setInt32Value (BASE_REG_PID_MIN_RIGHT, pid_min_right_);
+    comm->setFloat64Value (BASE_REG_PID_KP_RIGHT, pid_kp_right_);
+    comm->setFloat64Value (BASE_REG_PID_KI_RIGHT, pid_ki_right_);
+    comm->setFloat64Value (BASE_REG_PID_KD_RIGHT, pid_kd_right_);
+    comm->setFloat64Value (BASE_REG_PID_KO_RIGHT, pid_ko_right_);
+    comm->setFloat64Value (BASE_REG_PID_MAX_RIGHT, pid_max_right_);
+    comm->setFloat64Value (BASE_REG_PID_MIN_RIGHT, pid_min_right_);
 
-    comm->setInt32Value (BASE_REG_PID_KP_LEFT, pid_kp_left_);
-    comm->setInt32Value (BASE_REG_PID_KI_LEFT, pid_ki_left_);
-    comm->setInt32Value (BASE_REG_PID_KD_LEFT, pid_kd_left_);
-    comm->setInt32Value (BASE_REG_PID_MAX_LEFT, pid_max_left_);
-    comm->setInt32Value (BASE_REG_PID_MIN_LEFT, pid_min_left_);
+    comm->setFloat64Value (BASE_REG_PID_KP_LEFT, pid_kp_left_);
+    comm->setFloat64Value (BASE_REG_PID_KI_LEFT, pid_ki_left_);
+    comm->setFloat64Value (BASE_REG_PID_KD_LEFT, pid_kd_left_);
+    comm->setFloat64Value (BASE_REG_PID_KO_LEFT, pid_ko_left_);
+    comm->setFloat64Value (BASE_REG_PID_MAX_LEFT, pid_max_left_);
+    comm->setFloat64Value (BASE_REG_PID_MIN_LEFT, pid_min_left_);
 
     comm->setInt32Value (BASE_REG_CNTL_DURATION, control_duration_);
+    comm->setInt32Value (BASE_REG_VEL_TIMEOUT, control_timeout_);
 
     comm->setInt32Value (BASE_REG_CFG_DONE, 1);
 
