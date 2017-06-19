@@ -137,15 +137,11 @@ namespace NS_Controller
     rolls_sync_ratio_ = parameter.getParameter ("rolls_sync_ratio", 2.0f);
 
     control_duration_ = parameter.getParameter ("control_duration", 100);
-
-    ticks_per_meter = (encoder_resolution_ * gear_reduction_)
-        / (wheel_diameter_ * M_PI);
   }
   
   void
   ControllerApplication::configController ()
   {
-    comm->setFloat64Value (BASE_REG_TICKS_PER_METER, ticks_per_meter);
     comm->setFloat64Value (BASE_REG_WHEEL_TRACK, wheel_track_);
     comm->setFloat64Value (BASE_REG_TOLERANCE, tolerance_);
 

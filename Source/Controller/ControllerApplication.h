@@ -73,10 +73,6 @@ namespace NS_Controller
     double pid_min_left_;
 
     int control_duration_;
-
-
-    double ticks_per_meter;
-    double distance_per_tick;
   private:
     
     void
