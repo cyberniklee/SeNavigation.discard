@@ -124,16 +124,19 @@ namespace NS_Controller
     pid_kp_right_ = parameter.getParameter ("pid_kp_r", 20.0f);
     pid_kd_right_ = parameter.getParameter ("pid_kd_r", 12.0f);
     pid_ki_right_ = parameter.getParameter ("pid_ki_r", 0.0f);
-    pid_max_right_ = parameter.getParameter ("pid_max_r", 90.0f);
-    pid_min_right_ = parameter.getParameter ("pid_min_r", 30.0f);
+    pid_ko_right_ = parameter.getParameter ("pid_ko_r", 50.0f);
+    pid_max_right_ = parameter.getParameter ("pid_max_r", 100.0f);
+    pid_min_right_ = parameter.getParameter ("pid_min_r", 0.0f);
     
     pid_kp_left_ = parameter.getParameter ("pid_kp_l", 20.0f);
     pid_kd_left_ = parameter.getParameter ("pid_kd_l", 12.0f);
     pid_ki_left_ = parameter.getParameter ("pid_ki_l", 0.0f);
-    pid_max_left_ = parameter.getParameter ("pid_max_l", 90.0f);
-    pid_min_left_ = parameter.getParameter ("pid_min_l", 30.0f);
+    pid_ko_left_ = parameter.getParameter ("pid_ko_l", 50.0f);
+    pid_max_left_ = parameter.getParameter ("pid_max_l", 100.0f);
+    pid_min_left_ = parameter.getParameter ("pid_min_l", 0.0f);
 
     control_duration_ = parameter.getParameter ("control_duration", 100);
+    control_timeout_ = parameter.getParameter ("control_timeout", 1000);
   }
   
   void

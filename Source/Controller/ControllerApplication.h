@@ -54,18 +54,22 @@ namespace NS_Controller
     double wheel_track_;
     double accel_limit_;
 
+    int control_timeout_;
+
     /*
      * PID parameters
      */
     double pid_kp_right_;
     double pid_kd_right_;
     double pid_ki_right_;
+    double pid_ko_right_;
     double pid_max_right_;
     double pid_min_right_;
 
     double pid_kp_left_;
     double pid_kd_left_;
     double pid_ki_left_;
+    double pid_ko_left_;
     double pid_max_left_;
     double pid_min_left_;
 
