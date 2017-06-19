@@ -133,17 +133,18 @@ namespace NS_Controller
     pid_max_left_ = parameter.getParameter ("pid_max_l", 90.0f);
     pid_min_left_ = parameter.getParameter ("pid_min_l", 30.0f);
 
-    tolerance_ = parameter.getParameter ("tolerance", 0.01f);
-    rolls_sync_ratio_ = parameter.getParameter ("rolls_sync_ratio", 2.0f);
-
     control_duration_ = parameter.getParameter ("control_duration", 100);
   }
   
   void
   ControllerApplication::configController ()
   {
+
     comm->setFloat64Value (BASE_REG_WHEEL_TRACK, wheel_track_);
-    comm->setFloat64Value (BASE_REG_TOLERANCE, tolerance_);
+    comm->setFloat64Value (BASE_REG_WHEEL_DIAMETER, wheel_diameter_);
+    comm->setFloat64Value (BASE_REG_ENCODER_RESOLUTION, encoder_resolution_);
+    comm->setFloat64Value (BASE_REG_GEAR_REDUCTION, gear_reduction_);
+    comm->setFloat64Value (BASE_REG_ACCEL_LIMIT, accel_limit_);
 
     comm->setInt32Value (BASE_REG_PID_KP_RIGHT, pid_kp_right_);
     comm->setInt32Value (BASE_REG_PID_KI_RIGHT, pid_ki_right_);
