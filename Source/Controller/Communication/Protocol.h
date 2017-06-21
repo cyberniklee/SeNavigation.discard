@@ -62,6 +62,8 @@ namespace NS_Controller
     BASE_REG_ODOM_X = 0xC0,
     BASE_REG_ODOM_Y = 0xC8,
     BASE_REG_ODOM_THETA = 0xD0,
+    BASE_REG_ODOM_LINEAR_VEL = 0xD8,
+    BASE_REG_ODOM_ANGULAR_VEL = 0xE0,
 
     BASE_REG_END = 0xE0,
   };
