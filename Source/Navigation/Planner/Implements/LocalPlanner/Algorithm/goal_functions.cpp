@@ -1,59 +1,23 @@
-/*********************************************************************
-*
-* Software License Agreement (BSD License)
-*
-*  Copyright (c) 2009, Willow Garage, Inc.
-*  All rights reserved.
-*
-*  Redistribution and use in source and binary forms, with or without
-*  modification, are permitted provided that the following conditions
-*  are met:
-*
-*   * Redistributions of source code must retain the above copyright
-*     notice, this list of conditions and the following disclaimer.
-*   * Redistributions in binary form must reproduce the above
-*     copyright notice, this list of conditions and the following
-*     disclaimer in the documentation and/or other materials provided
-*     with the distribution.
-*   * Neither the name of Willow Garage, Inc. nor the names of its
-*     contributors may be used to endorse or promote products derived
-*     from this software without specific prior written permission.
-*
-*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-*  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-*  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-*  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-*  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-*  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-*  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-*  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-*  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-*  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-*  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-*  POSSIBILITY OF SUCH DAMAGE.
-*
-* Author: Eitan Marder-Eppstein
-*********************************************************************/
-#include <base_local_planner/goal_functions.h>
+#include "GoalFunctions.h"
 
 namespace base_local_planner {
 
-  double getGoalPositionDistance(const tf::Stamped<tf::Pose>& global_pose, double goal_x, double goal_y) {
+  double getGoalPositionDistance(const NS_Transform::Stamped<NS_Transform::Pose>& global_pose, double goal_x, double goal_y) {
     return hypot(goal_x - global_pose.getOrigin().x(), goal_y - global_pose.getOrigin().y());
   }
 
-  double getGoalOrientationAngleDifference(const tf::Stamped<tf::Pose>& global_pose, double goal_th) {
-    double yaw = tf::getYaw(global_pose.getRotation());
-    return angles::shortest_angular_distance(yaw, goal_th);
+  double getGoalOrientationAngleDifference(const NS_Transform::Stamped<NS_Transform::Pose>& global_pose, double goal_th) {
+    double yaw = NS_Transform::getYaw(global_pose.getRotation());
+    return NS_Geometry::NS_Angles::shortest_angular_distance(yaw, goal_th);
   }
 
-  void publishPlan(const std::vector<geometry_msgs::PoseStamped>& path, const ros::Publisher& pub) {
+  void publishPlan(const std::vector<NS_DataType::PoseStamped>& path, const ros::Publisher& pub) {
     //given an empty path we won't do anything
     if(path.empty())
       return;
 
     //create a path message
-    nav_msgs::Path gui_path;
+    NS_DataType::Path gui_path;
     gui_path.poses.resize(path.size());
     gui_path.header.frame_id = path[0].header.frame_id;
     gui_path.header.stamp = path[0].header.stamp;
@@ -66,12 +30,12 @@ namespace base_local_planner {
     pub.publish(gui_path);
   }
 
-  void prunePlan(const tf::Stamped<tf::Pose>& global_pose, std::vector<geometry_msgs::PoseStamped>& plan, std::vector<geometry_msgs::PoseStamped>& global_plan){
+  void prunePlan(const NS_Transform::Stamped<NS_Transform::Pose>& global_pose, std::vector<NS_DataType::PoseStamped>& plan, std::vector<NS_DataType::PoseStamped>& global_plan){
     ROS_ASSERT(global_plan.size() >= plan.size());
-    std::vector<geometry_msgs::PoseStamped>::iterator it = plan.begin();
-    std::vector<geometry_msgs::PoseStamped>::iterator global_it = global_plan.begin();
+    std::vector<NS_DataType::PoseStamped>::iterator it = plan.begin();
+    std::vector<NS_DataType::PoseStamped>::iterator global_it = global_plan.begin();
     while(it != plan.end()){
-      const geometry_msgs::PoseStamped& w = *it;
+      const NS_DataType::PoseStamped& w = *it;
       // Fixed error bound of 2 meters for now. Can reduce to a portion of the map size or based on the resolution
       double x_diff = global_pose.getOrigin().x() - w.pose.position.x;
       double y_diff = global_pose.getOrigin().y() - w.pose.position.y;
@@ -87,11 +51,11 @@ namespace base_local_planner {
 
   bool transformGlobalPlan(
       const tf::TransformListener& tf,
-      const std::vector<geometry_msgs::PoseStamped>& global_plan,
-      const tf::Stamped<tf::Pose>& global_pose,
-      const costmap_2d::Costmap2D& costmap,
+      const std::vector<NS_DataType::PoseStamped>& global_plan,
+      const NS_Transform::Stamped<NS_Transform::Pose>& global_pose,
+      const NS_CostMap::Costmap2D& costmap,
       const std::string& global_frame,
-      std::vector<geometry_msgs::PoseStamped>& transformed_plan){
+      std::vector<NS_DataType::PoseStamped>& transformed_plan){
     transformed_plan.clear();
 
     if (global_plan.empty()) {
@@ -99,10 +63,10 @@ namespace base_local_planner {
       return false;
     }
 
-    const geometry_msgs::PoseStamped& plan_pose = global_plan[0];
+    const NS_DataType::PoseStamped& plan_pose = global_plan[0];
     try {
       // get plan_to_global_transform from plan frame to global_frame
-      tf::StampedTransform plan_to_global_transform;
+      NS_Transform::StampedTransform plan_to_global_transform;
       tf.waitForTransform(global_frame, ros::Time::now(),
                           plan_pose.header.frame_id, plan_pose.header.stamp,
                           plan_pose.header.frame_id, ros::Duration(0.5));
@@ -111,7 +75,7 @@ namespace base_local_planner {
                          plan_pose.header.frame_id, plan_to_global_transform);
 
       //let's get the pose of the robot in the frame of the plan
-      tf::Stamped<tf::Pose> robot_pose;
+      NS_Transform::Stamped<NS_Transform::Pose> robot_pose;
       tf.transformPose(plan_pose.header.frame_id, global_pose, robot_pose);
 
       //we'll discard points on the plan that are outside the local costmap
@@ -133,12 +97,12 @@ namespace base_local_planner {
         ++i;
       }
 
-      tf::Stamped<tf::Pose> tf_pose;
-      geometry_msgs::PoseStamped newer_pose;
+      NS_Transform::Stamped<NS_Transform::Pose> tf_pose;
+      NS_DataType::PoseStamped newer_pose;
 
       //now we'll transform until points are outside of our distance threshold
       while(i < (unsigned int)global_plan.size() && sq_dist <= sq_dist_threshold) {
-        const geometry_msgs::PoseStamped& pose = global_plan[i];
+        const NS_DataType::PoseStamped& pose = global_plan[i];
         poseStampedMsgToTF(pose, tf_pose);
         tf_pose.setData(plan_to_global_transform * tf_pose);
         tf_pose.stamp_ = plan_to_global_transform.stamp_;
@@ -174,17 +138,17 @@ namespace base_local_planner {
   }
 
   bool getGoalPose(const tf::TransformListener& tf,
-      const std::vector<geometry_msgs::PoseStamped>& global_plan,
-      const std::string& global_frame, tf::Stamped<tf::Pose>& goal_pose) {
+      const std::vector<NS_DataType::PoseStamped>& global_plan,
+      const std::string& global_frame, NS_Transform::Stamped<NS_Transform::Pose>& goal_pose) {
     if (global_plan.empty())
     {
       ROS_ERROR("Received plan with zero length");
       return false;
     }
 
-    const geometry_msgs::PoseStamped& plan_goal_pose = global_plan.back();
+    const NS_DataType::PoseStamped& plan_goal_pose = global_plan.back();
     try{
-      tf::StampedTransform transform;
+      NS_Transform::StampedTransform transform;
       tf.waitForTransform(global_frame, ros::Time::now(),
                           plan_goal_pose.header.frame_id, plan_goal_pose.header.stamp,
                           plan_goal_pose.header.frame_id, ros::Duration(0.5));
@@ -217,21 +181,21 @@ namespace base_local_planner {
   }
 
   bool isGoalReached(const tf::TransformListener& tf,
-      const std::vector<geometry_msgs::PoseStamped>& global_plan,
-      const costmap_2d::Costmap2D& costmap __attribute__((unused)),
+      const std::vector<NS_DataType::PoseStamped>& global_plan,
+      const NS_CostMap::Costmap2D& costmap __attribute__((unused)),
       const std::string& global_frame,
-      tf::Stamped<tf::Pose>& global_pose,
-      const nav_msgs::Odometry& base_odom,
+      NS_Transform::Stamped<NS_Transform::Pose>& global_pose,
+      const NS_DataType::Odometry& base_odom,
       double rot_stopped_vel, double trans_stopped_vel,
       double xy_goal_tolerance, double yaw_goal_tolerance){
 
     //we assume the global goal is the last point in the global plan
-    tf::Stamped<tf::Pose> goal_pose;
+    NS_Transform::Stamped<NS_Transform::Pose> goal_pose;
     getGoalPose(tf, global_plan, global_frame, goal_pose);
 
     double goal_x = goal_pose.getOrigin().getX();
     double goal_y = goal_pose.getOrigin().getY();
-    double goal_th = tf::getYaw(goal_pose.getRotation());
+    double goal_th = NS_Transform::getYaw(goal_pose.getRotation());
 
     //check to see if we've reached the goal position
     if(getGoalPositionDistance(global_pose, goal_x, goal_y) <= xy_goal_tolerance) {
@@ -246,7 +210,7 @@ namespace base_local_planner {
     return false;
   }
 
-  bool stopped(const nav_msgs::Odometry& base_odom, 
+  bool stopped(const NS_DataType::Odometry& base_odom,
       const double& rot_stopped_velocity, const double& trans_stopped_velocity){
     return fabs(base_odom.twist.twist.angular.z) <= rot_stopped_velocity 
       && fabs(base_odom.twist.twist.linear.x) <= trans_stopped_velocity

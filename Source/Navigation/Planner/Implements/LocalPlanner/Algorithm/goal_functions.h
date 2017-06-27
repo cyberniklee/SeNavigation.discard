@@ -1,59 +1,19 @@
-/*********************************************************************
-*
-* Software License Agreement (BSD License)
-*
-*  Copyright (c) 2009, Willow Garage, Inc.
-*  All rights reserved.
-*
-*  Redistribution and use in source and binary forms, with or without
-*  modification, are permitted provided that the following conditions
-*  are met:
-*
-*   * Redistributions of source code must retain the above copyright
-*     notice, this list of conditions and the following disclaimer.
-*   * Redistributions in binary form must reproduce the above
-*     copyright notice, this list of conditions and the following
-*     disclaimer in the documentation and/or other materials provided
-*     with the distribution.
-*   * Neither the name of Willow Garage, Inc. nor the names of its
-*     contributors may be used to endorse or promote products derived
-*     from this software without specific prior written permission.
-*
-*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-*  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-*  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-*  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-*  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-*  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-*  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-*  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-*  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-*  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-*  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-*  POSSIBILITY OF SUCH DAMAGE.
-*
-* Author: Eitan Marder-Eppstein
-*********************************************************************/
-#ifndef BASE_LOCAL_PLANNER_GOAL_FUNCTIONS_H_
-#define BASE_LOCAL_PLANNER_GOAL_FUNCTIONS_H_
+#ifndef _BASE_LOCAL_PLANNER_GOAL_FUNCTIONS_H_
+#define _BASE_LOCAL_PLANNER_GOAL_FUNCTIONS_H_
 
-#include <ros/ros.h>
-#include <tf/transform_listener.h>
-#include <tf/transform_datatypes.h>
-#include <nav_msgs/Odometry.h>
-#include <nav_msgs/Path.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/Twist.h>
-#include <geometry_msgs/Point.h>
-#include <tf/transform_listener.h>
+#include <DataSet/DataType/Odometry.h>
+#include <DataSet/DataType/Path.h>
+#include <DataSet/DataType/PoseStamped.h>
+#include <DataSet/DataType/Twist.h>
+#include <DataSet/DataType/Point.h>
 
 #include <string>
 #include <cmath>
 
-#include <angles/angles.h>
-#include <costmap_2d/costmap_2d.h>
+#include <Geometry/Angles.h>
+#include "../../../CostMap/CostMap2D/CostMap2D.h"
 
-namespace base_local_planner {
+namespace NS_Planner {
 
   /**
    * @brief  return squared distance to check if the goal position has been achieved
@@ -62,7 +22,7 @@ namespace base_local_planner {
    * @param  goal_y The desired y value for the goal
    * @return distance to goal
    */
-  double getGoalPositionDistance(const tf::Stamped<tf::Pose>& global_pose, double goal_x, double goal_y);
+  double getGoalPositionDistance(const NS_Transform::Stamped<NS_Transform::Pose>& global_pose, double goal_x, double goal_y);
 
   /**
    * @brief  return angle difference to goal to check if the goal orientation has been achieved
@@ -71,7 +31,7 @@ namespace base_local_planner {
    * @param  goal_y The desired y value for the goal
    * @return angular difference
    */
-  double getGoalOrientationAngleDifference(const tf::Stamped<tf::Pose>& global_pose, double goal_th);
+  double getGoalOrientationAngleDifference(const NS_Transform::Stamped<NS_Transform::Pose>& global_pose, double goal_th);
 
   /**
    * @brief  Publish a plan for visualization purposes
@@ -79,7 +39,7 @@ namespace base_local_planner {
    * @param  pub The published to use
    * @param  r,g,b,a The color and alpha value to use when publishing
    */
-  void publishPlan(const std::vector<geometry_msgs::PoseStamped>& path, const ros::Publisher& pub);
+  void publishPlan(const std::vector<NS_DataType::PoseStamped>& path, const ros::Publisher& pub);
 
   /**
    * @brief  Trim off parts of the global plan that are far enough behind the robot
@@ -87,7 +47,7 @@ namespace base_local_planner {
    * @param plan The plan to be pruned
    * @param global_plan The plan to be pruned in the frame of the planner
    */
-  void prunePlan(const tf::Stamped<tf::Pose>& global_pose, std::vector<geometry_msgs::PoseStamped>& plan, std::vector<geometry_msgs::PoseStamped>& global_plan);
+  void prunePlan(const NS_Transform::Stamped<NS_Transform::Pose>& global_pose, std::vector<NS_DataType::PoseStamped>& plan, std::vector<NS_DataType::PoseStamped>& global_plan);
 
   /**
    * @brief  Transforms the global plan of the robot from the planner frame to the frame of the costmap,
@@ -100,11 +60,11 @@ namespace base_local_planner {
    * @param transformed_plan Populated with the transformed plan
    */
   bool transformGlobalPlan(const tf::TransformListener& tf,
-      const std::vector<geometry_msgs::PoseStamped>& global_plan,
-      const tf::Stamped<tf::Pose>& global_robot_pose,
-      const costmap_2d::Costmap2D& costmap,
+      const std::vector<NS_DataType::PoseStamped>& global_plan,
+      const NS_Transform::Stamped<NS_Transform::Pose>& global_robot_pose,
+      const NS_CostMap::Costmap2D& costmap,
       const std::string& global_frame,
-      std::vector<geometry_msgs::PoseStamped>& transformed_plan);
+      std::vector<NS_DataType::PoseStamped>& transformed_plan);
 
   /**
      * @brief  Returns last pose in plan
@@ -115,9 +75,9 @@ namespace base_local_planner {
      * @return True if achieved, false otherwise
      */
   bool getGoalPose(const tf::TransformListener& tf,
-  		  const std::vector<geometry_msgs::PoseStamped>& global_plan,
+  		  const std::vector<NS_DataType::PoseStamped>& global_plan,
   		  const std::string& global_frame,
-  		  tf::Stamped<tf::Pose> &goal_pose);
+  		NS_Transform::Stamped<NS_Transform::Pose> &goal_pose);
 
   /**
    * @brief  Check if the goal pose has been achieved
@@ -133,11 +93,11 @@ namespace base_local_planner {
    * @return True if achieved, false otherwise
    */
   bool isGoalReached(const tf::TransformListener& tf,
-      const std::vector<geometry_msgs::PoseStamped>& global_plan,
-      const costmap_2d::Costmap2D& costmap,
+      const std::vector<NS_DataType::PoseStamped>& global_plan,
+      const NS_CostMap::Costmap2D& costmap,
       const std::string& global_frame,
-      tf::Stamped<tf::Pose>& global_pose,
-      const nav_msgs::Odometry& base_odom,
+      NS_Transform::Stamped<NS_Transform::Pose>& global_pose,
+      const NS_DataType::Odometry& base_odom,
       double rot_stopped_vel, double trans_stopped_vel,
       double xy_goal_tolerance, double yaw_goal_tolerance);
 
@@ -148,7 +108,7 @@ namespace base_local_planner {
    * @param trans_stopped_velocity The translational velocity below which the robot is considered stopped
    * @return True if the robot is stopped, false otherwise
    */
-  bool stopped(const nav_msgs::Odometry& base_odom, 
+  bool stopped(const NS_DataType::Odometry& base_odom,
       const double& rot_stopped_velocity,
       const double& trans_stopped_velocity);
 };

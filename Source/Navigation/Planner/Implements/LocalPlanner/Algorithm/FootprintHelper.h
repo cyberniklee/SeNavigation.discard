@@ -35,17 +35,17 @@
  * Author: TKruse
  *********************************************************************/
 
-#ifndef FOOTPRINT_HELPER_H_
-#define FOOTPRINT_HELPER_H_
+#ifndef _BASE_LOCAL_PLANNER_FOOTPRINT_HELPER_H_
+#define _BASE_LOCAL_PLANNER_FOOTPRINT_HELPER_H_
 
 #include <vector>
 
-#include <costmap_2d/costmap_2d.h>
-#include <geometry_msgs/Point.h>
+#include "../../../CostMap/CostMap2D/CostMap2D.h"
+#include <DataSet/DataType/Point.h>
 #include <Eigen/Core>
-#include <base_local_planner/Position2DInt.h>
+#include <DataSet/DataType/Position2DInt.h>
 
-namespace base_local_planner {
+namespace NS_Planner {
 
 class FootprintHelper {
 public:
@@ -60,10 +60,10 @@ public:
    * @param  fill If true: returns all cells in the footprint of the robot. If false: returns only the cells that make up the outline of the footprint.
    * @return The cells that make up either the outline or entire footprint of the robot depending on fill
    */
-  std::vector<base_local_planner::Position2DInt> getFootprintCells(
+  std::vector<NS_DataType::Position2DInt> getFootprintCells(
       Eigen::Vector3f pos,
-      std::vector<geometry_msgs::Point> footprint_spec,
-      const costmap_2d::Costmap2D&,
+      std::vector<NS_DataType::Point> footprint_spec,
+      const NS_CostMap::Costmap2D&,
       bool fill);
 
   /**
@@ -74,13 +74,13 @@ public:
    * @param  y1 The y coordinate of the second point
    * @param  pts Will be filled with the cells that lie on the line in the grid
    */
-  void getLineCells(int x0, int x1, int y0, int y1, std::vector<base_local_planner::Position2DInt>& pts);
+  void getLineCells(int x0, int x1, int y0, int y1, std::vector<NS_DataType::Position2DInt>& pts);
 
   /**
    * @brief Fill the outline of a polygon, in this case the robot footprint, in a grid
    * @param footprint The list of cells making up the footprint in the grid, will be modified to include all cells inside the footprint
    */
-  void getFillCells(std::vector<base_local_planner::Position2DInt>& footprint);
+  void getFillCells(std::vector<NS_DataType::Position2DInt>& footprint);
 };
 
 } /* namespace base_local_planner */

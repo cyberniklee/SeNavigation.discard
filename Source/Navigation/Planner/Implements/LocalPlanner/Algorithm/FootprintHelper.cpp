@@ -1,43 +1,6 @@
-/*********************************************************************
- *
- * Software License Agreement (BSD License)
- *
- *  Copyright (c) 2008, Willow Garage, Inc.
- *  All rights reserved.
- *
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions
- *  are met:
- *
- *   * Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *   * Redistributions in binary form must reproduce the above
- *     copyright notice, this list of conditions and the following
- *     disclaimer in the documentation and/or other materials provided
- *     with the distribution.
- *   * Neither the name of Willow Garage, Inc. nor the names of its
- *     contributors may be used to endorse or promote products derived
- *     from this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- *  POSSIBILITY OF SUCH DAMAGE.
- *
- * Author: TKruse
- *********************************************************************/
+#include "FootprintHelper.h"
 
-#include <base_local_planner/footprint_helper.h>
-
-namespace base_local_planner {
+namespace NS_Planner {
 
 FootprintHelper::FootprintHelper() {
   // TODO Auto-generated constructor stub
@@ -48,7 +11,7 @@ FootprintHelper::~FootprintHelper() {
   // TODO Auto-generated destructor stub
 }
 
-void FootprintHelper::getLineCells(int x0, int x1, int y0, int y1, std::vector<base_local_planner::Position2DInt>& pts) {
+void FootprintHelper::getLineCells(int x0, int x1, int y0, int y1, std::vector<NS_DataType::Position2DInt>& pts) {
   //Bresenham Ray-Tracing
   int deltax = abs(x1 - x0);        // The difference between the x's
   int deltay = abs(y1 - y0);        // The difference between the y's
@@ -58,7 +21,7 @@ void FootprintHelper::getLineCells(int x0, int x1, int y0, int y1, std::vector<b
   int xinc1, xinc2, yinc1, yinc2;
   int den, num, numadd, numpixels;
 
-  base_local_planner::Position2DInt pt;
+  NS_DataType::Position2DInt pt;
 
   if (x1 >= x0)                 // The x-values are increasing
   {
@@ -120,9 +83,9 @@ void FootprintHelper::getLineCells(int x0, int x1, int y0, int y1, std::vector<b
 }
 
 
-void FootprintHelper::getFillCells(std::vector<base_local_planner::Position2DInt>& footprint){
+void FootprintHelper::getFillCells(std::vector<NS_DataType::Position2DInt>& footprint){
   //quick bubble sort to sort pts by x
-  base_local_planner::Position2DInt swap, pt;
+  NS_DataType::Position2DInt swap, pt;
   unsigned int i = 0;
   while (i < footprint.size() - 1) {
     if (footprint[i].x > footprint[i + 1].x) {
@@ -138,8 +101,8 @@ void FootprintHelper::getFillCells(std::vector<base_local_planner::Position2DInt
   }
 
   i = 0;
-  base_local_planner::Position2DInt min_pt;
-  base_local_planner::Position2DInt max_pt;
+  NS_DataType::Position2DInt min_pt;
+  NS_DataType::Position2DInt max_pt;
   unsigned int min_x = footprint[0].x;
   unsigned int max_x = footprint[footprint.size() -1].x;
   //walk through each column and mark cells inside the footprint
@@ -177,15 +140,15 @@ void FootprintHelper::getFillCells(std::vector<base_local_planner::Position2DInt
 /**
  * get the cellsof a footprint at a given position
  */
-std::vector<base_local_planner::Position2DInt> FootprintHelper::getFootprintCells(
+std::vector<NS_DataType::Position2DInt> FootprintHelper::getFootprintCells(
     Eigen::Vector3f pos,
-    std::vector<geometry_msgs::Point> footprint_spec,
-    const costmap_2d::Costmap2D& costmap,
+    std::vector<NS_DataType::Point> footprint_spec,
+    const NS_CostMap::Costmap2D& costmap,
     bool fill){
   double x_i = pos[0];
   double y_i = pos[1];
   double theta_i = pos[2];
-  std::vector<base_local_planner::Position2DInt> footprint_cells;
+  std::vector<NS_DataType::Position2DInt> footprint_cells;
 
   //if we have no footprint... do nothing
   if (footprint_spec.size() <= 1) {
