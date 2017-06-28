@@ -1,41 +1,10 @@
-/*********************************************************************
- * Software License Agreement (BSD License)
- *
- *  Copyright (c) 2008, Willow Garage, Inc.
- *  All rights reserved.
- *
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions
- *  are met:
- *
- *   * Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *   * Redistributions in binary form must reproduce the above
- *     copyright notice, this list of conditions and the following
- *     disclaimer in the documentation and/or other materials provided
- *     with the distribution.
- *   * Neither the name of the Willow Garage nor the names of its
- *     contributors may be used to endorse or promote products derived
- *     from this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- *  POSSIBILITY OF SUCH DAMAGE.
- *********************************************************************/
-#include <base_local_planner/map_grid.h>
-#include <costmap_2d/cost_values.h>
+#include "MapGrid.h"
+#include "../../../CostMap/CostMap2D/CostValues.h"
+#include <Console/Console.h>
+
 using namespace std;
 
-namespace base_local_planner{
+namespace NS_Planner{
 
   MapGrid::MapGrid()
     : size_x_(0), size_y_(0)
@@ -56,7 +25,7 @@ namespace base_local_planner{
 
   void MapGrid::commonInit(){
     //don't allow construction of zero size grid
-    ROS_ASSERT(size_y_ != 0 && size_x_ != 0);
+    assert(size_y_ != 0 && size_x_ != 0);
 
     map_.resize(size_y_ * size_x_);
 
@@ -101,14 +70,14 @@ namespace base_local_planner{
 
 
   inline bool MapGrid::updatePathCell(MapCell* current_cell, MapCell* check_cell,
-      const costmap_2d::Costmap2D& costmap){
+      const NS_CostMap::Costmap2D& costmap){
 
     //if the cell is an obstacle set the max path distance
     unsigned char cost = costmap.getCost(check_cell->cx, check_cell->cy);
     if(! getCell(check_cell->cx, check_cell->cy).within_robot &&
-        (cost == costmap_2d::LETHAL_OBSTACLE ||
-         cost == costmap_2d::INSCRIBED_INFLATED_OBSTACLE ||
-         cost == costmap_2d::NO_INFORMATION)){
+        (cost == NS_CostMap::LETHAL_OBSTACLE ||
+         cost == NS_CostMap::INSCRIBED_INFLATED_OBSTACLE ||
+         cost == NS_CostMap::NO_INFORMATION)){
       check_cell->target_dist = obstacleCosts();
       return false;
     }
@@ -130,8 +99,8 @@ namespace base_local_planner{
     }
   }
 
-  void MapGrid::adjustPlanResolution(const std::vector<geometry_msgs::PoseStamped>& global_plan_in,
-      std::vector<geometry_msgs::PoseStamped>& global_plan_out, double resolution) {
+  void MapGrid::adjustPlanResolution(const std::vector<NS_DataType::PoseStamped>& global_plan_in,
+      std::vector<NS_DataType::PoseStamped>& global_plan_out, double resolution) {
     if (global_plan_in.size() == 0) {
       return;
     }
@@ -153,7 +122,7 @@ namespace base_local_planner{
         double deltay = (loop_y - last_y) / steps;
         // TODO: Interpolate orientation
         for (int j = 1; j < steps; ++j) {
-          geometry_msgs::PoseStamped pose;
+          NS_DataType::PoseStamped pose;
           pose.pose.position.x = last_x + j * deltax;
           pose.pose.position.y = last_y + j * deltay;
           pose.pose.position.z = global_plan_in[i].pose.position.z;
@@ -169,18 +138,18 @@ namespace base_local_planner{
   }
 
   //update what map cells are considered path based on the global_plan
-  void MapGrid::setTargetCells(const costmap_2d::Costmap2D& costmap,
-      const std::vector<geometry_msgs::PoseStamped>& global_plan) {
+  void MapGrid::setTargetCells(const NS_CostMap::Costmap2D& costmap,
+      const std::vector<NS_DataType::PoseStamped>& global_plan) {
     sizeCheck(costmap.getSizeInCellsX(), costmap.getSizeInCellsY());
 
     bool started_path = false;
 
     queue<MapCell*> path_dist_queue;
 
-    std::vector<geometry_msgs::PoseStamped> adjusted_global_plan;
+    std::vector<NS_DataType::PoseStamped> adjusted_global_plan;
     adjustPlanResolution(global_plan, adjusted_global_plan, costmap.getResolution());
     if (adjusted_global_plan.size() != global_plan.size()) {
-      ROS_DEBUG("Adjusted global plan resolution, added %zu points", adjusted_global_plan.size() - global_plan.size());
+      NS_NaviCommon::console.debug("Adjusted global plan resolution, added %zu points", adjusted_global_plan.size() - global_plan.size());
     }
     unsigned int i;
     // put global path points into local map until we reach the border of the local map
@@ -188,7 +157,7 @@ namespace base_local_planner{
       double g_x = adjusted_global_plan[i].pose.position.x;
       double g_y = adjusted_global_plan[i].pose.position.y;
       unsigned int map_x, map_y;
-      if (costmap.worldToMap(g_x, g_y, map_x, map_y) && costmap.getCost(map_x, map_y) != costmap_2d::NO_INFORMATION) {
+      if (costmap.worldToMap(g_x, g_y, map_x, map_y) && costmap.getCost(map_x, map_y) != NS_CostMap::NO_INFORMATION) {
         MapCell& current = getCell(map_x, map_y);
         current.target_dist = 0.0;
         current.target_mark = true;
@@ -199,7 +168,7 @@ namespace base_local_planner{
       }
     }
     if (!started_path) {
-      ROS_ERROR("None of the %d first of %zu (%zu) points of the global plan were in the local costmap and free",
+      NS_NaviCommon::console.error("None of the %d first of %zu (%zu) points of the global plan were in the local costmap and free",
           i, adjusted_global_plan.size(), global_plan.size());
       return;
     }
@@ -208,15 +177,15 @@ namespace base_local_planner{
   }
 
   //mark the point of the costmap as local goal where global_plan first leaves the area (or its last point)
-  void MapGrid::setLocalGoal(const costmap_2d::Costmap2D& costmap,
-      const std::vector<geometry_msgs::PoseStamped>& global_plan) {
+  void MapGrid::setLocalGoal(const NS_CostMap::Costmap2D& costmap,
+      const std::vector<NS_DataType::PoseStamped>& global_plan) {
     sizeCheck(costmap.getSizeInCellsX(), costmap.getSizeInCellsY());
 
     int local_goal_x = -1;
     int local_goal_y = -1;
     bool started_path = false;
 
-    std::vector<geometry_msgs::PoseStamped> adjusted_global_plan;
+    std::vector<NS_DataType::PoseStamped> adjusted_global_plan;
     adjustPlanResolution(global_plan, adjusted_global_plan, costmap.getResolution());
 
     // skip global path points until we reach the border of the local map
@@ -224,7 +193,7 @@ namespace base_local_planner{
       double g_x = adjusted_global_plan[i].pose.position.x;
       double g_y = adjusted_global_plan[i].pose.position.y;
       unsigned int map_x, map_y;
-      if (costmap.worldToMap(g_x, g_y, map_x, map_y) && costmap.getCost(map_x, map_y) != costmap_2d::NO_INFORMATION) {
+      if (costmap.worldToMap(g_x, g_y, map_x, map_y) && costmap.getCost(map_x, map_y) != NS_CostMap::NO_INFORMATION) {
         local_goal_x = map_x;
         local_goal_y = map_y;
         started_path = true;
@@ -235,7 +204,7 @@ namespace base_local_planner{
       }
     }
     if (!started_path) {
-      ROS_ERROR("None of the points of the global plan were in the local costmap, global plan points too far from robot");
+      NS_NaviCommon::console.error("None of the points of the global plan were in the local costmap, global plan points too far from robot");
       return;
     }
 
@@ -253,7 +222,7 @@ namespace base_local_planner{
 
 
 
-  void MapGrid::computeTargetDistance(queue<MapCell*>& dist_queue, const costmap_2d::Costmap2D& costmap){
+  void MapGrid::computeTargetDistance(queue<MapCell*>& dist_queue, const NS_CostMap::Costmap2D& costmap){
     MapCell* current_cell;
     MapCell* check_cell;
     unsigned int last_col = size_x_ - 1;

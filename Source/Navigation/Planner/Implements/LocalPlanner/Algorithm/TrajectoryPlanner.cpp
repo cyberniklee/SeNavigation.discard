@@ -35,27 +35,26 @@
 * Author: Eitan Marder-Eppstein
 *********************************************************************/
 
-#include <base_local_planner/trajectory_planner.h>
-#include <costmap_2d/footprint.h>
+#include "TrajectoryPlanner.h"
+#include "../../../CostMap/Utils/Footprint.h"
 #include <string>
 #include <sstream>
 #include <math.h>
-#include <angles/angles.h>
-
-
+#include <Geometry/Angles.h>
 
 #include <boost/algorithm/string.hpp>
 
-#include <ros/console.h>
+#include <Console/Console.h>
 
 //for computing path distance
 #include <queue>
 
 using namespace std;
-using namespace costmap_2d;
+using namespace NS_CostMap;
 
-namespace base_local_planner{
+namespace NS_Planner{
 
+  /*
   void TrajectoryPlanner::reconfigure(BaseLocalPlannerConfig &cfg)
   {
       BaseLocalPlannerConfig config(cfg);
@@ -137,10 +136,11 @@ namespace base_local_planner{
       y_vels_ = y_vels;
       
   }
+  */
 
   TrajectoryPlanner::TrajectoryPlanner(WorldModel& world_model,
       const Costmap2D& costmap,
-      std::vector<geometry_msgs::Point> footprint_spec,
+      std::vector<NS_DataType::Point> footprint_spec,
       double acc_lim_x, double acc_lim_y, double acc_lim_theta,
       double sim_time, double sim_granularity,
       int vx_samples, int vtheta_samples,
@@ -184,7 +184,7 @@ namespace base_local_planner{
     final_goal_position_valid_ = false;
 
 
-    costmap_2d::calculateMinAndMaxDistances(footprint_spec_, inscribed_radius_, circumscribed_radius_);
+    NS_CostMap::calculateMinAndMaxDistances(footprint_spec_, inscribed_radius_, circumscribed_radius_);
   }
 
   TrajectoryPlanner::~TrajectoryPlanner(){}
@@ -198,7 +198,7 @@ namespace base_local_planner{
     occ_cost = costmap_.getCost(cx, cy);
     if (cell.target_dist == path_map_.obstacleCosts() ||
         cell.target_dist == path_map_.unreachableCellCosts() ||
-        occ_cost >= costmap_2d::INSCRIBED_INFLATED_OBSTACLE) {
+        occ_cost >= NS_CostMap::INSCRIBED_INFLATED_OBSTACLE) {
         return false;
     }
     path_cost = cell.target_dist;
@@ -377,7 +377,7 @@ namespace base_local_planner{
         if (lineCost(cell_x, goal_cell_x, cell_y, goal_cell_y) >= 0) {
           double gx, gy;
           costmap_.mapToWorld(goal_cell_x, goal_cell_y, gx, gy);
-          return fabs(angles::shortest_angular_distance(heading, atan2(gy - y, gx - x)));
+          return fabs(NS_Geometry::NS_Angles::shortest_angular_distance(heading, atan2(gy - y, gx - x)));
         }
       }
     }
@@ -472,14 +472,14 @@ namespace base_local_planner{
     return cost;
   }
 
-  void TrajectoryPlanner::updatePlan(const vector<geometry_msgs::PoseStamped>& new_plan, bool compute_dists){
+  void TrajectoryPlanner::updatePlan(const vector<NS_DataType::PoseStamped>& new_plan, bool compute_dists){
     global_plan_.resize(new_plan.size());
     for(unsigned int i = 0; i < new_plan.size(); ++i){
       global_plan_[i] = new_plan[i];
     }
 
     if( global_plan_.size() > 0 ){
-      geometry_msgs::PoseStamped& final_goal_pose = global_plan_[ global_plan_.size() - 1 ];
+      NS_DataType::PoseStamped& final_goal_pose = global_plan_[ global_plan_.size() - 1 ];
       final_goal_x_ = final_goal_pose.pose.position.x;
       final_goal_y_ = final_goal_pose.pose.position.y;
       final_goal_position_valid_ = true;
@@ -495,7 +495,7 @@ namespace base_local_planner{
       //make sure that we update our path based on the global plan and compute costs
       path_map_.setTargetCells(costmap_, global_plan_);
       goal_map_.setLocalGoal(costmap_, global_plan_);
-      ROS_DEBUG("Path/Goal distance computed");
+      NS_NaviCommon::console.debug("Path/Goal distance computed");
     }
   }
 
@@ -509,7 +509,7 @@ namespace base_local_planner{
     if(cost >= 0) {
       return true;
     }
-    ROS_WARN("Invalid Trajectory %f, %f, %f, cost: %f", vx_samp, vy_samp, vtheta_samp, cost);
+    NS_NaviCommon::console.warning("Invalid Trajectory %f, %f, %f, cost: %f", vx_samp, vy_samp, vtheta_samp, cost);
 
     //otherwise the check fails
     return false;
@@ -741,7 +741,7 @@ namespace base_local_planner{
 
       dist = hypot(x - escape_x_, y - escape_y_);
       if(dist > escape_reset_dist_ ||
-          fabs(angles::shortest_angular_distance(escape_theta_, theta)) > escape_reset_theta_){
+          fabs(NS_Geometry::NS_Angles::shortest_angular_distance(escape_theta_, theta)) > escape_reset_theta_){
         escaping_ = false;
       }
 
@@ -838,7 +838,7 @@ namespace base_local_planner{
       }
 
       dist = hypot(x - escape_x_, y - escape_y_);
-      if(dist > escape_reset_dist_ || fabs(angles::shortest_angular_distance(escape_theta_, theta)) > escape_reset_theta_) {
+      if(dist > escape_reset_dist_ || fabs(NS_Geometry::NS_Angles::shortest_angular_distance(escape_theta_, theta)) > escape_reset_theta_) {
         escaping_ = false;
       }
 
@@ -889,7 +889,7 @@ namespace base_local_planner{
     dist = hypot(x - escape_x_, y - escape_y_);
 
     if (dist > escape_reset_dist_ ||
-        fabs(angles::shortest_angular_distance(escape_theta_, theta)) > escape_reset_theta_) {
+        fabs(NS_Geometry::NS_Angles::shortest_angular_distance(escape_theta_, theta)) > escape_reset_theta_) {
       escaping_ = false;
     }
 
@@ -903,18 +903,18 @@ namespace base_local_planner{
   }
 
   //given the current state of the robot, find a good trajectory
-  Trajectory TrajectoryPlanner::findBestPath(tf::Stamped<tf::Pose> global_pose, tf::Stamped<tf::Pose> global_vel,
-      tf::Stamped<tf::Pose>& drive_velocities){
+  Trajectory TrajectoryPlanner::findBestPath(NS_Transform::Stamped<NS_Transform::Pose> global_pose, NS_Transform::Stamped<NS_Transform::Pose> global_vel,
+                                             NS_Transform::Stamped<NS_Transform::Pose>& drive_velocities){
 
-    Eigen::Vector3f pos(global_pose.getOrigin().getX(), global_pose.getOrigin().getY(), tf::getYaw(global_pose.getRotation()));
-    Eigen::Vector3f vel(global_vel.getOrigin().getX(), global_vel.getOrigin().getY(), tf::getYaw(global_vel.getRotation()));
+    Eigen::Vector3f pos(global_pose.getOrigin().getX(), global_pose.getOrigin().getY(), NS_Transform::getYaw(global_pose.getRotation()));
+    Eigen::Vector3f vel(global_vel.getOrigin().getX(), global_vel.getOrigin().getY(), NS_Transform::getYaw(global_vel.getRotation()));
 
     //reset the map for new operations
     path_map_.resetPathDist();
     goal_map_.resetPathDist();
 
     //temporarily remove obstacles that are within the footprint of the robot
-    std::vector<base_local_planner::Position2DInt> footprint_list =
+    std::vector<NS_DataType::Position2DInt> footprint_list =
         footprint_helper_.getFootprintCells(
             pos,
             footprint_spec_,
@@ -929,13 +929,13 @@ namespace base_local_planner{
     //make sure that we update our path based on the global plan and compute costs
     path_map_.setTargetCells(costmap_, global_plan_);
     goal_map_.setLocalGoal(costmap_, global_plan_);
-    ROS_DEBUG("Path/Goal distance computed");
+    NS_NaviCommon::console.debug("Path/Goal distance computed");
 
     //rollout trajectories and find the minimum cost one
     Trajectory best = createTrajectories(pos[0], pos[1], pos[2],
         vel[0], vel[1], vel[2],
         acc_lim_x_, acc_lim_y_, acc_lim_theta_);
-    ROS_DEBUG("Trajectories created");
+    NS_NaviCommon::console.debug("Trajectories created");
 
     /*
     //If we want to print a ppm file to draw goal dist
@@ -966,10 +966,10 @@ namespace base_local_planner{
       drive_velocities.setIdentity();
     }
     else{
-      tf::Vector3 start(best.xv_, best.yv_, 0);
+      NS_Transform::Vector3 start(best.xv_, best.yv_, 0);
       drive_velocities.setOrigin(start);
-      tf::Matrix3x3 matrix;
-      matrix.setRotation(tf::createQuaternionFromYaw(best.thetav_));
+      NS_Transform::Matrix3x3 matrix;
+      matrix.setRotation(NS_Transform::createQuaternionFromYaw(best.thetav_));
       drive_velocities.setBasis(matrix);
     }
 

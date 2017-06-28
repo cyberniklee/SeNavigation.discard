@@ -1,50 +1,15 @@
-/*********************************************************************
- * Software License Agreement (BSD License)
- *
- *  Copyright (c) 2008, Willow Garage, Inc.
- *  All rights reserved.
- *
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions
- *  are met:
- *
- *   * Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *   * Redistributions in binary form must reproduce the above
- *     copyright notice, this list of conditions and the following
- *     disclaimer in the documentation and/or other materials provided
- *     with the distribution.
- *   * Neither the name of the Willow Garage nor the names of its
- *     contributors may be used to endorse or promote products derived
- *     from this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- *  POSSIBILITY OF SUCH DAMAGE.
- *********************************************************************/
-#ifndef TRAJECTORY_ROLLOUT_MAP_GRID_H_
-#define TRAJECTORY_ROLLOUT_MAP_GRID_H_
+#ifndef _BASE_LOCAL_PLANNER_MAP_GRID_H_
+#define _BASE_LOCAL_PLANNER_MAP_GRID_H_
 
 #include <vector>
 #include <iostream>
-#include <base_local_planner/trajectory_inc.h>
-#include <ros/console.h>
-#include <ros/ros.h>
+#include "TrajectoryInc.h"
 
-#include <base_local_planner/map_cell.h>
-#include <costmap_2d/costmap_2d.h>
-#include <geometry_msgs/PoseStamped.h>
+#include "MapCell.h"
+#include "../../../CostMap/CostMap2D/CostMap2D.h"
+#include <DataSet/DataType/PoseStamped.h>
 
-namespace base_local_planner{
+namespace NS_Planner{
   /**
    * @class MapGrid
    * @brief A grid of MapCell cells that is used to propagate path and goal distances for the trajectory controller.
@@ -151,7 +116,7 @@ namespace base_local_planner{
        * @param  check_cell The cell to be updated
        */
       inline bool updatePathCell(MapCell* current_cell, MapCell* check_cell,
-          const costmap_2d::Costmap2D& costmap);
+          const NS_CostMap::Costmap2D& costmap);
 
       /**
        * increase global plan resolution to match that of the costmap by adding points linearly between global plan points
@@ -160,31 +125,31 @@ namespace base_local_planner{
        * @param global_plan_output output
        * @param resolution desired distance between waypoints
        */
-      static void adjustPlanResolution(const std::vector<geometry_msgs::PoseStamped>& global_plan_in,
-            std::vector<geometry_msgs::PoseStamped>& global_plan_out, double resolution);
+      static void adjustPlanResolution(const std::vector<NS_DataType::PoseStamped>& global_plan_in,
+            std::vector<NS_DataType::PoseStamped>& global_plan_out, double resolution);
 
       /**
        * @brief  Compute the distance from each cell in the local map grid to the planned path
        * @param dist_queue A queue of the initial cells on the path 
        */
-      void computeTargetDistance(std::queue<MapCell*>& dist_queue, const costmap_2d::Costmap2D& costmap);
+      void computeTargetDistance(std::queue<MapCell*>& dist_queue, const NS_CostMap::Costmap2D& costmap);
 
       /**
        * @brief  Compute the distance from each cell in the local map grid to the local goal point
        * @param goal_queue A queue containing the local goal cell 
        */
-      void computeGoalDistance(std::queue<MapCell*>& dist_queue, const costmap_2d::Costmap2D& costmap);
+      void computeGoalDistance(std::queue<MapCell*>& dist_queue, const NS_CostMap::Costmap2D& costmap);
 
       /**
        * @brief Update what cells are considered path based on the global plan 
        */
-      void setTargetCells(const costmap_2d::Costmap2D& costmap, const std::vector<geometry_msgs::PoseStamped>& global_plan);
+      void setTargetCells(const NS_CostMap::Costmap2D& costmap, const std::vector<NS_DataType::PoseStamped>& global_plan);
 
       /**
        * @brief Update what cell is considered the next local goal
        */
-      void setLocalGoal(const costmap_2d::Costmap2D& costmap,
-            const std::vector<geometry_msgs::PoseStamped>& global_plan);
+      void setLocalGoal(const NS_CostMap::Costmap2D& costmap,
+            const std::vector<NS_DataType::PoseStamped>& global_plan);
 
       double goal_x_, goal_y_; /**< @brief The goal distance was last computed from */
 

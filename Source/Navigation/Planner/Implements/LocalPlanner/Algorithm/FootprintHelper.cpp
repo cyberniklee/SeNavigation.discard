@@ -154,7 +154,7 @@ std::vector<NS_DataType::Position2DInt> FootprintHelper::getFootprintCells(
   if (footprint_spec.size() <= 1) {
     unsigned int mx, my;
     if (costmap.worldToMap(x_i, y_i, mx, my)) {
-      Position2DInt center;
+      NS_DataType::Position2DInt center;
       center.x = mx;
       center.y = my;
       footprint_cells.push_back(center);

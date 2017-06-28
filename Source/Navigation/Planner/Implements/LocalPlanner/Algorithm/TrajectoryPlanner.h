@@ -1,73 +1,35 @@
-/*********************************************************************
-*
-* Software License Agreement (BSD License)
-*
-*  Copyright (c) 2008, Willow Garage, Inc.
-*  All rights reserved.
-*
-*  Redistribution and use in source and binary forms, with or without
-*  modification, are permitted provided that the following conditions
-*  are met:
-*
-*   * Redistributions of source code must retain the above copyright
-*     notice, this list of conditions and the following disclaimer.
-*   * Redistributions in binary form must reproduce the above
-*     copyright notice, this list of conditions and the following
-*     disclaimer in the documentation and/or other materials provided
-*     with the distribution.
-*   * Neither the name of the Willow Garage nor the names of its
-*     contributors may be used to endorse or promote products derived
-*     from this software without specific prior written permission.
-*
-*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-*  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-*  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-*  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-*  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-*  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-*  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-*  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-*  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-*  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-*  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-*  POSSIBILITY OF SUCH DAMAGE.
-*
-* Author: Eitan Marder-Eppstein
-*********************************************************************/
-#ifndef TRAJECTORY_ROLLOUT_TRAJECTORY_PLANNER_H_
-#define TRAJECTORY_ROLLOUT_TRAJECTORY_PLANNER_H_
+#ifndef _BASE_LOCAL_PLANNER_TRAJECTORY_PLANNER_H_
+#define _BASE_LOCAL_PLANNER_TRAJECTORY_PLANNER_H_
 
 #include <vector>
 #include <cmath>
 
 //for obstacle data access
-#include <costmap_2d/costmap_2d.h>
-#include <costmap_2d/cost_values.h>
-#include <base_local_planner/footprint_helper.h>
+#include "../../../CostMap/CostMap2D/CostMap2D.h"
+#include "../../../CostMap/CostMap2D/CostValues.h"
+#include "FootprintHelper.h"
 
-#include <base_local_planner/world_model.h>
-#include <base_local_planner/trajectory.h>
-#include <base_local_planner/Position2DInt.h>
-#include <base_local_planner/BaseLocalPlannerConfig.h>
+#include "WorldModel.h"
+#include "Trajectory.h"
+#include <DataSet/DataType/Position2DInt.h>
 
 //we'll take in a path as a vector of poses
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/Point.h>
+#include <DataSet/DataType/PoseStamped.h>
+#include <DataSet/DataType/Point.h>
 
 //for some datatypes
-#include <tf/transform_datatypes.h>
+#include <Transform/DataTypes.h>
 
 //for creating a local cost grid
-#include <base_local_planner/map_cell.h>
-#include <base_local_planner/map_grid.h>
+#include "MapCell.h"
+#include "MapGrid.h"
 
-namespace base_local_planner {
+namespace NS_Planner {
   /**
    * @class TrajectoryPlanner
    * @brief Computes control velocities for a robot given a costmap, a plan, and the robot's position in the world. 
    */
   class TrajectoryPlanner{
-    friend class TrajectoryPlannerTest; //Need this for gtest to work
     public:
       /**
        * @brief  Constructs a trajectory controller
@@ -106,8 +68,8 @@ namespace base_local_planner {
        * @param angular_sim_granularity The distance between simulation points for angular velocity should be small enough that the robot doesn't hit things
        */
       TrajectoryPlanner(WorldModel& world_model, 
-          const costmap_2d::Costmap2D& costmap, 
-          std::vector<geometry_msgs::Point> footprint_spec,
+          const NS_CostMap::Costmap2D& costmap,
+          std::vector<NS_DataType::Point> footprint_spec,
           double acc_lim_x = 1.0, double acc_lim_y = 1.0, double acc_lim_theta = 1.0,
           double sim_time = 1.0, double sim_granularity = 0.025, 
           int vx_samples = 20, int vtheta_samples = 20,
@@ -133,7 +95,9 @@ namespace base_local_planner {
       /**
        * @brief Reconfigures the trajectory planner
        */
+      /*
       void reconfigure(BaseLocalPlannerConfig &cfg);
+      */
 
       /**
        * @brief  Given the current position, orientation, and velocity of the robot, return a trajectory to follow
@@ -142,15 +106,15 @@ namespace base_local_planner {
        * @param drive_velocities Will be set to velocities to send to the robot base
        * @return The selected path or trajectory
        */
-      Trajectory findBestPath(tf::Stamped<tf::Pose> global_pose, tf::Stamped<tf::Pose> global_vel,
-          tf::Stamped<tf::Pose>& drive_velocities);
+      Trajectory findBestPath(NS_Transform::Stamped<NS_Transform::Pose> global_pose, NS_Transform::Stamped<NS_Transform::Pose> global_vel,
+                              NS_Transform::Stamped<NS_Transform::Pose>& drive_velocities);
 
       /**
        * @brief  Update the plan that the controller is following
        * @param new_plan A new plan for the controller to follow 
        * @param compute_dists Wheter or not to compute path/goal distances when a plan is updated
        */
-      void updatePlan(const std::vector<geometry_msgs::PoseStamped>& new_plan, bool compute_dists = false);
+      void updatePlan(const std::vector<NS_DataType::PoseStamped>& new_plan, bool compute_dists = false);
 
       /**
        * @brief  Accessor for the goal the robot is currently pursuing in world corrdinates
@@ -204,11 +168,11 @@ namespace base_local_planner {
       bool getCellCosts(int cx, int cy, float &path_cost, float &goal_cost, float &occ_cost, float &total_cost);
 
       /** @brief Set the footprint specification of the robot. */
-      void setFootprint( std::vector<geometry_msgs::Point> footprint ) { footprint_spec_ = footprint; }
+      void setFootprint( std::vector<NS_DataType::Point> footprint ) { footprint_spec_ = footprint; }
 
       /** @brief Return the footprint specification of the robot. */
-      geometry_msgs::Polygon getFootprintPolygon() const { return costmap_2d::toPolygon(footprint_spec_); }
-      std::vector<geometry_msgs::Point> getFootprint() const { return footprint_spec_; }
+      NS_DataType::Polygon getFootprintPolygon() const { return NS_CostMap::toPolygon(footprint_spec_); }
+      std::vector<NS_DataType::Point> getFootprint() const { return footprint_spec_; }
 
     private:
       /**
@@ -257,16 +221,16 @@ namespace base_local_planner {
        */
       double footprintCost(double x_i, double y_i, double theta_i);
 
-      base_local_planner::FootprintHelper footprint_helper_;
+      FootprintHelper footprint_helper_;
     
       MapGrid path_map_; ///< @brief The local map grid where we propagate path distance
       MapGrid goal_map_; ///< @brief The local map grid where we propagate goal distance
-      const costmap_2d::Costmap2D& costmap_; ///< @brief Provides access to cost map information
+      const NS_CostMap::Costmap2D& costmap_; ///< @brief Provides access to cost map information
       WorldModel& world_model_; ///< @brief The world model that the controller uses for collision detection
 
-      std::vector<geometry_msgs::Point> footprint_spec_; ///< @brief The footprint specification of the robot
+      std::vector<NS_DataType::Point> footprint_spec_; ///< @brief The footprint specification of the robot
 
-      std::vector<geometry_msgs::PoseStamped> global_plan_; ///< @brief The global path for the robot to follow
+      std::vector<NS_DataType::PoseStamped> global_plan_; ///< @brief The global path for the robot to follow
 
       bool stuck_left, stuck_right; ///< @brief Booleans to keep the robot from oscillating during rotation
       bool rotating_left, rotating_right; ///< @brief Booleans to keep track of the direction of rotation for the robot
