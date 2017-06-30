@@ -34,14 +34,6 @@ namespace NS_Planner {
   double getGoalOrientationAngleDifference(const NS_Transform::Stamped<NS_Transform::Pose>& global_pose, double goal_th);
 
   /**
-   * @brief  Publish a plan for visualization purposes
-   * @param  path The plan to publish
-   * @param  pub The published to use
-   * @param  r,g,b,a The color and alpha value to use when publishing
-   */
-  void publishPlan(const std::vector<NS_DataType::PoseStamped>& path, const ros::Publisher& pub);
-
-  /**
    * @brief  Trim off parts of the global plan that are far enough behind the robot
    * @param global_pose The pose of the robot in the global frame
    * @param plan The plan to be pruned
@@ -59,11 +51,10 @@ namespace NS_Planner {
    * @param global_frame The frame to transform the plan to
    * @param transformed_plan Populated with the transformed plan
    */
-  bool transformGlobalPlan(const tf::TransformListener& tf,
+  bool transformGlobalPlan(const NS_Transform::StampedTransform& map_transform,
       const std::vector<NS_DataType::PoseStamped>& global_plan,
       const NS_Transform::Stamped<NS_Transform::Pose>& global_robot_pose,
       const NS_CostMap::Costmap2D& costmap,
-      const std::string& global_frame,
       std::vector<NS_DataType::PoseStamped>& transformed_plan);
 
   /**
@@ -74,9 +65,8 @@ namespace NS_Planner {
      * @param goal_pose the pose to copy into
      * @return True if achieved, false otherwise
      */
-  bool getGoalPose(const tf::TransformListener& tf,
+  bool getGoalPose(const NS_Transform::StampedTransform& map_transform,
   		  const std::vector<NS_DataType::PoseStamped>& global_plan,
-  		  const std::string& global_frame,
   		NS_Transform::Stamped<NS_Transform::Pose> &goal_pose);
 
   /**
@@ -92,10 +82,9 @@ namespace NS_Planner {
    * @param yaw_goal_tolerance The rotational tolerance on reaching the goal
    * @return True if achieved, false otherwise
    */
-  bool isGoalReached(const tf::TransformListener& tf,
+  bool isGoalReached(const NS_Transform::StampedTransform& map_transform,
       const std::vector<NS_DataType::PoseStamped>& global_plan,
       const NS_CostMap::Costmap2D& costmap,
-      const std::string& global_frame,
       NS_Transform::Stamped<NS_Transform::Pose>& global_pose,
       const NS_DataType::Odometry& base_odom,
       double rot_stopped_vel, double trans_stopped_vel,

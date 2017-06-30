@@ -1,4 +1,5 @@
 #include "GoalFunctions.h"
+#include <Console/Console.h>
 
 namespace base_local_planner {
 
@@ -11,27 +12,8 @@ namespace base_local_planner {
     return NS_Geometry::NS_Angles::shortest_angular_distance(yaw, goal_th);
   }
 
-  void publishPlan(const std::vector<NS_DataType::PoseStamped>& path, const ros::Publisher& pub) {
-    //given an empty path we won't do anything
-    if(path.empty())
-      return;
-
-    //create a path message
-    NS_DataType::Path gui_path;
-    gui_path.poses.resize(path.size());
-    gui_path.header.frame_id = path[0].header.frame_id;
-    gui_path.header.stamp = path[0].header.stamp;
-
-    // Extract the plan in world co-ordinates, we assume the path is all in the same frame
-    for(unsigned int i=0; i < path.size(); i++){
-      gui_path.poses[i] = path[i];
-    }
-
-    pub.publish(gui_path);
-  }
-
   void prunePlan(const NS_Transform::Stamped<NS_Transform::Pose>& global_pose, std::vector<NS_DataType::PoseStamped>& plan, std::vector<NS_DataType::PoseStamped>& global_plan){
-    ROS_ASSERT(global_plan.size() >= plan.size());
+    assert(global_plan.size() >= plan.size());
     std::vector<NS_DataType::PoseStamped>::iterator it = plan.begin();
     std::vector<NS_DataType::PoseStamped>::iterator global_it = global_plan.begin();
     while(it != plan.end()){
@@ -50,11 +32,10 @@ namespace base_local_planner {
   }
 
   bool transformGlobalPlan(
-      const tf::TransformListener& tf,
+      const NS_Transform::StampedTransform& map_transform,
       const std::vector<NS_DataType::PoseStamped>& global_plan,
       const NS_Transform::Stamped<NS_Transform::Pose>& global_pose,
       const NS_CostMap::Costmap2D& costmap,
-      const std::string& global_frame,
       std::vector<NS_DataType::PoseStamped>& transformed_plan){
     transformed_plan.clear();
 
@@ -76,7 +57,9 @@ namespace base_local_planner {
 
       //let's get the pose of the robot in the frame of the plan
       NS_Transform::Stamped<NS_Transform::Pose> robot_pose;
-      tf.transformPose(plan_pose.header.frame_id, global_pose, robot_pose);
+
+      //TRANSFORM MAP->BASE_FOOTPRINT or BASE_LINK
+      NS_Transform.transformPose(plan_pose.header.frame_id, global_pose, robot_pose);
 
       //we'll discard points on the plan that are outside the local costmap
       double dist_threshold = std::max(costmap.getSizeInCellsX() * costmap.getResolution() / 2.0,
@@ -137,9 +120,9 @@ namespace base_local_planner {
     return true;
   }
 
-  bool getGoalPose(const tf::TransformListener& tf,
+  bool getGoalPose(const NS_Transform::StampedTransform& map_transform,
       const std::vector<NS_DataType::PoseStamped>& global_plan,
-      const std::string& global_frame, NS_Transform::Stamped<NS_Transform::Pose>& goal_pose) {
+      NS_Transform::Stamped<NS_Transform::Pose>& goal_pose) {
     if (global_plan.empty())
     {
       ROS_ERROR("Received plan with zero length");
@@ -180,10 +163,9 @@ namespace base_local_planner {
     return true;
   }
 
-  bool isGoalReached(const tf::TransformListener& tf,
+  bool isGoalReached(const NS_Transform::StampedTransform& map_transform,
       const std::vector<NS_DataType::PoseStamped>& global_plan,
       const NS_CostMap::Costmap2D& costmap __attribute__((unused)),
-      const std::string& global_frame,
       NS_Transform::Stamped<NS_Transform::Pose>& global_pose,
       const NS_DataType::Odometry& base_odom,
       double rot_stopped_vel, double trans_stopped_vel,
@@ -191,7 +173,7 @@ namespace base_local_planner {
 
     //we assume the global goal is the last point in the global plan
     NS_Transform::Stamped<NS_Transform::Pose> goal_pose;
-    getGoalPose(tf, global_plan, global_frame, goal_pose);
+    getGoalPose(map_transform, global_plan, goal_pose);
 
     double goal_x = goal_pose.getOrigin().getX();
     double goal_y = goal_pose.getOrigin().getY();
