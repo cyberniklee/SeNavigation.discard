@@ -53,11 +53,11 @@
 
 
 //register this planner as a BaseLocalPlanner plugin
-PLUGINLIB_EXPORT_CLASS(base_local_planner::TrajectoryPlannerROS, nav_core::BaseLocalPlanner)
+PLUGINLIB_EXPORT_CLASS(base_local_planner::TrajectoryLocalPlanner, nav_core::BaseLocalPlanner)
 
 namespace base_local_planner {
 
-  void TrajectoryPlannerROS::reconfigureCB(BaseLocalPlannerConfig &config, uint32_t level) {
+  void TrajectoryLocalPlanner::reconfigureCB(BaseLocalPlannerConfig &config, uint32_t level) {
       if (setup_ && config.restore_defaults) {
         config = default_config_;
         //Avoid looping
@@ -71,17 +71,17 @@ namespace base_local_planner {
       reached_goal_ = false;
   }
 
-  TrajectoryPlannerROS::TrajectoryPlannerROS() :
+  TrajectoryLocalPlanner::TrajectoryLocalPlanner() :
       world_model_(NULL), tc_(NULL), costmap_ros_(NULL), tf_(NULL), setup_(false), initialized_(false), odom_helper_("odom") {}
 
-  TrajectoryPlannerROS::TrajectoryPlannerROS(std::string name, tf::TransformListener* tf, costmap_2d::Costmap2DROS* costmap_ros) :
+  TrajectoryLocalPlanner::TrajectoryLocalPlanner(std::string name, tf::TransformListener* tf, costmap_2d::Costmap2DROS* costmap_ros) :
       world_model_(NULL), tc_(NULL), costmap_ros_(NULL), tf_(NULL), setup_(false), initialized_(false), odom_helper_("odom") {
 
       //initialize the planner
       initialize(name, tf, costmap_ros);
   }
 
-  void TrajectoryPlannerROS::initialize(
+  void TrajectoryLocalPlanner::initialize(
       std::string name,
       tf::TransformListener* tf,
       costmap_2d::Costmap2DROS* costmap_ros){
@@ -237,7 +237,7 @@ namespace base_local_planner {
       initialized_ = true;
 
       dsrv_ = new dynamic_reconfigure::Server<BaseLocalPlannerConfig>(private_nh);
-      dynamic_reconfigure::Server<BaseLocalPlannerConfig>::CallbackType cb = boost::bind(&TrajectoryPlannerROS::reconfigureCB, this, _1, _2);
+      dynamic_reconfigure::Server<BaseLocalPlannerConfig>::CallbackType cb = boost::bind(&TrajectoryLocalPlanner::reconfigureCB, this, _1, _2);
       dsrv_->setCallback(cb);
 
     } else {
@@ -245,7 +245,7 @@ namespace base_local_planner {
     }
   }
 
-  std::vector<double> TrajectoryPlannerROS::loadYVels(ros::NodeHandle node){
+  std::vector<double> TrajectoryLocalPlanner::loadYVels(ros::NodeHandle node){
     std::vector<double> y_vels;
 
     std::string y_vel_list;
@@ -269,7 +269,7 @@ namespace base_local_planner {
     return y_vels;
   }
 
-  TrajectoryPlannerROS::~TrajectoryPlannerROS() {
+  TrajectoryLocalPlanner::~TrajectoryLocalPlanner() {
     //make sure to clean things up
     delete dsrv_;
 
@@ -280,7 +280,7 @@ namespace base_local_planner {
       delete world_model_;
   }
 
-  bool TrajectoryPlannerROS::stopWithAccLimits(const tf::Stamped<tf::Pose>& global_pose, const tf::Stamped<tf::Pose>& robot_vel, geometry_msgs::Twist& cmd_vel){
+  bool TrajectoryLocalPlanner::stopWithAccLimits(const tf::Stamped<tf::Pose>& global_pose, const tf::Stamped<tf::Pose>& robot_vel, geometry_msgs::Twist& cmd_vel){
     //slow down with the maximum possible acceleration... we should really use the frequency that we're running at to determine what is feasible
     //but we'll use a tenth of a second to be consistent with the implementation of the local planner.
     double vx = sign(robot_vel.getOrigin().x()) * std::max(0.0, (fabs(robot_vel.getOrigin().x()) - acc_lim_x_ * sim_period_));
@@ -309,7 +309,7 @@ namespace base_local_planner {
     return false;
   }
 
-  bool TrajectoryPlannerROS::rotateToGoal(const tf::Stamped<tf::Pose>& global_pose, const tf::Stamped<tf::Pose>& robot_vel, double goal_th, geometry_msgs::Twist& cmd_vel){
+  bool TrajectoryLocalPlanner::rotateToGoal(const tf::Stamped<tf::Pose>& global_pose, const tf::Stamped<tf::Pose>& robot_vel, double goal_th, geometry_msgs::Twist& cmd_vel){
     double yaw = tf::getYaw(global_pose.getRotation());
     double vel_yaw = tf::getYaw(robot_vel.getRotation());
     cmd_vel.linear.x = 0;
@@ -352,7 +352,7 @@ namespace base_local_planner {
 
   }
 
-  bool TrajectoryPlannerROS::setPlan(const std::vector<geometry_msgs::PoseStamped>& orig_global_plan){
+  bool TrajectoryLocalPlanner::setPlan(const std::vector<geometry_msgs::PoseStamped>& orig_global_plan){
     if (! isInitialized()) {
       ROS_ERROR("This planner has not been initialized, please call initialize() before using this planner");
       return false;
@@ -369,7 +369,7 @@ namespace base_local_planner {
     return true;
   }
 
-  bool TrajectoryPlannerROS::computeVelocityCommands(geometry_msgs::Twist& cmd_vel){
+  bool TrajectoryLocalPlanner::computeVelocityCommands(geometry_msgs::Twist& cmd_vel){
     if (! isInitialized()) {
       ROS_ERROR("This planner has not been initialized, please call initialize() before using this planner");
       return false;
@@ -525,7 +525,7 @@ namespace base_local_planner {
     return true;
   }
 
-  bool TrajectoryPlannerROS::checkTrajectory(double vx_samp, double vy_samp, double vtheta_samp, bool update_map){
+  bool TrajectoryLocalPlanner::checkTrajectory(double vx_samp, double vy_samp, double vtheta_samp, bool update_map){
     tf::Stamped<tf::Pose> global_pose;
     if(costmap_ros_->getRobotPose(global_pose)){
       if(update_map){
@@ -556,7 +556,7 @@ namespace base_local_planner {
   }
 
 
-  double TrajectoryPlannerROS::scoreTrajectory(double vx_samp, double vy_samp, double vtheta_samp, bool update_map){
+  double TrajectoryLocalPlanner::scoreTrajectory(double vx_samp, double vy_samp, double vtheta_samp, bool update_map){
     // Copy of checkTrajectory that returns a score instead of True / False
     tf::Stamped<tf::Pose> global_pose;
     if(costmap_ros_->getRobotPose(global_pose)){
@@ -587,7 +587,7 @@ namespace base_local_planner {
     return -1.0;
   }
 
-  bool TrajectoryPlannerROS::isGoalReached() {
+  bool TrajectoryLocalPlanner::isGoalReached() {
     if (! isInitialized()) {
       ROS_ERROR("This planner has not been initialized, please call initialize() before using this planner");
       return false;

@@ -7,10 +7,7 @@
 //for obstacle data access
 #include "../../../CostMap/CostMap2D/CostMap2D.h"
 #include "../../../CostMap/CostMap2D/CostValues.h"
-#include "FootprintHelper.h"
-
 #include "WorldModel.h"
-#include "Trajectory.h"
 #include <DataSet/DataType/Position2DInt.h>
 
 //we'll take in a path as a vector of poses
@@ -21,8 +18,11 @@
 #include <Transform/DataTypes.h>
 
 //for creating a local cost grid
-#include "MapCell.h"
-#include "MapGrid.h"
+#include "../../TrajectoryLocalPlanner/Algorithm/FootprintHelper.h"
+#include "../../TrajectoryLocalPlanner/Algorithm/MapCell.h"
+#include "../../TrajectoryLocalPlanner/Algorithm/MapGrid.h"
+#include "../../TrajectoryLocalPlanner/Algorithm/Trajectory.h"
+#include "../../TrajectoryLocalPlanner/Algorithm/WorldModel.h"
 
 namespace NS_Planner {
   /**

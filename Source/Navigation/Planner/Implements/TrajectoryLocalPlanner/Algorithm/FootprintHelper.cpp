@@ -1,4 +1,4 @@
-#include "FootprintHelper.h"
+#include "../../TrajectoryLocalPlanner/Algorithm/FootprintHelper.h"
 
 namespace NS_Planner {
 

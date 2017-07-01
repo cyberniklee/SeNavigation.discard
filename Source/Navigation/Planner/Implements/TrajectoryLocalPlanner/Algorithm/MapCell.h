@@ -1,7 +1,7 @@
 #ifndef _BASE_LOCAL_PLANNER_MAP_CELL_H_
 #define _BASE_LOCAL_PLANNER_MAP_CELL_H_
 
-#include "TrajectoryInc.h"
+#include "../../TrajectoryLocalPlanner/Algorithm/TrajectoryInc.h"
 
 namespace NS_Planner {
   /**

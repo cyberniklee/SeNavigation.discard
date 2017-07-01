@@ -1,4 +1,5 @@
-#include "MapGrid.h"
+#include "../../TrajectoryLocalPlanner/Algorithm/MapGrid.h"
+
 #include "../../../CostMap/CostMap2D/CostValues.h"
 #include <Console/Console.h>
 

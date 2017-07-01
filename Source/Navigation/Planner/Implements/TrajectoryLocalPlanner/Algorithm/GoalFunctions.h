@@ -11,6 +11,7 @@
 #include <cmath>
 
 #include <Geometry/Angles.h>
+#include <Service/Service.h>
 #include "../../../CostMap/CostMap2D/CostMap2D.h"
 
 namespace NS_Planner {
@@ -51,7 +52,7 @@ namespace NS_Planner {
    * @param global_frame The frame to transform the plan to
    * @param transformed_plan Populated with the transformed plan
    */
-  bool transformGlobalPlan(const NS_Transform::StampedTransform& map_transform,
+  bool transformGlobalPlan(NS_NaviCommon::Service* service,
       const std::vector<NS_DataType::PoseStamped>& global_plan,
       const NS_Transform::Stamped<NS_Transform::Pose>& global_robot_pose,
       const NS_CostMap::Costmap2D& costmap,
@@ -65,7 +66,7 @@ namespace NS_Planner {
      * @param goal_pose the pose to copy into
      * @return True if achieved, false otherwise
      */
-  bool getGoalPose(const NS_Transform::StampedTransform& map_transform,
+  bool getGoalPose(NS_NaviCommon::Service* service,
   		  const std::vector<NS_DataType::PoseStamped>& global_plan,
   		NS_Transform::Stamped<NS_Transform::Pose> &goal_pose);
 
@@ -82,7 +83,7 @@ namespace NS_Planner {
    * @param yaw_goal_tolerance The rotational tolerance on reaching the goal
    * @return True if achieved, false otherwise
    */
-  bool isGoalReached(const NS_Transform::StampedTransform& map_transform,
+  bool isGoalReached(NS_NaviCommon::Service* service,
       const std::vector<NS_DataType::PoseStamped>& global_plan,
       const NS_CostMap::Costmap2D& costmap,
       NS_Transform::Stamped<NS_Transform::Pose>& global_pose,

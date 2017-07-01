@@ -1,9 +1,8 @@
 #ifndef _BASE_LOCAL_PLANNER_COSTMAP_MODEL_
 #define _BASE_LOCAL_PLANNER_COSTMAP_MODEL_
 
-#include "WorldModel.h"
-// For obstacle data access
 #include "../../../CostMap/CostMap2D/CostMap2D.h"
+#include "../../TrajectoryLocalPlanner/Algorithm/WorldModel.h"
 
 namespace NS_Planner {
   /**

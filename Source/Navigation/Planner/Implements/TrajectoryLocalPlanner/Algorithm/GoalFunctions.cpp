@@ -1,7 +1,8 @@
-#include "GoalFunctions.h"
 #include <Console/Console.h>
+#include "GoalFunctions.h"
+#include <math.h>
 
-namespace base_local_planner {
+namespace NS_Planner {
 
   double getGoalPositionDistance(const NS_Transform::Stamped<NS_Transform::Pose>& global_pose, double goal_x, double goal_y) {
     return hypot(goal_x - global_pose.getOrigin().x(), goal_y - global_pose.getOrigin().y());
@@ -23,7 +24,7 @@ namespace base_local_planner {
       double y_diff = global_pose.getOrigin().y() - w.pose.position.y;
       double distance_sq = x_diff * x_diff + y_diff * y_diff;
       if(distance_sq < 1){
-        ROS_DEBUG("Nearest waypoint to <%f, %f> is <%f, %f>\n", global_pose.getOrigin().x(), global_pose.getOrigin().y(), w.pose.position.x, w.pose.position.y);
+        NS_NaviCommon::console.debug("Nearest waypoint to <%f, %f> is <%f, %f>\n", global_pose.getOrigin().x(), global_pose.getOrigin().y(), w.pose.position.x, w.pose.position.y);
         break;
       }
       it = plan.erase(it);
@@ -32,7 +33,7 @@ namespace base_local_planner {
   }
 
   bool transformGlobalPlan(
-      const NS_Transform::StampedTransform& map_transform,
+      NS_NaviCommon::Service* service,
       const std::vector<NS_DataType::PoseStamped>& global_plan,
       const NS_Transform::Stamped<NS_Transform::Pose>& global_pose,
       const NS_CostMap::Costmap2D& costmap,
@@ -40,26 +41,55 @@ namespace base_local_planner {
     transformed_plan.clear();
 
     if (global_plan.empty()) {
-      ROS_ERROR("Received plan with zero length");
+      NS_NaviCommon::console.error("Received plan with zero length");
       return false;
     }
 
     const NS_DataType::PoseStamped& plan_pose = global_plan[0];
-    try {
+    if(1) {
+
+      NS_ServiceType::RequestTransform request_odom;
+      NS_ServiceType::ResponseTransform map_transform;
+
       // get plan_to_global_transform from plan frame to global_frame
+      // odom->map
       NS_Transform::StampedTransform plan_to_global_transform;
+      NS_Transform::Transform plan_to_global_tf;
+      /*
       tf.waitForTransform(global_frame, ros::Time::now(),
                           plan_pose.header.frame_id, plan_pose.header.stamp,
                           plan_pose.header.frame_id, ros::Duration(0.5));
       tf.lookupTransform(global_frame, ros::Time(),
                          plan_pose.header.frame_id, plan_pose.header.stamp, 
                          plan_pose.header.frame_id, plan_to_global_transform);
+      */
+      if (service->call (NS_NaviCommon::SERVICE_TYPE_MAP_ODOMETRY_TRANSFORM,
+                             &request_odom, &map_transform) == false)
+      {
+        NS_NaviCommon::console.warning ("Get map transform failure!");
+        return false;
+      }
+      NS_Transform::transformMsgToTF (map_transform.transform, plan_to_global_tf);
+      plan_to_global_transform.setData(plan_to_global_tf);
 
       //let's get the pose of the robot in the frame of the plan
       NS_Transform::Stamped<NS_Transform::Pose> robot_pose;
 
       //TRANSFORM MAP->BASE_FOOTPRINT or BASE_LINK
+      /*
       NS_Transform.transformPose(plan_pose.header.frame_id, global_pose, robot_pose);
+      */
+      NS_ServiceType::ResponseTransform odom_transform;
+      NS_Transform::Transform global_to_base_tf;
+      if (service->call (NS_NaviCommon::SERVICE_TYPE_ODOMETRY_BASE_TRANSFORM,
+                             &request_odom, &odom_transform) == false)
+      {
+        NS_NaviCommon::console.warning ("Get odometry transform failure!");
+        return false;
+      }
+      NS_Transform::transformMsgToTF (odom_transform.transform, global_to_base_tf);
+      robot_pose.setData(plan_to_global_tf * global_to_base_tf);
+
 
       //we'll discard points on the plan that are outside the local costmap
       double dist_threshold = std::max(costmap.getSizeInCellsX() * costmap.getResolution() / 2.0,
@@ -89,7 +119,6 @@ namespace base_local_planner {
         poseStampedMsgToTF(pose, tf_pose);
         tf_pose.setData(plan_to_global_transform * tf_pose);
         tf_pose.stamp_ = plan_to_global_transform.stamp_;
-        tf_pose.frame_id_ = global_frame;
         poseStampedTFToMsg(tf_pose, newer_pose);
 
         transformed_plan.push_back(newer_pose);
@@ -101,69 +130,51 @@ namespace base_local_planner {
         ++i;
       }
     }
-    catch(tf::LookupException& ex) {
-      ROS_ERROR("No Transform available Error: %s\n", ex.what());
-      return false;
-    }
-    catch(tf::ConnectivityException& ex) {
-      ROS_ERROR("Connectivity Error: %s\n", ex.what());
-      return false;
-    }
-    catch(tf::ExtrapolationException& ex) {
-      ROS_ERROR("Extrapolation Error: %s\n", ex.what());
-      if (!global_plan.empty())
-        ROS_ERROR("Global Frame: %s Plan Frame size %d: %s\n", global_frame.c_str(), (unsigned int)global_plan.size(), global_plan[0].header.frame_id.c_str());
-
-      return false;
-    }
 
     return true;
   }
 
-  bool getGoalPose(const NS_Transform::StampedTransform& map_transform,
+  bool getGoalPose(NS_NaviCommon::Service* service,
       const std::vector<NS_DataType::PoseStamped>& global_plan,
       NS_Transform::Stamped<NS_Transform::Pose>& goal_pose) {
     if (global_plan.empty())
     {
-      ROS_ERROR("Received plan with zero length");
+      NS_NaviCommon::console.error("Received plan with zero length");
       return false;
     }
 
     const NS_DataType::PoseStamped& plan_goal_pose = global_plan.back();
-    try{
-      NS_Transform::StampedTransform transform;
+    if(1){
+      //NS_Transform::StampedTransform transform;
+      /*
       tf.waitForTransform(global_frame, ros::Time::now(),
                           plan_goal_pose.header.frame_id, plan_goal_pose.header.stamp,
                           plan_goal_pose.header.frame_id, ros::Duration(0.5));
       tf.lookupTransform(global_frame, ros::Time(),
                          plan_goal_pose.header.frame_id, plan_goal_pose.header.stamp,
                          plan_goal_pose.header.frame_id, transform);
+      */
+      NS_ServiceType::RequestTransform request_odom;
+      NS_ServiceType::ResponseTransform map_transform;
+      if (service->call (NS_NaviCommon::SERVICE_TYPE_MAP_ODOMETRY_TRANSFORM,
+                                   &request_odom, &map_transform) == false)
+      {
+        NS_NaviCommon::console.warning ("Get map transform failure!");
+        return false;
+      }
 
-      poseStampedMsgToTF(plan_goal_pose, goal_pose);
+      NS_Transform::Transform transform;
+
+      //poseStampedMsgToTF(plan_goal_pose, goal_pose);
+      NS_Transform::transformMsgToTF (map_transform.transform, transform);
+
       goal_pose.setData(transform * goal_pose);
-      goal_pose.stamp_ = transform.stamp_;
-      goal_pose.frame_id_ = global_frame;
+    }
 
-    }
-    catch(tf::LookupException& ex) {
-      ROS_ERROR("No Transform available Error: %s\n", ex.what());
-      return false;
-    }
-    catch(tf::ConnectivityException& ex) {
-      ROS_ERROR("Connectivity Error: %s\n", ex.what());
-      return false;
-    }
-    catch(tf::ExtrapolationException& ex) {
-      ROS_ERROR("Extrapolation Error: %s\n", ex.what());
-      if (global_plan.size() > 0)
-        ROS_ERROR("Global Frame: %s Plan Frame size %d: %s\n", global_frame.c_str(), (unsigned int)global_plan.size(), global_plan[0].header.frame_id.c_str());
-
-      return false;
-    }
     return true;
   }
 
-  bool isGoalReached(const NS_Transform::StampedTransform& map_transform,
+  bool isGoalReached(NS_NaviCommon::Service* service,
       const std::vector<NS_DataType::PoseStamped>& global_plan,
       const NS_CostMap::Costmap2D& costmap __attribute__((unused)),
       NS_Transform::Stamped<NS_Transform::Pose>& global_pose,
@@ -173,7 +184,7 @@ namespace base_local_planner {
 
     //we assume the global goal is the last point in the global plan
     NS_Transform::Stamped<NS_Transform::Pose> goal_pose;
-    getGoalPose(map_transform, global_plan, goal_pose);
+    getGoalPose(service, global_plan, goal_pose);
 
     double goal_x = goal_pose.getOrigin().getX();
     double goal_y = goal_pose.getOrigin().getY();

@@ -1,52 +1,38 @@
 #ifndef _BASE_LOCAL_PLANNER_
 #define _BASE_LOCAL_PLANNER_
 
-#include <ros/ros.h>
-#include <costmap_2d/costmap_2d.h>
-#include <costmap_2d/costmap_2d_publisher.h>
-#include <costmap_2d/costmap_2d_ros.h>
-#include <base_local_planner/world_model.h>
-#include <base_local_planner/point_grid.h>
-#include <base_local_planner/costmap_model.h>
-#include <base_local_planner/voxel_grid_model.h>
-#include <base_local_planner/trajectory_planner.h>
-#include <base_local_planner/map_grid_visualizer.h>
+#include "../../../CostMap/CostMap2D/CostMap2D.h"
 
-#include <base_local_planner/planar_laser_scan.h>
+#include "WorldModel.h"
+#include "CostmapModel.h"
+#include "TrajectoryPlanner.h"
 
-#include <tf/transform_datatypes.h>
+#include <Transform/DataTypes.h>
 
-#include <nav_msgs/Odometry.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/Twist.h>
-#include <geometry_msgs/Point.h>
-
-#include <tf/transform_listener.h>
+#include <DataSet/DataType/Odometry.h>
+#include <DataSet/DataType/PoseStamped.h>
+#include <DataSet/DataType/Twist.h>
+#include <DataSet/DataType/Point.h>
 
 #include <boost/thread.hpp>
 
 #include <string>
 
-#include <angles/angles.h>
+#include <Geometry/Angles.h>
 
-#include <nav_core/base_local_planner.h>
+#include "../../../LocalPlannerBase.h"
 
-#include <dynamic_reconfigure/server.h>
-#include <base_local_planner/BaseLocalPlannerConfig.h>
-
-#include <base_local_planner/odometry_helper_ros.h>
-
-namespace base_local_planner {
+namespace NS_Planner {
   /**
-   * @class TrajectoryPlannerROS
+   * @class TrajectoryLocalPlanner
    * @brief A ROS wrapper for the trajectory controller that queries the param server to construct a controller
    */
-  class TrajectoryPlannerROS : public nav_core::BaseLocalPlanner {
+  class TrajectoryLocalPlanner : public LocalPlannerBase {
     public:
       /**
        * @brief  Default constructor for the ros wrapper
        */
-      TrajectoryPlannerROS();
+      TrajectoryLocalPlanner();
 
       /**
        * @brief  Constructs the ros wrapper
@@ -54,7 +40,7 @@ namespace base_local_planner {
        * @param tf A pointer to a transform listener
        * @param costmap The cost map to use for assigning costs to trajectories
        */
-      TrajectoryPlannerROS(std::string name,
+      TrajectoryLocalPlanner(std::string name,
                            tf::TransformListener* tf,
                            costmap_2d::Costmap2DROS* costmap_ros);
 
@@ -70,7 +56,7 @@ namespace base_local_planner {
       /**
        * @brief  Destructor for the wrapper
        */
-      ~TrajectoryPlannerROS();
+      ~TrajectoryLocalPlanner();
       
       /**
        * @brief  Given the current position, orientation, and velocity of the robot,

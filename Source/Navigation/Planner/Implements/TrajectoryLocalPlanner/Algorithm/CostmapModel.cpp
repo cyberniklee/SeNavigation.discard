@@ -1,6 +1,7 @@
-#include "LineIterator.h"
-#include "CostmapModel.h"
+#include "../../TrajectoryLocalPlanner/Algorithm/CostmapModel.h"
+
 #include "../../../CostMap/CostMap2D/CostValues.h"
+#include "../../TrajectoryLocalPlanner/Algorithm/LineIterator.h"
 
 using namespace std;
 using namespace NS_CostMap;

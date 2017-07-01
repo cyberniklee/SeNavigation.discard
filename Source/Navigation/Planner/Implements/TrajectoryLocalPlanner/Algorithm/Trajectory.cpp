@@ -1,4 +1,4 @@
-#include "Trajectory.h"
+#include "../../TrajectoryLocalPlanner/Algorithm/Trajectory.h"
 
 namespace NS_Planner {
   Trajectory::Trajectory()
