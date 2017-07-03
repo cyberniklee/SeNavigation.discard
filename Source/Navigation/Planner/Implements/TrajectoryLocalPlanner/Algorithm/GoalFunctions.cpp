@@ -205,8 +205,8 @@ namespace NS_Planner {
 
   bool stopped(const NS_DataType::Odometry& base_odom,
       const double& rot_stopped_velocity, const double& trans_stopped_velocity){
-    return fabs(base_odom.twist.twist.angular.z) <= rot_stopped_velocity 
-      && fabs(base_odom.twist.twist.linear.x) <= trans_stopped_velocity
-      && fabs(base_odom.twist.twist.linear.y) <= trans_stopped_velocity;
+    return fabs(base_odom.twist.angular.z) <= rot_stopped_velocity
+      && fabs(base_odom.twist.linear.x) <= trans_stopped_velocity
+      && fabs(base_odom.twist.linear.y) <= trans_stopped_velocity;
   }
 };

@@ -82,7 +82,7 @@ namespace NS_Planner
       /* TODO
        * 加载什么文件？
        */
-      parameter.loadConfigurationFile ("test1.xml");
+      parameter.loadConfigurationFile ("global_planner.xml");
       /*
        * 获取 use_quadratic 参数值，根据参数值创建 p_calc_ 实例，用 QuadraticCalculator 还是 PotentialCalculator
        * PotentialCalculator、QuadraticCalculator

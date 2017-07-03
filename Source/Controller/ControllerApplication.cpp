@@ -49,6 +49,8 @@ namespace NS_Controller
     double x = comm->getFloat64Value (BASE_REG_ODOM_X);
     double y = comm->getFloat64Value (BASE_REG_ODOM_Y);
     double theta = comm->getFloat64Value (BASE_REG_ODOM_THETA);
+    double linear_vel = comm->getFloat64Value (BASE_REG_ODOM_LINEAR_VEL);
+    double angular_vel = comm->getFloat64Value (BASE_REG_ODOM_ANGULAR_VEL);
     
     current_odometry.pose.position.x = x;
     current_odometry.pose.position.y = y;
@@ -56,6 +58,8 @@ namespace NS_Controller
     current_odometry.pose.orientation.y = 0.0f;
     current_odometry.pose.orientation.z = sin (theta / 2.0);
     current_odometry.pose.orientation.w = cos (theta / 2.0);
+    current_odometry.twist.linear.x = linear_vel;
+    current_odometry.twist.angular.z = angular_vel;
     
     rep->odom = current_odometry;
     
@@ -85,10 +89,10 @@ namespace NS_Controller
 
     rep->transform.translation.x = current_pose.x;
     rep->transform.translation.y = current_pose.y;
-    rep->transform.translation.z = 0.0;
+    rep->transform.translation.z = 0.0f;
     
-    rep->transform.rotation.x = 0.0;
-    rep->transform.rotation.y = 0.0;
+    rep->transform.rotation.x = 0.0f;
+    rep->transform.rotation.y = 0.0f;
     rep->transform.rotation.z = sin (current_pose.theta / 2.0);
     rep->transform.rotation.w = cos (current_pose.theta / 2.0);
 

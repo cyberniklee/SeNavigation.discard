@@ -21,11 +21,12 @@ public:
 	virtual ~LocalPlannerBase(){};
 
 public:
-	void initialize(NS_NaviCommon::Dispitcher* dispitcher, NS_NaviCommon::Service* service)
+	void initialize(NS_CostMap::CostmapWrapper* costmap_, NS_NaviCommon::Dispitcher* dispitcher_, NS_NaviCommon::Service* service_)
 	{
-		dispitcher_ = dispitcher;
-		service_ = service;
-		onInitialize();
+	  costmap = costmap_;
+          service = service_;
+          dispitcher = dispitcher_;
+          onInitialize();
 	};
 
 	virtual void onInitialize() = 0;
@@ -37,8 +38,9 @@ public:
 	virtual bool setPlan(const std::vector<NS_DataType::PoseStamped>& plan) = 0;
 
 private:
-	NS_NaviCommon::Dispitcher* dispitcher_;
-	NS_NaviCommon::Service* service_;
+	NS_NaviCommon::Dispitcher* dispitcher;
+	NS_NaviCommon::Service* service;
+	NS_CostMap::CostmapWrapper* costmap;
 };
 
 } /* namespace NS_Planner */
