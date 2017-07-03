@@ -35,9 +35,9 @@
 * Author: Eitan Marder-Eppstein
 *********************************************************************/
 
-#include "../../TrajectoryLocalPlanner/Algorithm/TrajectoryPlanner.h"
+#include "TrajectoryPlanner.h"
 
-#include "../../../CostMap/Utils/Footprint.h"
+#include "../../../../CostMap/Utils/Footprint.h"
 #include <string>
 #include <sstream>
 #include <math.h>

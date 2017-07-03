@@ -3,9 +3,9 @@
 
 #include "../../../CostMap/CostMap2D/CostMap2D.h"
 
-#include "WorldModel.h"
-#include "CostmapModel.h"
-#include "TrajectoryPlanner.h"
+#include "Algorithm/WorldModel.h"
+#include "Algorithm/CostmapModel.h"
+#include "Algorithm/TrajectoryPlanner.h"
 
 #include <Transform/DataTypes.h>
 
@@ -20,7 +20,7 @@
 
 #include <Geometry/Angles.h>
 
-#include "../../../LocalPlannerBase.h"
+#include "../../Base/LocalPlannerBase.h"
 
 namespace NS_Planner {
   /**

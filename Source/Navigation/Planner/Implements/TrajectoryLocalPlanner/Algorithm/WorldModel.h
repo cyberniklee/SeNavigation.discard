@@ -2,7 +2,7 @@
 #define _BASE_LOCAL_PLANNER_WORLD_MODEL_H_
 
 #include <vector>
-#include "../../../CostMap/Utils/Footprint.h"
+#include "../../../../CostMap/Utils/Footprint.h"
 #include <DataSet/DataType/Point.h>
 
 

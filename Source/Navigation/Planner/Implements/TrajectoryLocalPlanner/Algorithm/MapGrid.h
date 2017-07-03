@@ -4,10 +4,10 @@
 #include <vector>
 #include <iostream>
 #include "MapCell.h"
-#include "../../../CostMap/CostMap2D/CostMap2D.h"
+#include "../../../../CostMap/CostMap2D/CostMap2D.h"
 #include <DataSet/DataType/PoseStamped.h>
-#include "../../TrajectoryLocalPlanner/Algorithm/MapCell.h"
-#include "../../TrajectoryLocalPlanner/Algorithm/TrajectoryInc.h"
+#include "MapCell.h"
+#include "TrajectoryInc.h"
 
 namespace NS_Planner{
   /**

@@ -2,6 +2,9 @@
 #include "GoalFunctions.h"
 #include <math.h>
 
+#include <Service/ServiceType/RequestTransform.h>
+#include <Service/ServiceType/ResponseTransform.h>
+
 namespace NS_Planner {
 
   double getGoalPositionDistance(const NS_Transform::Stamped<NS_Transform::Pose>& global_pose, double goal_x, double goal_y) {

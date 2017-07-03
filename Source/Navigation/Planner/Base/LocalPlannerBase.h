@@ -13,6 +13,8 @@
 #include <DataSet/DataType/PoseStamped.h>
 #include <DataSet/DataType/Twist.h>
 
+#include "../../CostMap/CostmapWrapper.h"
+
 namespace NS_Planner {
 
 class LocalPlannerBase {
@@ -37,7 +39,7 @@ public:
 
 	virtual bool setPlan(const std::vector<NS_DataType::PoseStamped>& plan) = 0;
 
-private:
+protected:
 	NS_NaviCommon::Dispitcher* dispitcher;
 	NS_NaviCommon::Service* service;
 	NS_CostMap::CostmapWrapper* costmap;

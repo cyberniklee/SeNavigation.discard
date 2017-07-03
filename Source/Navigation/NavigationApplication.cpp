@@ -205,7 +205,7 @@ namespace NS_Navigation
       global_planner = new NS_Planner::GlobalPlanner ();
     }
     
-    global_planner->initialize (global_costmap);
+    global_planner->initialize (global_costmap, dispitcher, service);
     
     state = PLANNING;
     

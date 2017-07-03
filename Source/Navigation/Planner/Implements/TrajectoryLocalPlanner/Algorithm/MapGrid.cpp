@@ -1,6 +1,6 @@
-#include "../../TrajectoryLocalPlanner/Algorithm/MapGrid.h"
+#include "MapGrid.h"
 
-#include "../../../CostMap/CostMap2D/CostValues.h"
+#include "../../../../CostMap/CostMap2D/CostValues.h"
 #include <Console/Console.h>
 
 using namespace std;

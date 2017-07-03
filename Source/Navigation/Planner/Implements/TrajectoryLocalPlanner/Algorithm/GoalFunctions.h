@@ -12,7 +12,8 @@
 
 #include <Geometry/Angles.h>
 #include <Service/Service.h>
-#include "../../../CostMap/CostMap2D/CostMap2D.h"
+#include <Transform/DataTypes.h>
+#include "../../../../CostMap/CostMap2D/CostMap2D.h"
 
 namespace NS_Planner {
 

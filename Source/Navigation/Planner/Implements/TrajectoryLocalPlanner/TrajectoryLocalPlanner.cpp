@@ -8,10 +8,14 @@
 
 #include <Console/Console.h>
 
-#include "GoalFunctions.h"
+#include "Algorithm/GoalFunctions.h"
 #include <DataSet/DataType/Path.h>
 
 #include <Service/Service.h>
+#include <Parameter/Parameter.h>
+
+#include <Service/ServiceType/RequestOdometry.h>
+#include <Service/ServiceType/ResponseOdometry.h>
 
 namespace NS_Planner {
 
