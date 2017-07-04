@@ -10,20 +10,21 @@
 
 #include "LocalPlannerUtil.h"
 #include "../../TrajectoryLocalPlanner/Algorithm/LocalPlannerLimits.h"
+#include "../../TrajectoryLocalPlanner/Algorithm/OdometryHelper.h"
 
 namespace NS_Planner {
 
 class LatchedStopRotateController {
 public:
-  LatchedStopRotateController(const std::string& name = "");
+  LatchedStopRotateController(bool latch_xy_goal_tolerance);
   virtual ~LatchedStopRotateController();
 
   bool isPositionReached(LocalPlannerUtil* planner_util,
-      tf::Stamped<tf::Pose> global_pose);
+                         NS_Transform::Stamped<NS_Transform::Pose> global_pose);
 
   bool isGoalReached(LocalPlannerUtil* planner_util,
-      OdometryHelperRos& odom_helper,
-      tf::Stamped<tf::Pose> global_pose);
+      OdometryHelper& odom_helper,
+      NS_Transform::Stamped<NS_Transform::Pose> global_pose);
 
   void resetLatching() {
     xy_tolerance_latch_ = false;
@@ -36,9 +37,9 @@ public:
    * @param  cmd_vel The velocity commands to be filled
    * @return  True if a valid trajectory was found, false otherwise
    */
-  bool stopWithAccLimits(const tf::Stamped<tf::Pose>& global_pose,
-      const tf::Stamped<tf::Pose>& robot_vel,
-      geometry_msgs::Twist& cmd_vel,
+  bool stopWithAccLimits(const NS_Transform::Stamped<NS_Transform::Pose>& global_pose,
+      const NS_Transform::Stamped<NS_Transform::Pose>& robot_vel,
+      NS_DataType::Twist& cmd_vel,
       Eigen::Vector3f acc_lim,
       double sim_period,
       boost::function<bool (Eigen::Vector3f pos,
@@ -53,23 +54,23 @@ public:
    * @param  cmd_vel The velocity commands to be filled
    * @return  True if a valid trajectory was found, false otherwise
    */
-  bool rotateToGoal(const tf::Stamped<tf::Pose>& global_pose,
-      const tf::Stamped<tf::Pose>& robot_vel,
+  bool rotateToGoal(const NS_Transform::Stamped<NS_Transform::Pose>& global_pose,
+      const NS_Transform::Stamped<NS_Transform::Pose>& robot_vel,
       double goal_th,
-      geometry_msgs::Twist& cmd_vel,
+      NS_DataType::Twist& cmd_vel,
       Eigen::Vector3f acc_lim,
       double sim_period,
-      base_local_planner::LocalPlannerLimits& limits,
+      NS_Planner::LocalPlannerLimits& limits,
       boost::function<bool (Eigen::Vector3f pos,
                             Eigen::Vector3f vel,
                             Eigen::Vector3f vel_samples)> obstacle_check);
 
-  bool computeVelocityCommandsStopRotate(geometry_msgs::Twist& cmd_vel,
+  bool computeVelocityCommandsStopRotate(NS_DataType::Twist& cmd_vel,
       Eigen::Vector3f acc_lim,
       double sim_period,
       LocalPlannerUtil* planner_util,
-      OdometryHelperRos& odom_helper,
-      tf::Stamped<tf::Pose> global_pose,
+      OdometryHelper& odom_helper,
+      NS_Transform::Stamped<NS_Transform::Pose> global_pose,
       boost::function<bool (Eigen::Vector3f pos,
                             Eigen::Vector3f vel,
                             Eigen::Vector3f vel_samples)> obstacle_check);

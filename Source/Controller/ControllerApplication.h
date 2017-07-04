@@ -41,7 +41,7 @@ namespace NS_Controller
   private:
     SpiComm* comm;
 
-    boost::mutex odom_lock;
+    boost::mutex base_lock;
 
     PoseState current_pose;
     NS_DataType::Odometry current_odometry;
@@ -84,7 +84,7 @@ namespace NS_Controller
                           NS_ServiceType::ResponseBase* response);
 
     void
-    poseStampedCallback (NS_DataType::DataBase* pose_stamped);
+    velocityCallback (NS_DataType::DataBase* velocity);
 
     void
     loadParameters ();

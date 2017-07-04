@@ -126,11 +126,10 @@ namespace NS_Planner {
         return x < 0.0 ? -1.0 : 1.0;
       }
 
-      void getRobotVel(NS_Transform::Stamped<NS_Transform::Pose>& robot_vel);
-      void getOdom(NS_DataType::Odometry& base_odom);
-
       WorldModel* world_model_; ///< @brief The world model that the controller will use
       TrajectoryPlanner* tc_; ///< @brief The trajectory controller
+
+      OdometryHelper* odom_helper_;
 
       NS_CostMap::Costmap2D* costmap_; ///< @brief The costmap the controller will use
 

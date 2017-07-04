@@ -25,6 +25,7 @@ namespace NS_Planner {
     tc_ = NULL;
     setup_ = false;
     initialized_ = false;
+    odom_helper_ = NULL;
   }
 
   void TrajectoryLocalPlanner::onInitialize(){
@@ -152,6 +153,8 @@ namespace NS_Planner {
 
       footprint_spec_ = costmap->getRobotFootprint();
 
+      odom_helper_ = new OdometryHelper(service);
+
       std::vector<double> y_vels = std::vector<double>(0);
       y_vels.clear();
 
@@ -175,38 +178,9 @@ namespace NS_Planner {
 
     if(world_model_ != NULL)
       delete world_model_;
-  }
 
-  void TrajectoryLocalPlanner::getRobotVel(NS_Transform::Stamped<NS_Transform::Pose>& robot_vel) {
-    // Set current velocities from odometry
-    NS_DataType::Twist global_vel;
-
-    NS_ServiceType::RequestOdometry req_odom;
-    NS_ServiceType::ResponseOdometry odom_rep;
-
-    if(service->call(NS_NaviCommon::SERVICE_TYPE_RAW_ODOMETRY, &req_odom, &odom_rep))
-    {
-      base_odom_ = odom_rep.odom;
-
-      global_vel.linear.x = base_odom_.twist.linear.x;
-      global_vel.linear.y = base_odom_.twist.linear.y;
-      global_vel.angular.z = base_odom_.twist.angular.z;
-
-      robot_vel.setData(NS_Transform::Transform(NS_Transform::createQuaternionFromYaw(global_vel.angular.z), NS_Transform::Vector3(global_vel.linear.x, global_vel.linear.y, 0)));
-      robot_vel.stamp_ = NS_NaviCommon::Time();
-    }
-  }
-
-  void TrajectoryLocalPlanner::getOdom(NS_DataType::Odometry& base_odom)
-  {
-    NS_ServiceType::RequestOdometry req_odom;
-    NS_ServiceType::ResponseOdometry odom_rep;
-
-    if(service->call(NS_NaviCommon::SERVICE_TYPE_RAW_ODOMETRY, &req_odom, &odom_rep))
-    {
-      base_odom_ = odom_rep.odom;
-      base_odom = base_odom_;
-    }
+    if(odom_helper_ != NULL)
+      delete odom_helper_;
   }
 
   bool TrajectoryLocalPlanner::stopWithAccLimits(const NS_Transform::Stamped<NS_Transform::Pose>& global_pose, const NS_Transform::Stamped<NS_Transform::Pose>& robot_vel, NS_DataType::Twist& cmd_vel){
@@ -324,7 +298,7 @@ namespace NS_Planner {
     NS_Transform::Stamped<NS_Transform::Pose> drive_cmds;
 
     NS_Transform::Stamped<NS_Transform::Pose> robot_vel;
-    getRobotVel(robot_vel);
+    odom_helper_->getRobotVel(robot_vel);
 
     //if the global plan passed in is empty... we won't do anything
     if(transformed_plan.empty())
@@ -367,7 +341,7 @@ namespace NS_Planner {
 
         //copy over the odometry information
         NS_DataType::Odometry base_odom;
-        getOdom(base_odom);
+        odom_helper_->getOdom(base_odom);
 
         //if we're not stopped yet... we want to stop... taking into account the acceleration limits of the robot
         if ( ! rotating_to_goal_ && !NS_Planner::stopped(base_odom, rot_stopped_velocity_, trans_stopped_velocity_)) {

@@ -44,8 +44,8 @@ namespace NS_Controller
     NS_ServiceType::ResponseOdometry* rep =
         (NS_ServiceType::ResponseOdometry*) response;
     
-    boost::mutex::scoped_lock locker_ (odom_lock);
-    
+    boost::mutex::scoped_lock locker_ (base_lock);
+
     double x = comm->getFloat64Value (BASE_REG_ODOM_X);
     double y = comm->getFloat64Value (BASE_REG_ODOM_Y);
     double theta = comm->getFloat64Value (BASE_REG_ODOM_THETA);
@@ -75,7 +75,7 @@ namespace NS_Controller
     NS_ServiceType::ResponseTransform* rep =
         (NS_ServiceType::ResponseTransform*) response;
     
-    boost::mutex::scoped_lock locker_ (odom_lock);
+    boost::mutex::scoped_lock locker_ (base_lock);
 
     current_pose.x = comm->getFloat64Value(BASE_REG_ODOM_X);
     current_pose.y = comm->getFloat64Value(BASE_REG_ODOM_Y);
@@ -106,11 +106,20 @@ namespace NS_Controller
   }
 
   void
-  ControllerApplication::poseStampedCallback (NS_DataType::DataBase* pose_stamped)
+  ControllerApplication::velocityCallback (NS_DataType::DataBase* velocity)
   {
-    NS_DataType::PoseStamped* pose = (NS_DataType::PoseStamped*) pose_stamped;
+    NS_DataType::Twist* vel = (NS_DataType::Twist*) velocity;
 
-    delete pose_stamped;
+    boost::mutex::scoped_lock locker_ (base_lock);
+
+    double linear = vel->linear.x;
+    double angular = vel->angular.z;
+
+    comm->setFloat64Value(BASE_REG_LINEAR_V, linear);
+    comm->setFloat64Value(BASE_REG_ANGULAR_V, angular);
+    comm->setInt32Value(BASE_REG_V_SETTED, 1);
+
+    delete velocity;
   }
 
   void
@@ -217,8 +226,8 @@ namespace NS_Controller
     configController ();
     
     dispitcher->subscribe (
-        NS_NaviCommon::DATA_TYPE_POSE_STAMPED,
-        boost::bind (&ControllerApplication::poseStampedCallback, this, _1));
+        NS_NaviCommon::DATA_TYPE_TWIST,
+        boost::bind (&ControllerApplication::velocityCallback, this, _1));
 
     service->advertise (
         NS_NaviCommon::SERVICE_TYPE_RAW_ODOMETRY,
