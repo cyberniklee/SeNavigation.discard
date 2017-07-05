@@ -40,6 +40,7 @@ public:
   /**
    * @brief  Callback to update the local planner's parameters
    */
+  //todo: need re-coding this part
   void reconfigureCB(LocalPlannerLimits &config, bool restore_defaults);
 
   LocalPlannerUtil() : initialized_(false) {}
