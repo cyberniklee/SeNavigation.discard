@@ -6,6 +6,7 @@
 #include "Algorithm/WorldModel.h"
 #include "Algorithm/CostmapModel.h"
 #include "Algorithm/TrajectoryPlanner.h"
+#include "Algorithm/OdometryHelper.h"
 
 #include <Transform/DataTypes.h>
 

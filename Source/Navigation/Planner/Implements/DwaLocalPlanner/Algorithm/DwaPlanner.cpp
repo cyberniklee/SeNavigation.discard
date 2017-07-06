@@ -1,5 +1,6 @@
 #include "DwaPlanner.h"
 #include "../../TrajectoryLocalPlanner/Algorithm/GoalFunctions.h"
+#include "../../../../CostMap/CostMap2D/CostValues.h"
 #include "MapGridCostFunction.h"
 #include <cmath>
 

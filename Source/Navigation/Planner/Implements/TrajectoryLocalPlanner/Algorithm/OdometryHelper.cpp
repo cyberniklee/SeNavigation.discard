@@ -1,6 +1,8 @@
 #include <Transform/DataTypes.h>
 #include <DataSet/DataType/Odometry.h>
 #include "OdometryHelper.h"
+#include <Service/ServiceType/RequestOdometry.h>
+#include <Service/ServiceType/ResponseOdometry.h>
 
 namespace NS_Planner {
 

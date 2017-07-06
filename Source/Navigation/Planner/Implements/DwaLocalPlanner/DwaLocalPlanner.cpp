@@ -6,15 +6,22 @@
 
 #include "../TrajectoryLocalPlanner/Algorithm/GoalFunctions.h"
 #include <DataSet/DataType/Path.h>
+#include <Parameter/Parameter.h>
 
 namespace NS_Planner {
 
-  DWAPlannerROS::DWAPlannerROS() : initialized_(false),
+  DwaLocalPlanner::DwaLocalPlanner() : initialized_(false),
       odom_helper_(service), setup_(false) {
 
   }
 
-  void DWAPlannerROS::onInitialize() {
+  DwaLocalPlanner::~DwaLocalPlanner(){
+      //make sure to clean things up
+    if(latchedStopRotateController_)
+      delete latchedStopRotateController_;
+  }
+
+  void DwaLocalPlanner::onInitialize() {
     if (! isInitialized())
     {
       bool sum_scores;
@@ -37,6 +44,8 @@ namespace NS_Planner {
       int vth_samples;
       bool dwa;
       double sim_period;
+
+      bool latch_xy_goal_tolerance;
 
       NS_NaviCommon::Parameter parameter;
 
@@ -93,6 +102,15 @@ namespace NS_Planner {
                                                          vx_samples, vy_samples, vth_samples,
                                                          dwa, sim_period));
       
+      if(parameter.getParameter("latch_xy_goal_tolerance", 0) == 1)
+      {
+        latch_xy_goal_tolerance = true;
+      }else{
+        latch_xy_goal_tolerance = false;
+      }
+
+      latchedStopRotateController_ = new LatchedStopRotateController(latch_xy_goal_tolerance);
+
       initialized_ = true;
     }
     else{
@@ -100,19 +118,19 @@ namespace NS_Planner {
     }
   }
   
-  bool DWAPlannerROS::setPlan(const std::vector<NS_DataType::PoseStamped>& orig_global_plan) {
+  bool DwaLocalPlanner::setPlan(const std::vector<NS_DataType::PoseStamped>& orig_global_plan) {
     if (! isInitialized()) {
       NS_NaviCommon::console.error("This planner has not been initialized, please call initialize() before using this planner");
       return false;
     }
     //when we get a new plan, we also want to clear any latch we may have on goal tolerances
-    latchedStopRotateController_.resetLatching();
+    latchedStopRotateController_->resetLatching();
 
     NS_NaviCommon::console.message("Got new plan");
     return dp_->setPlan(orig_global_plan);
   }
 
-  bool DWAPlannerROS::isGoalReached() {
+  bool DwaLocalPlanner::isGoalReached() {
     if (! isInitialized()) {
       NS_NaviCommon::console.error("This planner has not been initialized, please call initialize() before using this planner");
       return false;
@@ -122,7 +140,7 @@ namespace NS_Planner {
       return false;
     }
 
-    if(latchedStopRotateController_.isGoalReached(&planner_util_, odom_helper_, current_pose_)) {
+    if(latchedStopRotateController_->isGoalReached(&planner_util_, odom_helper_, current_pose_)) {
       NS_NaviCommon::console.message("Goal reached");
       return true;
     } else {
@@ -130,14 +148,7 @@ namespace NS_Planner {
     }
   }
 
-  DWAPlannerROS::~DWAPlannerROS(){
-    //make sure to clean things up
-
-  }
-
-
-
-  bool DWAPlannerROS::dwaComputeVelocityCommands(NS_Transform::Stamped<NS_Transform::Pose> &global_pose, NS_DataType::Twist& cmd_vel) {
+  bool DwaLocalPlanner::dwaComputeVelocityCommands(NS_Transform::Stamped<NS_Transform::Pose> &global_pose, NS_DataType::Twist& cmd_vel) {
     // dynamic window sampling approach to get useful velocity commands
     if(! isInitialized()){
       NS_NaviCommon::console.error("This planner has not been initialized, please call initialize() before using this planner");
@@ -205,7 +216,7 @@ namespace NS_Planner {
 
 
 
-  bool DWAPlannerROS::computeVelocityCommands(NS_DataType::Twist& cmd_vel) {
+  bool DwaLocalPlanner::computeVelocityCommands(NS_DataType::Twist& cmd_vel) {
     // dispatches to either dwa sampling control or stop and rotate control, depending on whether we have been close enough to goal
     if ( ! costmap->getRobotPose(current_pose_)) {
       NS_NaviCommon::console.error("Could not get robot pose");
@@ -227,12 +238,12 @@ namespace NS_Planner {
     // update plan in dwa_planner even if we just stop and rotate, to allow checkTrajectory
     dp_->updatePlanAndLocalCosts(current_pose_, transformed_plan);
 
-    if (latchedStopRotateController_.isPositionReached(&planner_util_, current_pose_)) {
+    if (latchedStopRotateController_->isPositionReached(&planner_util_, current_pose_)) {
       //publish an empty plan because we've reached our goal position
       std::vector<NS_DataType::PoseStamped> local_plan;
       std::vector<NS_DataType::PoseStamped> transformed_plan;
       NS_Planner::LocalPlannerLimits limits = planner_util_.getCurrentLimits();
-      return latchedStopRotateController_.computeVelocityCommandsStopRotate(
+      return latchedStopRotateController_->computeVelocityCommandsStopRotate(
           cmd_vel,
           limits.getAccLimits(),
           dp_->getSimPeriod(),

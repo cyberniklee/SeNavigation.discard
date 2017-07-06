@@ -20,16 +20,16 @@
 
 namespace NS_Planner {
   /**
-   * @class DWAPlannerROS
+   * @class DwaLocalPlanner
    * @brief ROS Wrapper for the DWAPlanner that adheres to the
    * BaseLocalPlanner interface and can be used as a plugin for move_base.
    */
-  class DWAPlannerROS : public LocalPlannerBase {
+  class DwaLocalPlanner : public LocalPlannerBase {
     public:
       /**
-       * @brief  Constructor for DWAPlannerROS wrapper
+       * @brief  Constructor for DwaLocalPlanner wrapper
        */
-      DWAPlannerROS();
+      DwaLocalPlanner();
 
       /**
        * @brief  Constructs the ros wrapper
@@ -42,7 +42,7 @@ namespace NS_Planner {
       /**
        * @brief  Destructor for the wrapper
        */
-      ~DWAPlannerROS();
+      ~DwaLocalPlanner();
 
       /**
        * @brief  Given the current position, orientation, and velocity of the robot,
@@ -89,7 +89,7 @@ namespace NS_Planner {
       bool setup_;
       NS_Transform::Stamped<NS_Transform::Pose> current_pose_;
 
-      NS_Planner::LatchedStopRotateController latchedStopRotateController_;
+      NS_Planner::LatchedStopRotateController* latchedStopRotateController_;
 
 
       bool initialized_;
