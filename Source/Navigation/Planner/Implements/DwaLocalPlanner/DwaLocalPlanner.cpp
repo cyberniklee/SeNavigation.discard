@@ -1,40 +1,3 @@
-/*********************************************************************
-*
-* Software License Agreement (BSD License)
-*
-*  Copyright (c) 2009, Willow Garage, Inc.
-*  All rights reserved.
-*
-*  Redistribution and use in source and binary forms, with or without
-*  modification, are permitted provided that the following conditions
-*  are met:
-*
-*   * Redistributions of source code must retain the above copyright
-*     notice, this list of conditions and the following disclaimer.
-*   * Redistributions in binary form must reproduce the above
-*     copyright notice, this list of conditions and the following
-*     disclaimer in the documentation and/or other materials provided
-*     with the distribution.
-*   * Neither the name of Willow Garage, Inc. nor the names of its
-*     contributors may be used to endorse or promote products derived
-*     from this software without specific prior written permission.
-*
-*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-*  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-*  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-*  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-*  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-*  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-*  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-*  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-*  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-*  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-*  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-*  POSSIBILITY OF SUCH DAMAGE.
-*
-* Author: Eitan Marder-Eppstein
-*********************************************************************/
-
 #include "DwaLocalPlanner.h"
 #include <Eigen/Core>
 #include <cmath>
@@ -75,6 +38,8 @@ namespace NS_Planner {
       bool dwa;
       double sim_period;
 
+      NS_NaviCommon::Parameter parameter;
+
       costmap->getRobotPose(current_pose_);
 
       // make sure to update the costmap we'll use for this cycle
@@ -83,6 +48,41 @@ namespace NS_Planner {
       planner_util_.initialize(service, costmap2d);
 
       //todo:fix these parameters
+
+      parameter.loadConfigurationFile("trajectory_local_planner.xml");
+      if(parameter.getParameter("sum_scores", 0) == 1)
+      {
+        sum_scores = true;
+      }else{
+        sum_scores = false;
+      }
+
+      cheat_factor = parameter.getParameter("cheat_factor", 1.0f);
+      sim_time = parameter.getParameter("sim_time", 1.7f);
+      sim_granularity = parameter.getParameter("sim_granularity", 0.025f);
+      angular_sim_granularity = parameter.getParameter("angular_sim_granularity", 0.025f);
+      pdist_scale = parameter.getParameter("pdist_scale", 32.0f);
+      gdist_scale = parameter.getParameter("gdist_scale", 24.0f);
+      occdist_scale = parameter.getParameter("occdist_scale", 0.01f);
+      stop_time_buffer = parameter.getParameter("stop_time_buffer", 0.2f);
+      oscillation_reset_dist = parameter.getParameter("oscillation_reset_dist", 0.05f);
+      oscillation_reset_angle = parameter.getParameter("oscillation_reset_angle", 0.2f);
+      forward_point_dist = parameter.getParameter("forward_point_dist", 0.325f);
+      max_trans_vel = parameter.getParameter("max_trans_vel", 0.55f);
+      scaling_speed = parameter.getParameter("scaling_speed", 0.25f);
+      max_scaling_factor = parameter.getParameter("max_scaling_factor", 0.2f);
+      vx_samples = parameter.getParameter("vx_samples", 3);
+      vy_samples = parameter.getParameter("vy_samples", 10);
+      vth_samples = parameter.getParameter("vth_samples", 20);
+
+      if(parameter.getParameter("dwa", 1) == 1)
+      {
+        dwa = true;
+      }else{
+        dwa = false;
+      }
+
+      sim_period = parameter.getParameter("vth_samples", 0.01f);
 
       //create the actual planner that we'll use.. it'll configure itself from the parameter server
       dp_ = boost::shared_ptr<DWAPlanner>(new DWAPlanner(&planner_util_, sum_scores, cheat_factor,

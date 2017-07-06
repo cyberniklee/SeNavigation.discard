@@ -31,9 +31,9 @@ namespace NS_Planner {
        * @param costmap_ros A pointer to the costmap instance the planner should use
        * @param global_frame the frame id of the tf frame to use
        */
-      DWAPlanner(NS_Planner::LocalPlannerUtil *planner_util, bool sum_scores, double cheat_factor,
+      DWAPlanner(NS_Planner::LocalPlannerUtil *planner_util, bool sum_scores = false, double cheat_factor = 1.0,
                  double sim_time = 1.0, double sim_granularity = 0.025, double angular_sim_granularity = 0.025,
-                 double pdist_scale = 0.6, double gdist_scale = 0.8, double occdist_scale = 0.2,
+                 double pdist_scale = 32.0, double gdist_scale = 24.0, double occdist_scale = 0.01,
                  double stop_time_buffer = 0.2, double oscillation_reset_dist = 0.05, double oscillation_reset_angle = 0.2,
                  double forward_point_dist = 0.325,
                  double max_trans_vel = 0.55,
