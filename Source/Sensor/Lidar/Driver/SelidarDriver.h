@@ -20,29 +20,29 @@ namespace NS_Selidar
     ~SelidarDriver ();
 
   public:
-    virtual int
+    int
     connect (const char * port_path, unsigned int baudrate, unsigned int flag);
-    virtual void
+    void
     disconnect ();
-    virtual bool
+    bool
     isConnected ();
 
-    virtual int
+    int
     reset (unsigned int timeout = DEFAULT_TIMEOUT);
-    virtual int
+    int
     stop (unsigned int timeout = DEFAULT_TIMEOUT);
 
-    virtual int
+    int
     getHealth (SelidarHealth &health_info, unsigned int timeout =
     DEFAULT_TIMEOUT);
-    virtual int
+    int
     getDeviceInfo (SelidarInfo &info, unsigned int timeout =
     DEFAULT_TIMEOUT);
 
-    virtual int
+    int
     startScan (unsigned int timeout = DEFAULT_TIMEOUT);
 
-    virtual int
+    int
     grabScanData (SelidarMeasurementNode * nodebuffer, size_t & count,
                   unsigned int timeout = DEFAULT_TIMEOUT);
 

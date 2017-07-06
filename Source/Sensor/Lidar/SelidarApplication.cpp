@@ -45,6 +45,7 @@ namespace NS_Selidar
     angle_compensate = parameter.getParameter ("angle_compensate", true);
   }
   
+#ifdef DUPLEX_MODE
   bool
   SelidarApplication::checkSelidarHealth (SelidarDriver * drv)
   {
@@ -124,6 +125,7 @@ namespace NS_Selidar
     drv.startScan ();
     return true;
   }
+#endif
   
   void
   SelidarApplication::publishScan (SelidarMeasurementNode *nodes,
@@ -190,7 +192,6 @@ namespace NS_Selidar
   SelidarApplication::scanLoop ()
   {
     int op_result;
-    
     drv.startScan ();
     NS_NaviCommon::Time start_scan_time;
     NS_NaviCommon::Time end_scan_time;
@@ -268,6 +269,7 @@ namespace NS_Selidar
           "cannot bind to the specified serial port %s.", serial_port.c_str ());
     }
     
+#ifdef DUPLEX_MODE
     // reset lidar
     drv.reset ();
     NS_NaviCommon::delay (5000);
@@ -293,7 +295,10 @@ namespace NS_Selidar
     service->advertise (
         NS_NaviCommon::SERVICE_TYPE_START_SCAN,
         boost::bind (&SelidarApplication::startScanService, this, _1, _2));
-    
+#endif
+
+    NS_NaviCommon::delay (100);
+
     initialized = true;
     
     NS_NaviCommon::console.message ("selidar has initialized!");
@@ -315,8 +320,10 @@ namespace NS_Selidar
   {
     NS_NaviCommon::console.message ("selidar is quitting!");
     
+#ifdef DUPLEX_MODE
     drv.stop ();
-    
+#endif
+
     running = false;
     
     scan_thread.join ();

@@ -17,9 +17,10 @@
 #include "Driver/SelidarDriver.h"
 #include <boost/thread/thread.hpp>
 
+//#define DUPLEX_MODE
+
 namespace NS_Selidar
 {
-  
   class SelidarApplication: public Application
   {
   public:
@@ -34,18 +35,23 @@ namespace NS_Selidar
     SelidarDriver drv;
     boost::thread scan_thread;
   private:
+
+#ifdef DUPLEX_MODE
     bool
     checkSelidarHealth (SelidarDriver * drv);
     bool
     checkSelidarInfo (SelidarDriver * drv);
-    void
-    loadParameters ();
     bool
     startScanService (NS_ServiceType::RequestBase* request,
                       NS_ServiceType::ResponseBase* response);
     bool
     stopScanService (NS_ServiceType::RequestBase* request,
                      NS_ServiceType::ResponseBase* response);
+#endif
+
+    void
+    loadParameters ();
+
     void
     publishScan (SelidarMeasurementNode *nodes, size_t node_count,
                  NS_NaviCommon::Time start, double scan_time, float angle_min,

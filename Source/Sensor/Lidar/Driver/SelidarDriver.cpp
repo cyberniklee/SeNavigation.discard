@@ -344,6 +344,8 @@ namespace NS_Selidar
       unsigned short range;
       if (IS_FAIL(ans = waitScanData (range, local_buf, count)))
       {
+        cout << ans << endl;
+
         if (ans != Timeout)
         {
           scanning = false;
@@ -449,6 +451,7 @@ namespace NS_Selidar
     return Success;
   }
   
+  /*
   int
   SelidarDriver::startScan (unsigned int timeout)
   {
@@ -478,7 +481,28 @@ namespace NS_Selidar
     
     return Success;
   }
+  */
   
+  int
+  SelidarDriver::startScan (unsigned int timeout)
+  {
+    int ans;
+    if (!connected)
+      return Failure;
+    if (scanning)
+      return Denied;
+
+    {
+      boost::mutex::scoped_lock auto_lock (rxtx_lock);
+
+      scanning = true;
+      cache_thread = boost::thread (
+          boost::bind (&SelidarDriver::cacheScanData, this));
+    }
+
+    return Success;
+  }
+
   int
   SelidarDriver::grabScanData (SelidarMeasurementNode * nodebuffer,
                                size_t & count, unsigned int timeout)

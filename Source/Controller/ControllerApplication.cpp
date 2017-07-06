@@ -52,6 +52,14 @@ namespace NS_Controller
     double linear_vel = comm->getFloat64Value (BASE_REG_ODOM_LINEAR_VEL);
     double angular_vel = comm->getFloat64Value (BASE_REG_ODOM_ANGULAR_VEL);
     
+#ifdef USE_SIMULATOR
+    x = simulator.getX();
+    y = simulator.getY();
+    theta = simulator.getTheta();
+    linear_vel = simulator.getLinearVel();
+    angular_vel = simulator.getAngularVel();
+#endif
+
     current_odometry.pose.position.x = x;
     current_odometry.pose.position.y = y;
     current_odometry.pose.orientation.x = 0.0f;
@@ -81,6 +89,12 @@ namespace NS_Controller
     current_pose.y = comm->getFloat64Value(BASE_REG_ODOM_Y);
     current_pose.theta = comm->getFloat64Value(BASE_REG_ODOM_THETA);
     
+#ifdef USE_SIMULATOR
+    current_pose.x = simulator.getX();
+    current_pose.y = simulator.getY();
+    current_pose.theta = simulator.getTheta();
+#endif
+
     /*
     NS_NaviCommon::console.debug ("odometry pose: x:%f, y:%f, theta:%f.",
                                   current_pose.x, current_pose.y,
@@ -118,6 +132,11 @@ namespace NS_Controller
     comm->setFloat64Value(BASE_REG_LINEAR_V, linear);
     comm->setFloat64Value(BASE_REG_ANGULAR_V, angular);
     comm->setInt32Value(BASE_REG_V_SETTED, 1);
+
+#ifdef USE_SIMULATOR
+    simulator.setLinearVel(linear);
+    simulator.setAngularVel(angular);
+#endif
 
     delete velocity;
   }
@@ -217,14 +236,21 @@ namespace NS_Controller
       return;
     }
     
+    /*
     if (!checkDevice ())
     {
       NS_NaviCommon::console.error ("test base controller failure!");
       return;
     }
+    */
 
     configController ();
     
+#ifdef USE_SIMULATOR
+    simulator.initialize();
+    simulator.run();
+#endif
+
     dispitcher->subscribe (
         NS_NaviCommon::DATA_TYPE_TWIST,
         boost::bind (&ControllerApplication::velocityCallback, this, _1));

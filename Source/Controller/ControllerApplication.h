@@ -22,6 +22,10 @@
 #include "Communication/SpiComm.h"
 #include "../Application/Application.h"
 
+#include "Simulator/SimulateController.h"
+
+#define USE_SIMULATOR
+
 namespace NS_Controller
 {
   
@@ -74,6 +78,11 @@ namespace NS_Controller
     double pid_min_left_;
 
     int control_duration_;
+
+#ifdef USE_SIMULATOR
+    SimulateController simulator;
+#endif
+
   private:
     
     void
