@@ -31,7 +31,7 @@ Application::globalInitialize ()
   NS_NaviCommon::Parameter para;
   para.loadConfigurationFile ("application.xml");
 
-  if (para.getParameter ("disable_stdout", 1) == 1)
+  if (para.getParameter ("disable_stdout", 0) == 1)
   {
     NS_NaviCommon::disableStdoutStream ();
     NS_NaviCommon::console.warning ("Stdout stream has been disabled!");

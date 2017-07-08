@@ -293,7 +293,7 @@ namespace NS_Controller{
       fReciprocalOfWheelTrack = 0;
 
     setLinearVel(0.5);
-    setAngularVel(0);
+    setAngularVel(0.1);
 
     if(fBaseTicksPerMeter!=0)
       fTickDistance = 1/fBaseTicksPerMeter;

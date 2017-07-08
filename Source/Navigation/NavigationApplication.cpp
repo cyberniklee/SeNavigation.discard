@@ -7,6 +7,8 @@
 
 #include "NavigationApplication.h"
 #include "Planner/Implements/GlobalPlanner/GlobalPlanner.h"
+#include "Planner/Implements/TrajectoryLocalPlanner/TrajectoryLocalPlanner.h"
+#include "Planner/Implements/DwaLocalPlanner/DwaLocalPlanner.h"
 #include <Transform/DataTypes.h>
 #include <Service/ServiceType/RequestTransform.h>
 #include <Service/ServiceType/ResponseTransform.h>
@@ -31,7 +33,10 @@ namespace NS_Navigation
   NavigationApplication::loadParameters ()
   {
     global_planner_type_ = parameter.getParameter ("global_planner_type",
-                                                   "base_global_planner");
+                                                   "global_planner");
+
+    local_planner_type_ = parameter.getParameter ("local_planner_type",
+                                                  "dwa_local_planner");
   }
   
   bool
@@ -196,7 +201,7 @@ namespace NS_Navigation
     global_costmap->initialize();
     
     //load global planner
-    if (global_planner_type_ == "base_global_planner")
+    if (global_planner_type_ == "global_planner")
     {
       global_planner = new NS_Planner::GlobalPlanner ();
     }
@@ -205,8 +210,24 @@ namespace NS_Navigation
       global_planner = new NS_Planner::GlobalPlanner ();
     }
     
+    //load local planner
+    if (local_planner_type_ == "trajectory_local_planner")
+    {
+      local_planner = new NS_Planner::TrajectoryLocalPlanner();
+    }
+    else if (local_planner_type_ == "dwa_local_planner")
+    {
+      local_planner = new NS_Planner::DwaLocalPlanner();
+    }
+    else
+    {
+      local_planner = new NS_Planner::TrajectoryLocalPlanner();
+    }
+
     global_planner->initialize (global_costmap, dispitcher, service);
     
+    local_planner->initialize(global_costmap, dispitcher, service);
+
     state = PLANNING;
     
     new_goal_trigger = false;
