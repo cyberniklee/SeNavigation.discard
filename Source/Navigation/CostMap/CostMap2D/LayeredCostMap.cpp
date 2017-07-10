@@ -46,7 +46,11 @@ namespace NS_CostMap
   LayeredCostmap::updateMap (double robot_x, double robot_y, double robot_yaw)
   {
     if (plugins_.size () == 0)
+    {
+      NS_NaviCommon::console.warning (
+          "There is no layer exist.");
       return;
+    }
     
     minx_ = miny_ = 1e30;
     maxx_ = maxy_ = -1e30;

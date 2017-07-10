@@ -58,14 +58,6 @@ namespace NS_CostMap
   }
   
   void
-  CostmapWrapper::loadLayers ()
-  {
-    StaticLayer* static_layer = new StaticLayer ();
-    layers.push_back (static_layer);
-    
-  }
-  
-  void
   CostmapWrapper::updateMap ()
   {
     // get global pose
@@ -164,7 +156,7 @@ namespace NS_CostMap
     resolution_ = parameter.getParameter ("resolution", 0.01f);
     
     map_update_frequency_ = parameter.getParameter ("map_update_frequency",
-                                                    5.0f);
+                                                    1.0f);
     
     origin_x_ = 0.0;
     origin_y_ = 0.0;
@@ -272,17 +264,29 @@ namespace NS_CostMap
   CostmapWrapper::initialize ()
   {
     NS_NaviCommon::console.message ("costmap is initializing!");
-    loadLayers ();
     loadParameters ();
     
     layered_costmap = new LayeredCostmap (track_unknown_space_);
-    
-    CostMapLayersIterator it;
-    for (it = layers.begin (); it != layers.end (); it++)
+
+    if (layered_costmap)
     {
-      (*it)->initialize (layered_costmap, this->dispitcher, this->service);
+      StaticLayer* static_layer = new StaticLayer ();
+      boost::shared_ptr<Layer> layer (static_layer);
+      layered_costmap->addPlugin (layer);
     }
-    
+
+    if (layered_costmap)
+    {
+      //TODO: add other layers
+
+    }
+
+    std::vector <boost::shared_ptr<Layer> > *layers = layered_costmap->getPlugins();
+    for (std::vector <boost::shared_ptr<Layer> >::iterator layer = layers->begin(); layer != layers->end (); ++layer)
+    {
+      (*layer)->initialize (layered_costmap, this->dispitcher, this->service);
+    }
+
     xn = yn = 0;
     x0 = layered_costmap->getCostmap ()->getSizeInCellsX ();
     y0 = layered_costmap->getCostmap ()->getSizeInCellsY ();
@@ -311,12 +315,10 @@ namespace NS_CostMap
   {
     NS_NaviCommon::console.message ("costmap is running!");
     
-    layered_costmap = new LayeredCostmap (track_unknown_space_);
-    
-    CostMapLayersIterator it;
-    for (it = layers.begin (); it != layers.end (); it++)
+    std::vector <boost::shared_ptr<Layer> > *layers = layered_costmap->getPlugins();
+    for (std::vector <boost::shared_ptr<Layer> >::iterator layer = layers->begin(); layer != layers->end (); ++layer)
     {
-      (*it)->activate ();
+      (*layer)->activate();
     }
     
     running = true;
@@ -331,10 +333,10 @@ namespace NS_CostMap
   {
     NS_NaviCommon::console.message ("costmap is quitting!");
     
-    CostMapLayersIterator it;
-    for (it = layers.begin (); it != layers.end (); it++)
+    std::vector <boost::shared_ptr<Layer> > *layers = layered_costmap->getPlugins();
+    for (std::vector <boost::shared_ptr<Layer> >::iterator layer = layers->begin(); layer != layers->end (); ++layer)
     {
-      (*it)->deactivate ();
+      (*layer)->deactivate();
     }
     
     running = false;

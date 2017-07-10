@@ -89,7 +89,7 @@ namespace NS_Communication
         char mapSize_str[16] = { 0 };
         CommData* response = this->createResponseByRequest (message);
         
-        if (service->call (SERVICE_TYPE_MAP, NULL, &map_resp))
+        if (service->call (SERVICE_TYPE_COSTMAP, NULL, &map_resp))
         {
           response->payload_length = sizeof(map_resp.map.data.size ());
           saveMapInPGM (map_resp.map, map_file_);
@@ -119,6 +119,11 @@ namespace NS_Communication
       {
         NS_NaviCommon::console.message (
             "receive message: COMMUNICATION_DATA_REASON_MAP_META!");
+      }
+      else if (message->reason == COMMUNICATION_DATA_REASON_POSE)
+      {
+
+
       }
       else
       {

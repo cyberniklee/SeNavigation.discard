@@ -188,7 +188,11 @@ namespace NS_CostMap
                              double* max_y)
   {
     if (!map_received || !(has_updated_data || has_extra_bounds_))
+    {
+      NS_NaviCommon::console.debug (
+          "Not update bounds.");
       return;
+    }
     
     useExtraBounds (min_x, min_y, max_x, max_y);
     
@@ -210,7 +214,11 @@ namespace NS_CostMap
                             int max_i, int max_j)
   {
     if (!map_received)
+    {
+      NS_NaviCommon::console.debug (
+                "Not update costs.");
       return;
+    }
     
     // if not rolling, the layered costmap (master_grid) has same coordinates as this layer
     if (!use_maximum_)

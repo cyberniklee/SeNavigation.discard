@@ -20,10 +20,6 @@
 
 namespace NS_CostMap
 {
-  
-  typedef std::vector<CostmapLayer*> CostMapLayers;
-  typedef std::vector<CostmapLayer*>::iterator CostMapLayersIterator;
-  
   class CostmapWrapper
   {
   public:
@@ -46,8 +42,6 @@ namespace NS_CostMap
     float footprint_padding_;
   private:
     LayeredCostmap* layered_costmap;
-
-    CostMapLayers layers;
 
     void
     updateMapLoop (double frequency);
@@ -73,8 +67,6 @@ namespace NS_CostMap
   private:
     void
     loadParameters ();
-    void
-    loadLayers ();
 
     void
     updateBounds (unsigned int x0_, unsigned int xn_, unsigned int y0_,
