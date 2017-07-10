@@ -35,7 +35,7 @@ namespace NS_Selidar
     SelidarDriver drv;
     boost::thread scan_thread;
   private:
-
+    
 #ifdef DUPLEX_MODE
     bool
     checkSelidarHealth (SelidarDriver * drv);
@@ -43,12 +43,12 @@ namespace NS_Selidar
     checkSelidarInfo (SelidarDriver * drv);
     bool
     startScanService (NS_ServiceType::RequestBase* request,
-                      NS_ServiceType::ResponseBase* response);
+        NS_ServiceType::ResponseBase* response);
     bool
     stopScanService (NS_ServiceType::RequestBase* request,
-                     NS_ServiceType::ResponseBase* response);
+        NS_ServiceType::ResponseBase* response);
 #endif
-
+    
     void
     loadParameters ();
 

@@ -82,7 +82,7 @@ namespace NS_Controller
 #ifdef USE_SIMULATOR
     SimulateController simulator;
 #endif
-
+    
   private:
     
     void

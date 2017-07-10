@@ -158,8 +158,8 @@ namespace NS_Controller
       return false;
     }
     
-    NS_NaviCommon::delay(50);
-
+    NS_NaviCommon::delay (50);
+    
     return true;
   }
   

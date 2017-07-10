@@ -45,7 +45,7 @@ namespace NS_Controller
         (NS_ServiceType::ResponseOdometry*) response;
     
     boost::mutex::scoped_lock locker_ (base_lock);
-
+    
     double x = comm->getFloat64Value (BASE_REG_ODOM_X);
     double y = comm->getFloat64Value (BASE_REG_ODOM_Y);
     double theta = comm->getFloat64Value (BASE_REG_ODOM_THETA);
@@ -53,13 +53,13 @@ namespace NS_Controller
     double angular_vel = comm->getFloat64Value (BASE_REG_ODOM_ANGULAR_VEL);
     
 #ifdef USE_SIMULATOR
-    x = simulator.getX();
-    y = simulator.getY();
-    theta = simulator.getTheta();
-    linear_vel = simulator.getLinearVel();
-    angular_vel = simulator.getAngularVel();
+    x = simulator.getX ();
+    y = simulator.getY ();
+    theta = simulator.getTheta ();
+    linear_vel = simulator.getLinearVel ();
+    angular_vel = simulator.getAngularVel ();
 #endif
-
+    
     current_odometry.pose.position.x = x;
     current_odometry.pose.position.y = y;
     current_odometry.pose.orientation.x = 0.0f;
@@ -84,22 +84,22 @@ namespace NS_Controller
         (NS_ServiceType::ResponseTransform*) response;
     
     boost::mutex::scoped_lock locker_ (base_lock);
-
-    current_pose.x = comm->getFloat64Value(BASE_REG_ODOM_X);
-    current_pose.y = comm->getFloat64Value(BASE_REG_ODOM_Y);
-    current_pose.theta = comm->getFloat64Value(BASE_REG_ODOM_THETA);
+    
+    current_pose.x = comm->getFloat64Value (BASE_REG_ODOM_X);
+    current_pose.y = comm->getFloat64Value (BASE_REG_ODOM_Y);
+    current_pose.theta = comm->getFloat64Value (BASE_REG_ODOM_THETA);
     
 #ifdef USE_SIMULATOR
-    current_pose.x = simulator.getX();
-    current_pose.y = simulator.getY();
-    current_pose.theta = simulator.getTheta();
+    current_pose.x = simulator.getX ();
+    current_pose.y = simulator.getY ();
+    current_pose.theta = simulator.getTheta ();
 #endif
-
+    
     /*
-    NS_NaviCommon::console.debug ("odometry pose: x:%f, y:%f, theta:%f.",
-                                  current_pose.x, current_pose.y,
-                                  current_pose.theta);
-    */
+     NS_NaviCommon::console.debug ("odometry pose: x:%f, y:%f, theta:%f.",
+     current_pose.x, current_pose.y,
+     current_pose.theta);
+     */
 
     rep->transform.translation.x = current_pose.x;
     rep->transform.translation.y = current_pose.y;
@@ -109,38 +109,38 @@ namespace NS_Controller
     rep->transform.rotation.y = 0.0f;
     rep->transform.rotation.z = sin (current_pose.theta / 2.0);
     rep->transform.rotation.w = cos (current_pose.theta / 2.0);
-
+    
     /*
-    NS_NaviCommon::console.debug (
-        "odometry transform: x:%f, y:%f, rz:%f, rw:%f",
-        rep->transform.translation.x, rep->transform.translation.y,
-        rep->transform.rotation.z, rep->transform.rotation.w);
-    */
+     NS_NaviCommon::console.debug (
+     "odometry transform: x:%f, y:%f, rz:%f, rw:%f",
+     rep->transform.translation.x, rep->transform.translation.y,
+     rep->transform.rotation.z, rep->transform.rotation.w);
+     */
 
   }
-
+  
   void
   ControllerApplication::velocityCallback (NS_DataType::DataBase* velocity)
   {
     NS_DataType::Twist* vel = (NS_DataType::Twist*) velocity;
-
+    
     boost::mutex::scoped_lock locker_ (base_lock);
-
+    
     double linear = vel->linear.x;
     double angular = vel->angular.z;
-
-    comm->setFloat64Value(BASE_REG_LINEAR_V, linear);
-    comm->setFloat64Value(BASE_REG_ANGULAR_V, angular);
-    comm->setInt32Value(BASE_REG_V_SETTED, 1);
-
+    
+    comm->setFloat64Value (BASE_REG_LINEAR_V, linear);
+    comm->setFloat64Value (BASE_REG_ANGULAR_V, angular);
+    comm->setInt32Value (BASE_REG_V_SETTED, 1);
+    
 #ifdef USE_SIMULATOR
-    simulator.setLinearVel(linear);
-    simulator.setAngularVel(angular);
+    simulator.setLinearVel (linear);
+    simulator.setAngularVel (angular);
 #endif
-
+    
     delete velocity;
   }
-
+  
   void
   ControllerApplication::loadParameters ()
   {
@@ -166,7 +166,7 @@ namespace NS_Controller
     pid_ko_left_ = parameter.getParameter ("pid_ko_l", 50.0f);
     pid_max_left_ = parameter.getParameter ("pid_max_l", 100.0f);
     pid_min_left_ = parameter.getParameter ("pid_min_l", 0.0f);
-
+    
     control_duration_ = parameter.getParameter ("control_duration", 100);
     control_timeout_ = parameter.getParameter ("control_timeout", 1000);
   }
@@ -174,32 +174,32 @@ namespace NS_Controller
   void
   ControllerApplication::configController ()
   {
-
+    
     comm->setFloat64Value (BASE_REG_WHEEL_TRACK, wheel_track_);
     comm->setFloat64Value (BASE_REG_WHEEL_DIAMETER, wheel_diameter_);
     comm->setFloat64Value (BASE_REG_ENCODER_RESOLUTION, encoder_resolution_);
     comm->setFloat64Value (BASE_REG_GEAR_REDUCTION, gear_reduction_);
     comm->setFloat64Value (BASE_REG_ACCEL_LIMIT, accel_limit_);
-
+    
     comm->setFloat64Value (BASE_REG_PID_KP_RIGHT, pid_kp_right_);
     comm->setFloat64Value (BASE_REG_PID_KI_RIGHT, pid_ki_right_);
     comm->setFloat64Value (BASE_REG_PID_KD_RIGHT, pid_kd_right_);
     comm->setFloat64Value (BASE_REG_PID_KO_RIGHT, pid_ko_right_);
     comm->setFloat64Value (BASE_REG_PID_MAX_RIGHT, pid_max_right_);
     comm->setFloat64Value (BASE_REG_PID_MIN_RIGHT, pid_min_right_);
-
+    
     comm->setFloat64Value (BASE_REG_PID_KP_LEFT, pid_kp_left_);
     comm->setFloat64Value (BASE_REG_PID_KI_LEFT, pid_ki_left_);
     comm->setFloat64Value (BASE_REG_PID_KD_LEFT, pid_kd_left_);
     comm->setFloat64Value (BASE_REG_PID_KO_LEFT, pid_ko_left_);
     comm->setFloat64Value (BASE_REG_PID_MAX_LEFT, pid_max_left_);
     comm->setFloat64Value (BASE_REG_PID_MIN_LEFT, pid_min_left_);
-
+    
     comm->setInt32Value (BASE_REG_CNTL_DURATION, control_duration_);
     comm->setInt32Value (BASE_REG_VEL_TIMEOUT, control_timeout_);
-
+    
     comm->setInt32Value (BASE_REG_CFG_DONE, 1);
-
+    
     NS_NaviCommon::console.debug ("finish config base parameter!");
   }
   
@@ -212,17 +212,18 @@ namespace NS_Controller
     NS_NaviCommon::delay (100);
     comm->setInt32Value (BASE_REG_TEST, test_code);
     test_val = comm->getInt32Value (BASE_REG_TEST);
-    if(test_val != test_code)
+    if (test_val != test_code)
     {
-      NS_NaviCommon::console.debug ("test stm32 connection... check code [%d], but get [%d]!",
-                                    test_code, test_val);
+      NS_NaviCommon::console.debug (
+          "test stm32 connection... check code [%d], but get [%d]!", test_code,
+          test_val);
       return false;
     }
     NS_NaviCommon::console.debug ("test stm32 connection...ok!");
-
+    
     return true;
   }
-
+  
   void
   ControllerApplication::initialize ()
   {
@@ -237,24 +238,24 @@ namespace NS_Controller
     }
     
     /*
-    if (!checkDevice ())
-    {
-      NS_NaviCommon::console.error ("test base controller failure!");
-      return;
-    }
-    */
+     if (!checkDevice ())
+     {
+     NS_NaviCommon::console.error ("test base controller failure!");
+     return;
+     }
+     */
 
     configController ();
     
 #ifdef USE_SIMULATOR
-    simulator.initialize();
-    simulator.run();
+    simulator.initialize ();
+    simulator.run ();
 #endif
-
+    
     dispitcher->subscribe (
         NS_NaviCommon::DATA_TYPE_TWIST,
         boost::bind (&ControllerApplication::velocityCallback, this, _1));
-
+    
     service->advertise (
         NS_NaviCommon::SERVICE_TYPE_RAW_ODOMETRY,
         boost::bind (&ControllerApplication::odomService, this, _1, _2));
@@ -279,7 +280,7 @@ namespace NS_Controller
   ControllerApplication::quit ()
   {
     NS_NaviCommon::console.message ("controller is quitting!");
-
+    
     running = false;
   }
 

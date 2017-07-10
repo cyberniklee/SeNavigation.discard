@@ -101,17 +101,21 @@ namespace NS_CostMap
     getLayeredCostmap ()
     {
       return layered_costmap;
-    };
+    }
+    ;
 
     bool
     getRobotPose (NS_Transform::Stamped<NS_Transform::Pose>& global_pose) const;
 
-    Costmap2D* getCostmap()
+    Costmap2D*
+    getCostmap ()
     {
-      return layered_costmap->getCostmap();
-    };
+      return layered_costmap->getCostmap ();
+    }
+    ;
 
-    std::vector<NS_DataType::Point> getRobotFootprint()
+    std::vector<NS_DataType::Point>
+    getRobotFootprint ()
     {
       return padded_footprint;
     }

@@ -40,7 +40,8 @@ namespace NS_Communication
   }
   
   void
-  CommunicatorApplication::saveMapInPGM (NS_DataType::OccupancyGrid& map, std::string map_file)
+  CommunicatorApplication::saveMapInPGM (NS_DataType::OccupancyGrid& map,
+                                         std::string map_file)
   {
     FILE* out = fopen (map_file.c_str (), "w");
     if (!out)
@@ -49,15 +50,13 @@ namespace NS_Communication
                                       map_file.c_str ());
     }
     fprintf (out, "P5\n# CREATOR: Map_generator.cpp %.3f m/pix\n%d %d\n255\n",
-             map.info.resolution, map.info.width,
-             map.info.height);
-
+             map.info.resolution, map.info.width, map.info.height);
+    
     for (unsigned long y = 0; y < map.info.height; y++)
     {
       for (unsigned long x = 0; x < map.info.width; x++)
       {
-        unsigned long i = x
-            + (map.info.height - y - 1) * map.info.width;
+        unsigned long i = x + (map.info.height - y - 1) * map.info.width;
         if (map.data[i] == 0)
         { //occ [0,0.1)
           fputc (254, out);
@@ -75,7 +74,7 @@ namespace NS_Communication
     
     fclose (out);
     NS_NaviCommon::console.debug ("write PGM finish, path: %s",
-                                    map_file_.c_str ());
+                                  map_file_.c_str ());
     
   }
   
@@ -87,40 +86,44 @@ namespace NS_Communication
       if (message->reason == COMMUNICATION_DATA_REASON_MAP_SIZE)
       {
         NS_ServiceType::ResponseMap map_resp;
-        char mapSize_str[16] = {0};
+        char mapSize_str[16] = { 0 };
         CommData* response = this->createResponseByRequest (message);
         
         if (service->call (SERVICE_TYPE_MAP, NULL, &map_resp))
         {
           response->payload_length = sizeof(map_resp.map.data.size ());
-          saveMapInPGM(map_resp.map, map_file_);
+          saveMapInPGM (map_resp.map, map_file_);
           sprintf (mapSize_str, "%ld", map_resp.map.data.size ());
           memcpy (response->payload, mapSize_str, sizeof(mapSize_str));
-        }else{
+        }
+        else
+        {
           response->payload_length = 0;
         }
-
+        
         this->sendResponse (response);
       }
       else if (message->reason == COMMUNICATION_DATA_REASON_MAP)
       {
         CommData* response = this->createResponseByRequest (message);
-
+        
         const char* map_path = (const char*) map_file_.c_str ();
         unsigned int len = map_file_.length ();
         memcpy (response->payload, map_path, len);
-
+        
         response->payload_length = len;
-
+        
         this->sendResponse (response);
       }
       else if (message->reason == COMMUNICATION_DATA_REASON_MAP_META)
       {
         NS_NaviCommon::console.message (
             "receive message: COMMUNICATION_DATA_REASON_MAP_META!");
-      }else{
-        NS_NaviCommon::console.error (
-            "invalid message: reason %d !", message->reason);
+      }
+      else
+      {
+        NS_NaviCommon::console.error ("invalid message: reason %d !",
+                                      message->reason);
       }
     }
   }
@@ -132,7 +135,7 @@ namespace NS_Communication
     
     loadParameters ();
     Communicator::initialize (local_port_, remote_port_);
-
+    
     initialized = true;
     
   }

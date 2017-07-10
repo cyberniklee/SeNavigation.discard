@@ -48,80 +48,80 @@ namespace NS_Selidar
 #ifdef DUPLEX_MODE
   bool
   SelidarApplication::checkSelidarHealth (SelidarDriver * drv)
-  {
+  { 
     int op_result;
     SelidarHealth healthinfo;
-    
+
     op_result = drv->getHealth (healthinfo);
-    
+
     if (IS_OK(op_result))
-    {
+    { 
       NS_NaviCommon::console.debug ("Selidar health status : %d, errcode: %d",
-                                    healthinfo.status, healthinfo.err_code);
-      
+          healthinfo.status, healthinfo.err_code);
+
       if (healthinfo.status != StatusFine)
-      {
+      { 
         NS_NaviCommon::console.warning ("Selidar's status is not fine! ");
         return false;
       }
       else
-      {
+      { 
         NS_NaviCommon::console.message ("Selidar's status is not fine! ");
         return true;
       }
-      
+
     }
     else
-    {
+    { 
       return false;
     }
   }
-  
+
   bool
   SelidarApplication::checkSelidarInfo (SelidarDriver * drv)
-  {
+  { 
     int op_result;
     SelidarInfo device_info;
-    
+
     op_result = drv->getDeviceInfo (device_info);
-    
+
     if (IS_OK(op_result))
-    {
+    { 
       NS_NaviCommon::console.debug ("Selidar device info :");
       NS_NaviCommon::console.debug ("\t model : %d ", device_info.model);
       NS_NaviCommon::console.debug ("\t hw ver : %d ", device_info.hw_id);
       NS_NaviCommon::console.debug ("\t fw ver : %d.%d ", device_info.fw_major,
-                                    device_info.fw_minor);
+          device_info.fw_minor);
       return true;
     }
     else
-    {
+    { 
       return false;
     }
-    
+
   }
-  
+
   bool
   SelidarApplication::stopScanService (NS_ServiceType::RequestBase* request,
-                                       NS_ServiceType::ResponseBase* response)
-  {
+      NS_ServiceType::ResponseBase* response)
+  { 
     if (!drv.isConnected ())
-      return false;
-    
+    return false;
+
     drv.stop ();
-    
+
     return true;
   }
-  
+
   bool
   SelidarApplication::startScanService (NS_ServiceType::RequestBase* request,
-                                        NS_ServiceType::ResponseBase* response)
-  {
+      NS_ServiceType::ResponseBase* response)
+  { 
     if (!drv.isConnected ())
-      return false;
-    
+    return false;
+
     NS_NaviCommon::console.message ("Start motor");
-    
+
     drv.startScan ();
     return true;
   }
@@ -273,22 +273,22 @@ namespace NS_Selidar
     // reset lidar
     drv.reset ();
     NS_NaviCommon::delay (5000);
-    
+
     // check health...
     if (!checkSelidarHealth (&drv))
-    {
+    { 
       return;
     }
-    
+
     NS_NaviCommon::delay (100);
-    
+
     // get device info...
     if (!checkSelidarInfo (&drv))
-    {
+    { 
       return;
     }
     NS_NaviCommon::delay (100);
-    
+
     service->advertise (
         NS_NaviCommon::SERVICE_TYPE_STOP_SCAN,
         boost::bind (&SelidarApplication::stopScanService, this, _1, _2));
@@ -296,9 +296,9 @@ namespace NS_Selidar
         NS_NaviCommon::SERVICE_TYPE_START_SCAN,
         boost::bind (&SelidarApplication::startScanService, this, _1, _2));
 #endif
-
+    
     NS_NaviCommon::delay (100);
-
+    
     initialized = true;
     
     NS_NaviCommon::console.message ("selidar has initialized!");
@@ -323,7 +323,7 @@ namespace NS_Selidar
 #ifdef DUPLEX_MODE
     drv.stop ();
 #endif
-
+    
     running = false;
     
     scan_thread.join ();

@@ -31,7 +31,9 @@ namespace NS_Planner
 
   public:
     void
-    initialize (NS_CostMap::CostmapWrapper* costmap_, NS_NaviCommon::Dispitcher* dispitcher_, NS_NaviCommon::Service* service_)
+    initialize (NS_CostMap::CostmapWrapper* costmap_,
+                NS_NaviCommon::Dispitcher* dispitcher_,
+                NS_NaviCommon::Service* service_)
     {
       costmap = costmap_;
       service = service_;

@@ -8,65 +8,78 @@
 #include <Service/Service.h>
 #include "../../TrajectoryLocalPlanner/Algorithm/LocalPlannerLimits.h"
 
-
-namespace NS_Planner {
-
-/**
- * @class LocalPlannerUtil
- * @brief Helper class implementing infrastructure code many local planner implementations may need.
- */
-class LocalPlannerUtil {
-
-private:
-  // things we get from move_base
-  std::string name_;
-  std::string global_frame_;
-
-  NS_CostMap::Costmap2D* costmap_;
-  NS_NaviCommon::Service* service_;
-
-
-  std::vector<NS_DataType::PoseStamped> global_plan_;
-
-
-  boost::mutex limits_configuration_mutex_;
-  bool setup_;
-  LocalPlannerLimits default_limits_;
-  LocalPlannerLimits limits_;
-  bool initialized_;
-
-public:
-
+namespace NS_Planner
+{
+  
   /**
-   * @brief  Callback to update the local planner's parameters
+   * @class LocalPlannerUtil
+   * @brief Helper class implementing infrastructure code many local planner implementations may need.
    */
-  //todo: need re-coding this part
-  void reconfigureCB(LocalPlannerLimits &config, bool restore_defaults);
+  class LocalPlannerUtil
+  {
+    
+  private:
+    // things we get from move_base
+    std::string name_;
+    std::string global_frame_;
 
-  LocalPlannerUtil() : initialized_(false) {}
+    NS_CostMap::Costmap2D* costmap_;
+    NS_NaviCommon::Service* service_;
 
-  ~LocalPlannerUtil() {
-  }
+    std::vector<NS_DataType::PoseStamped> global_plan_;
 
-  void initialize(NS_NaviCommon::Service* service,
-                  NS_CostMap::Costmap2D* costmap);
+    boost::mutex limits_configuration_mutex_;
+    bool setup_;
+    LocalPlannerLimits default_limits_;
+    LocalPlannerLimits limits_;
+    bool initialized_;
 
-  bool getGoal(NS_Transform::Stamped<NS_Transform::Pose>& goal_pose);
+  public:
+    
+    /**
+     * @brief  Callback to update the local planner's parameters
+     */
+    //todo: need re-coding this part
+    void
+    reconfigureCB (LocalPlannerLimits &config, bool restore_defaults);
 
-  bool setPlan(const std::vector<NS_DataType::PoseStamped>& orig_global_plan);
+    LocalPlannerUtil ()
+        : initialized_ (false)
+    {
+    }
+    
+    ~LocalPlannerUtil ()
+    {
+    }
+    
+    void
+    initialize (NS_NaviCommon::Service* service,
+                NS_CostMap::Costmap2D* costmap);
 
-  bool getLocalPlan(NS_Transform::Stamped<NS_Transform::Pose>& global_pose, std::vector<NS_DataType::PoseStamped>& transformed_plan);
+    bool
+    getGoal (NS_Transform::Stamped<NS_Transform::Pose>& goal_pose);
 
-  NS_CostMap::Costmap2D* getCostmap();
+    bool
+    setPlan (const std::vector<NS_DataType::PoseStamped>& orig_global_plan);
 
-  LocalPlannerLimits getCurrentLimits();
+    bool
+    getLocalPlan (NS_Transform::Stamped<NS_Transform::Pose>& global_pose,
+                  std::vector<NS_DataType::PoseStamped>& transformed_plan);
 
-  std::string getGlobalFrame(){ return global_frame_; }
-};
+    NS_CostMap::Costmap2D*
+    getCostmap ();
 
+    LocalPlannerLimits
+    getCurrentLimits ();
 
+    std::string
+    getGlobalFrame ()
+    {
+      return global_frame_;
+    }
+  };
 
-
-};
+}
+;
 
 #endif /* ABSTRACT_LOCAL_PLANNER_ODOM_H_ */

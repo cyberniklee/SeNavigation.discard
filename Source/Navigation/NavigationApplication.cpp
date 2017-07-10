@@ -34,7 +34,7 @@ namespace NS_Navigation
   {
     global_planner_type_ = parameter.getParameter ("global_planner_type",
                                                    "global_planner");
-
+    
     local_planner_type_ = parameter.getParameter ("local_planner_type",
                                                   "dwa_local_planner");
   }
@@ -49,7 +49,7 @@ namespace NS_Navigation
     plan.clear ();
     
     //get the starting pose of the robot
-    NS_Transform::Stamped < NS_Transform::Pose > global_pose;
+    NS_Transform::Stamped<NS_Transform::Pose> global_pose;
     if (!global_costmap->getRobotPose (global_pose))
     {
       NS_NaviCommon::console.error (
@@ -126,19 +126,19 @@ namespace NS_Navigation
     goal = *target;
     
     new_goal_trigger = true;
-
-    if(!isQuaternionValid(goal.pose.orientation))
+    
+    if (!isQuaternionValid (goal.pose.orientation))
     {
-      NS_NaviCommon::console.error("It's a illegal pose!");
+      NS_NaviCommon::console.error ("It's a illegal pose!");
       return;
     }
-
-    if(!makePlan(*target, *global_planner_plan))
+    
+    if (!makePlan (*target, *global_planner_plan))
     {
-      NS_NaviCommon::console.error("Make plan failure!");
+      NS_NaviCommon::console.error ("Make plan failure!");
       return;
     }
-
+    
   }
   
   bool
@@ -198,7 +198,7 @@ namespace NS_Navigation
     latest_plan = new std::vector<NS_DataType::PoseStamped> ();
     
     global_costmap = new NS_CostMap::CostmapWrapper (dispitcher, service);
-    global_costmap->initialize();
+    global_costmap->initialize ();
     
     //load global planner
     if (global_planner_type_ == "global_planner")
@@ -213,21 +213,21 @@ namespace NS_Navigation
     //load local planner
     if (local_planner_type_ == "trajectory_local_planner")
     {
-      local_planner = new NS_Planner::TrajectoryLocalPlanner();
+      local_planner = new NS_Planner::TrajectoryLocalPlanner ();
     }
     else if (local_planner_type_ == "dwa_local_planner")
     {
-      local_planner = new NS_Planner::DwaLocalPlanner();
+      local_planner = new NS_Planner::DwaLocalPlanner ();
     }
     else
     {
-      local_planner = new NS_Planner::TrajectoryLocalPlanner();
+      local_planner = new NS_Planner::TrajectoryLocalPlanner ();
     }
-
+    
     global_planner->initialize (global_costmap, dispitcher, service);
     
-    local_planner->initialize(global_costmap, dispitcher, service);
-
+    local_planner->initialize (global_costmap, dispitcher, service);
+    
     state = PLANNING;
     
     new_goal_trigger = false;
@@ -241,15 +241,15 @@ namespace NS_Navigation
     running = true;
     plan_thread = boost::thread (
         boost::bind (&NavigationApplication::planLoop, this));
-
-    global_costmap->start();
+    
+    global_costmap->start ();
   }
   
   void
   NavigationApplication::quit ()
   {
-    global_costmap->stop();
-
+    global_costmap->stop ();
+    
     running = false;
     plan_thread.join ();
   }

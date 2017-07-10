@@ -61,14 +61,14 @@ namespace NS_GMapping
     NS_DataType::LaserScan* laser = (NS_DataType::LaserScan*) laser_data;
     laser_count++;
 ///////////////////////////////////////////////////////////////////////////
-/*
+    /*
      for(int i = 0; i < laser->ranges.size(); i++)
      {
      float degree = RAD2DEG(laser->angle_min + laser->angle_increment * i);
      NS_NaviCommon::console.debug("--->   angle: %f, range: %f", degree, laser->ranges[i]);
      }
      return;
-*/
+     */
 ////////////////////////////////////////////////////////////////////////////
     if (throttle_scans_ != 0)
     {
@@ -78,7 +78,7 @@ namespace NS_GMapping
         return;
       }
     }
-
+    
     if (laser_data_processing)
     {
       delete laser_data;
@@ -86,7 +86,7 @@ namespace NS_GMapping
     }
     
     laser_data_processing = true;
-
+    
     if (!got_first_scan)
     {
       if (!initMapper (*laser))
@@ -100,7 +100,7 @@ namespace NS_GMapping
     OrientedPoint odom_pose;
     
     static NS_NaviCommon::Time last_map_update (0, 0);
-
+    
     if (addScan (*laser, odom_pose))
     {
       NS_NaviCommon::console.debug ("Add scan process..");
@@ -125,7 +125,7 @@ namespace NS_GMapping
       map_to_odom_lock.lock ();
       map_to_odom = (odom_to_laser * laser_to_map).inverse ();
       map_to_odom_lock.unlock ();
-
+      
       if (!got_map
           || (laser->header.stamp - last_map_update) > map_update_interval_)
       {
@@ -138,19 +138,18 @@ namespace NS_GMapping
     {
       NS_NaviCommon::console.debug ("Can not process the scan!");
     }
-
+    
     laser_data_processing = false;
     delete laser_data;
   }
   
-
   void
   GMappingApplication::mapService (NS_ServiceType::RequestBase* request,
                                    NS_ServiceType::ResponseBase* response)
   {
     NS_ServiceType::RequestMap* req = (NS_ServiceType::RequestMap*) request;
     NS_ServiceType::ResponseMap* rep = (NS_ServiceType::ResponseMap*) response;
-
+    
     boost::mutex::scoped_lock map_mutex (map_lock);
     if (got_map && map.info.width && map.info.height)
     {
@@ -164,7 +163,6 @@ namespace NS_GMapping
     }
   }
   
-
   void
   GMappingApplication::mapTransformService (
       NS_ServiceType::RequestBase* request,
@@ -218,10 +216,10 @@ namespace NS_GMapping
     
     gmap_pose = OrientedPoint (odom_transform.transform.translation.x,
                                odom_transform.transform.translation.y, yaw);
-
+    
     return true;
   }
-
+  
   bool
   GMappingApplication::initMapper (NS_DataType::LaserScan& laser_data)
   {
@@ -331,13 +329,13 @@ namespace NS_GMapping
     matcher.setlaserMaxRange (max_range_);
     matcher.setusableRange (max_u_range_);
     matcher.setgenerateMap (true);
-
+    
     GridSlamProcessor::Particle best =
         gsp->getParticles ()[gsp->getBestParticleIndex ()];
     /*
-    double entropy = computePoseEntropy();
-    NS_NaviCommon::console.debug ("Entropy : %f", entropy);
-    */
+     double entropy = computePoseEntropy();
+     NS_NaviCommon::console.debug ("Entropy : %f", entropy);
+     */
 
     if (!got_map)
     {
@@ -356,11 +354,12 @@ namespace NS_GMapping
     center.y = (ymin_ + ymax_) / 2.0;
     
     NS_NaviCommon::console.debug ("Smap info :");
-
-    NS_NaviCommon::console.debug ("  x [%.3f, %.3f] , y [%.3f, %.3f]:", xmin_, xmax_, ymin_, ymax_);
-
+    
+    NS_NaviCommon::console.debug ("  x [%.3f, %.3f] , y [%.3f, %.3f]:", xmin_,
+                                  xmax_, ymin_, ymax_);
+    
     NS_NaviCommon::console.debug ("  resolution [%.3f]:", delta_);
-
+    
     ScanMatcherMap smap (center, xmin_, ymin_, xmax_, ymax_, delta_);
     
     NS_NaviCommon::console.debug ("Trajectory tree:");
@@ -416,7 +415,7 @@ namespace NS_GMapping
         IntPoint p (x, y);
         double occ = smap.cell (p);
         assert(occ <= 1.0);
-
+        
         if (occ < 0)
         {
           map.data[MAP_IDX(map.info.width, x, y)] = -1;
@@ -450,7 +449,7 @@ namespace NS_GMapping
       NS_NaviCommon::console.debug ("Laser beam count number is not correct!");
       return false;
     }
-
+    
     double* ranges_double = new double[laser_data.ranges.size ()];
     
     if (do_reverse_range)
@@ -508,10 +507,10 @@ namespace NS_GMapping
     minimum_score_ = parameter.getParameter ("minimum_score", 0.0f);
     sigma_ = parameter.getParameter ("sigma", 0.05f);
     kernel_size_ = parameter.getParameter ("kernel_size", 1);
-
+    
     lstep_ = parameter.getParameter ("lstep", 0.05f);
     astep_ = parameter.getParameter ("astep", 0.05f);
-
+    
     iterations_ = parameter.getParameter ("iterations", 5);
     lsigma_ = parameter.getParameter ("lsigma", 0.075f);
     ogain_ = parameter.getParameter ("ogain", 3.0f);
@@ -558,11 +557,11 @@ namespace NS_GMapping
     dispitcher->subscribe (
         NS_NaviCommon::DATA_TYPE_LASER_SCAN,
         boost::bind (&GMappingApplication::laserDataCallback, this, _1));
-
+    
     service->advertise (
         NS_NaviCommon::SERVICE_TYPE_MAP,
         boost::bind (&GMappingApplication::mapService, this, _1, _2));
-
+    
     initialized = true;
   }
   

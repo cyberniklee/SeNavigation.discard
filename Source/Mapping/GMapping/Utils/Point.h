@@ -19,13 +19,13 @@ namespace NS_GMapping
       point ()
           : x (0), y (0)
       {
-
+        
       }
       inline
       point (T _x, T _y)
           : x (_x), y (_y)
       {
-
+        
       }
       T x, y;
     };
@@ -72,7 +72,7 @@ namespace NS_GMapping
       orientedpoint ()
           : point<T> (0, 0), theta (0)
       {
-
+        
       }
       ;
       inline
@@ -110,7 +110,7 @@ namespace NS_GMapping
       if (theta < -M_PI)
         theta += 2 * M_PI;
     }
-
+  
   template<class T, class A>
     orientedpoint<T, A>::orientedpoint (const point<T>& p)
     {

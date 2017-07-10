@@ -22,7 +22,7 @@ namespace NS_CostMap
    */
   class Costmap2D
   {
-
+    
   public:
     /**
      * @brief  Constructor for a costmap

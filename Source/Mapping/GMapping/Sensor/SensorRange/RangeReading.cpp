@@ -14,7 +14,7 @@ namespace NS_GMapping
   RangeReading::RangeReading (const RangeSensor* rs, double time)
       : SensorReading (rs, time)
   {
-
+    
   }
   
   RangeReading::RangeReading (unsigned int n_beams, const double* d,
@@ -27,7 +27,7 @@ namespace NS_GMapping
     {
       (*this)[i] = d[i];
     }
-
+    
   }
   
   RangeReading::~RangeReading ()

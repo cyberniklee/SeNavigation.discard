@@ -3,34 +3,43 @@
 
 #include "../../TrajectoryLocalPlanner/Algorithm/Trajectory.h"
 
-namespace NS_Planner {
-
-/**
- * @class TrajectorySampleGenerator
- * @brief Provides an interface for navigation trajectory generators
- */
-class TrajectorySampleGenerator {
-public:
-
+namespace NS_Planner
+{
+  
   /**
-   * Whether this generator can create more trajectories
+   * @class TrajectorySampleGenerator
+   * @brief Provides an interface for navigation trajectory generators
    */
-  virtual bool hasMoreTrajectories() = 0;
+  class TrajectorySampleGenerator
+  {
+  public:
+    
+    /**
+     * Whether this generator can create more trajectories
+     */
+    virtual bool
+    hasMoreTrajectories () = 0;
 
-  /**
-   * Whether this generator can create more trajectories
-   */
-  virtual bool nextTrajectory(Trajectory &traj) = 0;
+    /**
+     * Whether this generator can create more trajectories
+     */
+    virtual bool
+    nextTrajectory (Trajectory &traj) = 0;
 
-  /**
-   * @brief  Virtual destructor for the interface
-   */
-  virtual ~TrajectorySampleGenerator() {}
-
-protected:
-  TrajectorySampleGenerator() {}
-
-};
+    /**
+     * @brief  Virtual destructor for the interface
+     */
+    virtual
+    ~TrajectorySampleGenerator ()
+    {
+    }
+    
+  protected:
+    TrajectorySampleGenerator ()
+    {
+    }
+    
+  };
 
 } // end namespace
 

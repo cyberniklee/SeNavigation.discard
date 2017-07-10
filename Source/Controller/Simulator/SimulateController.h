@@ -15,47 +15,55 @@
 #include <DataSet/DataType/Odometry.h>
 #include <boost/thread/thread.hpp>
 
-
 #include "../../Application/Application.h"
 
-namespace NS_Controller{
-
-  typedef enum{
-    SE_USER_ROLL_STOP = 0,
-    SE_USER_ROLL_FORWARD,
-    SE_USER_ROLL_BACKWARD,
-  }SeUserRollStates;
-
-  typedef struct{
+namespace NS_Controller
+{
+  
+  typedef enum
+  {
+    SE_USER_ROLL_STOP = 0, SE_USER_ROLL_FORWARD, SE_USER_ROLL_BACKWARD,
+  } SeUserRollStates;
+  
+  typedef struct
+  {
     unsigned short nEncode;
     unsigned short nSpeed;
     SeUserRollStates tState;
-  }SeUserRollInfo;
-
-  typedef struct{
+  } SeUserRollInfo;
+  
+  typedef struct
+  {
     double fX;
     double fY;
     double fTheta;
     double angularVel;
     double linearVel;
-  }SeUserOdometry;
-
-  typedef struct{
+  } SeUserOdometry;
+  
+  typedef struct
+  {
     double fLinear;
     double fAngular;
-  }SeUserVelocity;
-
+  } SeUserVelocity;
+  
   class SimulateController
   {
   public:
-    SimulateController (){};
+    SimulateController ()
+    {
+    }
+    ;
 
-    ~SimulateController (){};
+    ~SimulateController ()
+    {
+    }
+    ;
 
   private:
     SeUserRollInfo tLeftRollInfo, tRightRollInfo;
     SeUserOdometry tCurrentOdometry;
-    SeUserVelocity tCurVel,tNewVel;
+    SeUserVelocity tCurVel, tNewVel;
     NS_DataType::Odometry current_odometry;
 
     boost::mutex odom_lock;
@@ -79,37 +87,56 @@ namespace NS_Controller{
     short tUserLeftEncoder;
     short tUserRightEncoder;
 
-
-    int period;//ms
+    int period; //ms
     double fJiffies;
 
     boost::thread simulate_controller_thread;
 
-    void controllerPolling(void);
-    void SeUserMotionCalcRollSpeed(SeUserVelocity tVel, short *tLeftSpeed, short *tRightSpeed);
-    SeUserOdometry SeUserOdometryCalculate(int nLeftEncoderDelta, int nRightEncoderDelta, unsigned int nDeltaTime);
+    void
+    controllerPolling (void);
+    void
+    SeUserMotionCalcRollSpeed (SeUserVelocity tVel, short *tLeftSpeed,
+                               short *tRightSpeed);
+    SeUserOdometry
+    SeUserOdometryCalculate (int nLeftEncoderDelta, int nRightEncoderDelta,
+                             unsigned int nDeltaTime);
     //void SeUserMotionCalcRollSpeed(SeUserVelocity tVel, short *tLeftSpeed, short *tRightSpeed);
-
+    
     bool running;
   public:
+    
+    void
+    setBaseTicksPerMeter (double ticksPerMeter);
+    void
+    setBaseWheelTrack (double wheelTrack);
+    void
+    setBaseWheelDiameter (double wheelDiameter);
+    void
+    setBaseEncoderResolution (double encoderResolution);
+    void
+    setBaseGearReduction (double gearReduction);
+    void
+    setAccelLimit (double accelLimit);
+    void
+    setDuration (int duration);
+    void
+    setLinearVel (double angularVel);
+    void
+    setAngularVel (double linearVel);
 
-    void setBaseTicksPerMeter(double ticksPerMeter);
-    void setBaseWheelTrack(double wheelTrack);
-    void setBaseWheelDiameter(double wheelDiameter);
-    void setBaseEncoderResolution(double encoderResolution);
-    void setBaseGearReduction(double gearReduction);
-    void setAccelLimit(double accelLimit);
-    void setDuration(int duration);
-    void setLinearVel(double angularVel);
-    void setAngularVel(double linearVel);
+    double
+    getAngularVel (void);
+    double
+    getLinearVel (void);
+    double
+    getX (void);
+    double
+    getY (void);
+    double
+    getTheta (void);
 
-    double getAngularVel(void);
-    double getLinearVel(void);
-    double getX(void);
-    double getY(void);
-    double getTheta(void);
-
-    void motionCallback(void);
+    void
+    motionCallback (void);
 
   public:
     void
