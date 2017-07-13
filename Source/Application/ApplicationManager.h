@@ -46,7 +46,7 @@ private:
   {
     CommunicatorApplication* communicator = new CommunicatorApplication;
     applications.push_back (communicator);
-    
+
     SelidarApplication* selidar = new SelidarApplication;
     applications.push_back (selidar);
     
@@ -58,7 +58,6 @@ private:
 
      NavigationApplication* navigation = new NavigationApplication;
      applications.push_back (navigation);
-
   }
   
   void

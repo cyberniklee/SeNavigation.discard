@@ -344,8 +344,6 @@ namespace NS_Selidar
       unsigned short range;
       if (IS_FAIL(ans = waitScanData (range, local_buf, count)))
       {
-        cout << ans << endl;
-        
         if (ans != Timeout)
         {
           scanning = false;

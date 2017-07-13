@@ -22,8 +22,10 @@ ApplicationManager::signalAction (int signal)
 void
 ApplicationManager::applicationsPending ()
 {
+  Rate rate (10);
   while (running)
   {
+    rate.sleep ();
   }
 }
 

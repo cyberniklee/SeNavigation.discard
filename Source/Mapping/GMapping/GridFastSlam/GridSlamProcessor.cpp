@@ -363,7 +363,6 @@ namespace NS_GMapping
   GridSlamProcessor::processScan (const RangeReading & reading,
                                   int adaptParticles)
   {
-    
     /**retireve the position from the reading, and compute the odometry*/
     OrientedPoint relPose = reading.getPose ();
     if (!m_count)
