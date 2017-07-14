@@ -22,7 +22,7 @@ namespace NS_Navigation
   
   enum NaviState
   {
-    PLANNING, CONTROLLING, CLEARING
+    PLANNING, CONTROLLING, CLEARING,
   };
   
   class NavigationApplication: public Application
@@ -63,6 +63,8 @@ namespace NS_Navigation
     std::vector<NS_DataType::PoseStamped>* latest_plan;
 
     NS_CostMap::CostmapWrapper* global_costmap;
+
+    NS_CostMap::CostmapWrapper* local_costmap;
 
     NS_Planner::GlobalPlannerBase* global_planner;
 
