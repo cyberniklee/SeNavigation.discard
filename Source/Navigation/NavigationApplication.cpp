@@ -72,22 +72,66 @@ namespace NS_Navigation
     return true;
   }
   
+  bool
+  NavigationApplication::moveActions (NS_DataType::PoseStamped& goal, std::vector<NS_DataType::PoseStamped>& global_plan)
+  {
+    NS_DataType::Twist cmd_vel;
+
+    //update feedback to correspond to our curent position
+    NS_Transform::Stamped<NS_Transform::Pose> global_pose;
+    global_costmap->getRobotPose (global_pose);
+    NS_DataType::PoseStamped current_position;
+    NS_Transform::poseStampedTFToMsg (global_pose, current_position);
+
+
+
+    if (distance (current_position, oscillation_pose_) >= oscillation_distance_)
+    {
+      //TODO: oscillation
+
+      oscillation_pose_ = current_position;
+    }
+
+
+  }
+
   void
-  NavigationApplication::planLoop ()
+  NavigationApplication::controlLoop ()
   {
     NS_NaviCommon::Rate rate (10.0);
     while (running)
     {
-      if (new_goal_trigger)
-      {
-        //clear
 
-        if (!makePlan (goal, *global_planner_plan))
-        {
-          NS_NaviCommon::console.error ("Make plan failure!");
-          continue;
-        }
+      rate.sleep ();
+    }
+  }
+
+  void
+  NavigationApplication::planLoop ()
+  {
+    NS_NaviCommon::Rate rate (10.0);
+
+    boost::unique_lock<boost::mutex> lock (planner_mutex);
+
+    while (running)
+    {
+      lock.lock ();
+      while (new_goal_trigger)
+      {
+        planner_cond.wait (lock);
       }
+      lock.unlock ();
+
+      new_goal_trigger = false;
+
+      global_planner_plan->clear ();
+
+      if (!makePlan (goal, *global_planner_plan))
+      {
+        NS_NaviCommon::console.error ("Make plan failure!");
+        continue;
+      }
+
       rate.sleep ();
     }
   }
@@ -139,13 +183,35 @@ namespace NS_Navigation
       return;
     }
 
-    goal = *target;
+    NS_DataType::PoseStamped new_goal = goalToGlobalFrame (*target);
+
+    boost::unique_lock<boost::mutex> lock (planner_mutex);
+    lock.lock ();
+    goal = new_goal;
     new_goal_trigger = true;
+    planner_cond.notify_one ();
+    lock.unlock();
 
     delete target_goal;
 
   }
   
+  void
+  NavigationApplication::publishZeroVelocity ()
+  {
+    publishVelocity(0, 0, 0);
+  }
+
+  void
+  NavigationApplication::publishVelocity (double linear_x, double linear_y, double angular_z)
+  {
+    NS_DataType::Twist* vel = new NS_DataType::Twist;
+    vel->linear.x = linear_x;
+    vel->linear.y = linear_y;
+    vel->angular.z = angular_z;
+    dispitcher->publish (NS_NaviCommon::DATA_TYPE_TWIST, vel);
+  }
+
   bool
   NavigationApplication::isQuaternionValid (const NS_DataType::Quaternion& q)
   {
@@ -254,8 +320,12 @@ namespace NS_Navigation
   NavigationApplication::run ()
   {
     running = true;
+
     plan_thread = boost::thread (
         boost::bind (&NavigationApplication::planLoop, this));
+
+    control_thread = boost::thread (
+        boost::bind (&NavigationApplication::controlLoop, this));
     
     global_costmap->start ();
     local_costmap->start();
