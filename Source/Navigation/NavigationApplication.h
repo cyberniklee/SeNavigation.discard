@@ -14,6 +14,7 @@
 #include "Planner/Base/GlobalPlannerBase.h"
 #include "Planner/Base/LocalPlannerBase.h"
 #include <boost/thread/thread.hpp>
+#include <boost/thread/condition.hpp>
 #include <DataSet/DataType/PoseStamped.h>
 #include <vector>
 
@@ -96,9 +97,11 @@ namespace NS_Navigation
 
     boost::thread plan_thread;
     boost::mutex planner_mutex;
-    boost::condition_variable planner_cond;
+    boost::condition planner_cond;
 
     boost::thread control_thread;
+    boost::mutex controller_mutex;
+    boost::condition controller_cond;
 
     NaviState state;
   public:

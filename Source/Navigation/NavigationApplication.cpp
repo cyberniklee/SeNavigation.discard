@@ -21,7 +21,7 @@ namespace NS_Navigation
   NavigationApplication::NavigationApplication ()
   {
     // TODO Auto-generated constructor stub
-    
+    new_goal_trigger = false;
   }
   
   NavigationApplication::~NavigationApplication ()
@@ -98,11 +98,21 @@ namespace NS_Navigation
   void
   NavigationApplication::controlLoop ()
   {
-    NS_NaviCommon::Rate rate (10.0);
     while (running)
     {
+      NS_NaviCommon::Rate rate (10.0);
+      controller_mutex.lock ();
+      while (state != CONTROLLING || global_planner_plan->size () == 0)
+      {
+        controller_cond.wait (controller_mutex);
+      }
+      controller_mutex.unlock ();
 
-      rate.sleep ();
+      while (state == CONTROLLING)
+      {
+        moveActions (goal, *global_planner_plan);
+        rate.sleep ();
+      }
     }
   }
 
@@ -111,26 +121,29 @@ namespace NS_Navigation
   {
     NS_NaviCommon::Rate rate (10.0);
 
-    boost::unique_lock<boost::mutex> lock (planner_mutex);
-
     while (running)
     {
-      lock.lock ();
-      while (new_goal_trigger)
+      planner_mutex.lock ();
+      while (!new_goal_trigger)
       {
-        planner_cond.wait (lock);
+        planner_cond.wait (planner_mutex);
       }
-      lock.unlock ();
+      planner_mutex.unlock ();
 
       new_goal_trigger = false;
 
-      global_planner_plan->clear ();
-
-      if (!makePlan (goal, *global_planner_plan))
+      if (state != PLANNING && !makePlan (goal, *latest_plan))
       {
         NS_NaviCommon::console.error ("Make plan failure!");
         continue;
       }
+
+      controller_mutex.lock ();
+      state = CONTROLLING;
+      global_planner_plan->clear ();
+      global_planner_plan->assign (latest_plan->begin (), latest_plan->end ());
+      controller_cond.notify_one ();
+      controller_mutex.unlock ();
 
       rate.sleep ();
     }
@@ -185,12 +198,12 @@ namespace NS_Navigation
 
     NS_DataType::PoseStamped new_goal = goalToGlobalFrame (*target);
 
-    boost::unique_lock<boost::mutex> lock (planner_mutex);
-    lock.lock ();
+    planner_mutex.lock ();
     goal = new_goal;
     new_goal_trigger = true;
+    state = PLANNING;
     planner_cond.notify_one ();
-    lock.unlock();
+    planner_mutex.unlock();
 
     delete target_goal;
 
