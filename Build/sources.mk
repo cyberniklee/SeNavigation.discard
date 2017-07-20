@@ -27,6 +27,7 @@ Source/Application \
 Source/Communication \
 Source/Controller/Communication \
 Source/Controller \
+Source/Controller/Simulator \
 Source \
 Source/Mapping/GMapping \
 Source/Mapping/GMapping/GridFastSlam \
@@ -41,8 +42,12 @@ Source/Navigation/CostMap \
 Source/Navigation/CostMap/Layers \
 Source/Navigation/CostMap/Utils \
 Source/Navigation \
+Source/Navigation/Planner/Implements/DwaLocalPlanner/Algorithm \
+Source/Navigation/Planner/Implements/DwaLocalPlanner \
 Source/Navigation/Planner/Implements/GlobalPlanner/Algorithm \
 Source/Navigation/Planner/Implements/GlobalPlanner \
+Source/Navigation/Planner/Implements/TrajectoryLocalPlanner/Algorithm \
+Source/Navigation/Planner/Implements/TrajectoryLocalPlanner \
 Source/Sensor/Lidar/Driver \
 Source/Sensor/Lidar \
 

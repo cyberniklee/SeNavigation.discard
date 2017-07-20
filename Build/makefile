@@ -10,8 +10,12 @@ RM := rm -rf
 -include sources.mk
 -include Source/Sensor/Lidar/Driver/subdir.mk
 -include Source/Sensor/Lidar/subdir.mk
+-include Source/Navigation/Planner/Implements/TrajectoryLocalPlanner/Algorithm/subdir.mk
+-include Source/Navigation/Planner/Implements/TrajectoryLocalPlanner/subdir.mk
 -include Source/Navigation/Planner/Implements/GlobalPlanner/Algorithm/subdir.mk
 -include Source/Navigation/Planner/Implements/GlobalPlanner/subdir.mk
+-include Source/Navigation/Planner/Implements/DwaLocalPlanner/Algorithm/subdir.mk
+-include Source/Navigation/Planner/Implements/DwaLocalPlanner/subdir.mk
 -include Source/Navigation/CostMap/Utils/subdir.mk
 -include Source/Navigation/CostMap/Layers/subdir.mk
 -include Source/Navigation/CostMap/CostMap2D/subdir.mk
@@ -25,6 +29,7 @@ RM := rm -rf
 -include Source/Mapping/GMapping/Log/subdir.mk
 -include Source/Mapping/GMapping/GridFastSlam/subdir.mk
 -include Source/Mapping/GMapping/subdir.mk
+-include Source/Controller/Simulator/subdir.mk
 -include Source/Controller/Communication/subdir.mk
 -include Source/Controller/subdir.mk
 -include Source/Communication/subdir.mk
