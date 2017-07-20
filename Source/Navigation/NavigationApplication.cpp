@@ -72,27 +72,17 @@ namespace NS_Navigation
     return true;
   }
   
-  bool
-  NavigationApplication::moveActions (NS_DataType::PoseStamped& goal, std::vector<NS_DataType::PoseStamped>& global_plan)
+  void
+  NavigationApplication::runRecovery ()
   {
-    NS_DataType::Twist cmd_vel;
 
-    //update feedback to correspond to our curent position
-    NS_Transform::Stamped<NS_Transform::Pose> global_pose;
-    global_costmap->getRobotPose (global_pose);
-    NS_DataType::PoseStamped current_position;
-    NS_Transform::poseStampedTFToMsg (global_pose, current_position);
+  }
 
-
-
-    if (distance (current_position, oscillation_pose_) >= oscillation_distance_)
-    {
-      //TODO: oscillation
-
-      oscillation_pose_ = current_position;
-    }
-
-
+  void
+  NavigationApplication::resetState ()
+  {
+    state = PLANNING;
+    publishZeroVelocity ();
   }
 
   void
@@ -108,9 +98,79 @@ namespace NS_Navigation
       }
       controller_mutex.unlock ();
 
-      while (state == CONTROLLING)
+      if (!local_planner->setPlan (*global_planner_plan))
       {
-        moveActions (goal, *global_planner_plan);
+        NS_NaviCommon::console.error ("Set plan to local planner failure!");
+        resetState ();
+        continue;
+      }
+
+      while (running)
+      {
+        NS_DataType::Twist cmd_vel;
+        NS_NaviCommon::Time last_valid_control;
+
+        //update feedback to correspond to our curent position
+        NS_Transform::Stamped<NS_Transform::Pose> global_pose;
+        global_costmap->getRobotPose (global_pose);
+        NS_DataType::PoseStamped current_position;
+        NS_Transform::poseStampedTFToMsg (global_pose, current_position);
+
+        if (distance (current_position, oscillation_pose_) >= oscillation_distance_)
+        {
+          //TODO: oscillation
+
+          oscillation_pose_ = current_position;
+        }
+
+        switch (state)
+        {
+          case PLANNING:break;
+          case CONTROLLING:
+            if (local_planner->isGoalReached ())
+            {
+              NS_NaviCommon::console.message ("The goal has reached!");
+              resetState ();
+              break;
+            }
+
+            //TODO : check oscillation and clear
+
+            if (local_planner->computeVelocityCommands (cmd_vel))
+            {
+              NS_NaviCommon::console.debug ("Got velocity data : l_x=%.3lf, l_y=%.3lf, a_z=%.3lf!",
+                                            cmd_vel.linear.x, cmd_vel.linear.y, cmd_vel.angular.z);
+              last_valid_control = NS_NaviCommon::Time::now ();
+              publishVelocity (cmd_vel.linear.x, cmd_vel.linear.y, cmd_vel.angular.z);
+            }
+            else
+            {
+              NS_NaviCommon::console.warning ("The planner can not got a valid velocity data!");
+              NS_NaviCommon::Time next_control = last_valid_control + NS_NaviCommon::Duration (controller_patience_);
+
+              if (NS_NaviCommon::Time::now () > next_control)
+              {
+                publishZeroVelocity ();
+                state = CLEARING;
+                resetState ();
+              }
+              else
+              {
+                //TODO: re-plan
+
+                publishZeroVelocity ();
+                state = PLANNING;
+                resetState ();
+              }
+            }
+
+            break;
+          case CLEARING:
+            runRecovery ();
+            state = PLANNING;
+            break;
+        }
+
         rate.sleep ();
       }
     }

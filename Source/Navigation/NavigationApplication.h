@@ -64,8 +64,11 @@ namespace NS_Navigation
     void
     publishVelocity (double linear_x, double linear_y, double angular_z);
 
-    bool
-    moveActions (NS_DataType::PoseStamped& goal, std::vector<NS_DataType::PoseStamped>& global_plan);
+    void
+    runRecovery ();
+
+    void
+    resetState ();
   private:
     std::string global_planner_type_;
     std::string local_planner_type_;
