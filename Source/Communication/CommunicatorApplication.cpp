@@ -10,6 +10,8 @@
 #include <Service/Service.h>
 #include <vector>
 #include <stdlib.h>
+#include <DataSet/DataType/PoseStamped.h>
+#include <Transform/DataTypes.h>
 
 namespace NS_Communication
 {
@@ -122,8 +124,24 @@ namespace NS_Communication
       }
       else if (message->reason == COMMUNICATION_DATA_REASON_POSE)
       {
+        CommData* response = this->createResponseByRequest (message);
 
+        char pose_str [128] = {0};
+        memcpy (pose_str, message->payload, message->payload_length);
 
+        NS_DataType::PoseStamped* target = new NS_DataType::PoseStamped;
+
+        double x, y, theta;
+        sscanf (pose_str, "%lf,%lf,%lf", x, y, theta);
+
+        target->pose.position.x = x;
+        target->pose.position.y = y;
+        target->pose.orientation = NS_Transform::createQuaternionMsgFromYaw (theta);
+
+        dispitcher->publish (NS_NaviCommon::DATA_TYPE_TARGET_GOAL, target);
+
+        response->payload_length = 0;
+        this->sendResponse (response);
       }
       else
       {

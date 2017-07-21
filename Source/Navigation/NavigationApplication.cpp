@@ -382,6 +382,10 @@ namespace NS_Navigation
     
     local_planner->initialize (global_costmap, dispitcher, service);
 
+    dispitcher->subscribe (
+        NS_NaviCommon::DATA_TYPE_TARGET_GOAL,
+        boost::bind (&NavigationApplication::goalCallback, this, _1));
+
     state = PLANNING;
     
     new_goal_trigger = false;
