@@ -237,13 +237,13 @@ namespace NS_Controller
       return;
     }
     
-    /*
-     if (!checkDevice ())
-     {
-     NS_NaviCommon::console.error ("test base controller failure!");
-     return;
-     }
-     */
+#ifndef USE_SIMULATOR
+    if (!checkDevice ())
+    {
+      NS_NaviCommon::console.error ("test base controller failure!");
+      return;
+    }
+#endif
 
     configController ();
     
