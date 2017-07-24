@@ -37,6 +37,9 @@ namespace NS_Navigation
     
     local_planner_type_ = parameter.getParameter ("local_planner_type",
                                                   "dwa_local_planner");
+
+    planner_frequency_ = parameter.getParameter ("planner_frequency", 0.0f);
+    controller_frequency_ = parameter.getParameter ("controller_frequency", 10.0f);
   }
   
   bool
@@ -90,13 +93,20 @@ namespace NS_Navigation
   {
     while (running)
     {
-      NS_NaviCommon::Rate rate (10.0);
+      NS_NaviCommon::Rate rate (controller_frequency_);
       controller_mutex.lock ();
-      while (state != CONTROLLING || global_planner_plan->size () == 0)
+      while ((state != CONTROLLING || global_planner_plan->size () == 0) && running)
       {
-        controller_cond.wait (controller_mutex);
+        controller_cond.timed_wait (controller_mutex,
+                              (boost::get_system_time () + boost::posix_time::milliseconds (PLANNER_LOOP_TIMEOUT)));
       }
       controller_mutex.unlock ();
+
+      if (!running)
+      {
+        NS_NaviCommon::console.message ("Quit local planning loop...");
+        break;
+      }
 
       if (!local_planner->setPlan (*global_planner_plan))
       {
@@ -179,16 +189,23 @@ namespace NS_Navigation
   void
   NavigationApplication::planLoop ()
   {
-    NS_NaviCommon::Rate rate (10.0);
+    NS_NaviCommon::Rate rate (planner_frequency_);
 
     while (running)
     {
       planner_mutex.lock ();
-      while (!new_goal_trigger)
+      while (!new_goal_trigger && running)
       {
-        planner_cond.wait (planner_mutex);
+        planner_cond.timed_wait (planner_mutex,
+                                 (boost::get_system_time () + boost::posix_time::milliseconds (PLANNER_LOOP_TIMEOUT)));
       }
       planner_mutex.unlock ();
+
+      if (!running)
+      {
+        NS_NaviCommon::console.message ("Quit global planning loop...");
+        break;
+      }
 
       new_goal_trigger = false;
 

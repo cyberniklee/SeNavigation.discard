@@ -26,6 +26,8 @@ namespace NS_Navigation
     PLANNING, CONTROLLING, CLEARING,
   };
   
+  #define PLANNER_LOOP_TIMEOUT 100
+
   class NavigationApplication: public Application
   {
   public:
