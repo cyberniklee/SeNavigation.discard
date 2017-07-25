@@ -36,7 +36,7 @@ namespace NS_Navigation
                                                    "global_planner");
     
     local_planner_type_ = parameter.getParameter ("local_planner_type",
-                                                  "dwa_local_planner");
+                                                  "trajectory_local_planner");
 
     planner_frequency_ = parameter.getParameter ("planner_frequency", 0.0f);
     controller_frequency_ = parameter.getParameter ("controller_frequency", 10.0f);
