@@ -72,6 +72,12 @@ namespace NS_Navigation
       return false;
     }
     
+    NS_NaviCommon::console.debug ("Plans computed, %d points to go...", plan.size ());
+    for (size_t i = 0; i < plan.size (); i++)
+    {
+      NS_NaviCommon::console.debug ("[%d] x = %lf, y = %lf", (i + 1), plan[i].pose.position.x, plan[i].pose.position.y);
+    }
+
     return true;
   }
   
@@ -209,7 +215,7 @@ namespace NS_Navigation
 
       new_goal_trigger = false;
 
-      if (state != PLANNING && !makePlan (goal, *latest_plan))
+      if (!makePlan (goal, *latest_plan) && state != PLANNING)
       {
         NS_NaviCommon::console.error ("Make plan failure!");
         continue;
@@ -222,7 +228,8 @@ namespace NS_Navigation
       controller_cond.notify_one ();
       controller_mutex.unlock ();
 
-      rate.sleep ();
+      if (planner_frequency_ != 0.0f)
+        rate.sleep ();
     }
   }
   
@@ -266,7 +273,6 @@ namespace NS_Navigation
   NavigationApplication::goalCallback (NS_DataType::DataBase* target_goal)
   {
     NS_DataType::PoseStamped* target = (NS_DataType::PoseStamped*) target_goal;
-
     if (!isQuaternionValid (target->pose.orientation))
     {
       NS_NaviCommon::console.error ("It's a illegal pose!");

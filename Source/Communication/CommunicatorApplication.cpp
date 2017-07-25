@@ -132,13 +132,15 @@ namespace NS_Communication
         NS_DataType::PoseStamped* target = new NS_DataType::PoseStamped;
 
         double x, y, theta;
-        sscanf (pose_str, "%lf,%lf,%lf", x, y, theta);
+        sscanf (pose_str, "%lf,%lf,%lf", &x, &y, &theta);
 
         target->pose.position.x = x;
         target->pose.position.y = y;
         target->pose.orientation = NS_Transform::createQuaternionMsgFromYaw (theta);
 
         dispitcher->publish (NS_NaviCommon::DATA_TYPE_TARGET_GOAL, target);
+
+        NS_NaviCommon::console.message ("Publish target goal : %s!", pose_str);
 
         response->payload_length = 0;
         this->sendResponse (response);
