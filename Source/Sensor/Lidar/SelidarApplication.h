@@ -32,8 +32,15 @@ namespace NS_Selidar
     std::string frame_id;
     bool inverted;
     bool angle_compensate;
+    int scan_timeout;
+
     SelidarDriver drv;
     boost::thread scan_thread;
+
+    int scan_count;
+
+    boost::condition got_first_scan_cond;
+    boost::mutex scan_count_lock;
   private:
     
 #ifdef DUPLEX_MODE

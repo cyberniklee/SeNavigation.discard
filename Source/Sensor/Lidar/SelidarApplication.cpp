@@ -27,18 +27,20 @@ namespace NS_Selidar
     inverted = false;
     angle_compensate = true;
     frame_id = "laser_frame";
+    scan_count = 0;
+    scan_timeout = 3;
   }
   
   SelidarApplication::~SelidarApplication ()
   {
-    
+    scan_count = 0;
   }
   
   void
   SelidarApplication::loadParameters ()
   {
     parameter.loadConfigurationFile ("selidar.xml");
-    serial_port = parameter.getParameter ("serial_port", "/dev/ttyUSB0");
+    serial_port = parameter.getParameter ("serial_port", "/dev/ttyUSB1");
     serial_baudrate = parameter.getParameter ("serial_baudrate", 115200);
     frame_id = parameter.getParameter ("frame_id", "laser_frame");
     inverted = parameter.getParameter ("inverted", false);
@@ -133,13 +135,19 @@ namespace NS_Selidar
                                    double scan_time, float angle_min,
                                    float angle_max)
   {
-    static int scan_count = 0;
-    
     NS_DataType::LaserScan* scan_msg = new NS_DataType::LaserScan;
     
     scan_msg->header.stamp = start;
     scan_msg->header.frame_id = frame_id;
+
+    scan_count_lock.lock ();
     scan_count++;
+    if (scan_count == 1)
+    {
+      NS_NaviCommon::console.debug ("Got first scan data!");
+      got_first_scan_cond.notify_one ();
+    }
+    scan_count_lock.unlock ();
     
     bool reversed = (angle_max > angle_min);
     if (reversed)
@@ -313,6 +321,22 @@ namespace NS_Selidar
     
     scan_thread = boost::thread (
         boost::bind (&SelidarApplication::scanLoop, this));
+
+    int wait_times = 0;
+    scan_count_lock.lock ();
+    while (wait_times++ <= scan_timeout && scan_count == 0)
+    {
+      got_first_scan_cond.timed_wait (scan_count_lock,
+                                      (boost::get_system_time () + boost::posix_time::seconds (1)));
+    }
+    scan_count_lock.unlock ();
+
+    if (scan_count == 0)
+    {
+      NS_NaviCommon::console.error ("Can't got first scan from LIDAR.");
+      running = false;
+    }
+
   }
   
   void
