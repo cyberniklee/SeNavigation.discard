@@ -138,11 +138,22 @@ namespace NS_Planner
       planner_window_x_ = parameter.getParameter ("planner_window_x", 0.0f); // float 0.0f 指明调用参数为 float
       planner_window_y_ = parameter.getParameter ("planner_window_y", 0.0f);
       default_tolerance_ = parameter.getParameter ("default_tolerance", 0.0f);
-      publish_scale_ = parameter.getParameter ("publish_scale", 100);
       
 //		NS_NaviCommon::console.debug("A lot of parameters...");
       
 //		NS_NaviCommon::console.debug("Finish onInitialize called");
+
+      int lethal_cost = parameter.getParameter ("lethal_cost", 253);
+      int neutral_cost = parameter.getParameter ("neutral_cost", 50);
+      double cost_factor = parameter.getParameter ("cost_factor", 3.0f);
+      int orientation_mode = parameter.getParameter ("orientation_mode", 1);
+
+      planner_->setLethalCost (lethal_cost);
+      path_maker_->setLethalCost (lethal_cost);
+      planner_->setNeutralCost (neutral_cost);
+      planner_->setFactor (cost_factor);
+      orientation_filter_->setMode (orientation_mode);
+
       initialized_ = true;
     }
     else
