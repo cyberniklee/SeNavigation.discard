@@ -95,11 +95,8 @@ namespace NS_Controller
     current_pose.theta = simulator.getTheta ();
 #endif
     
-    /*
-     NS_NaviCommon::console.debug ("odometry pose: x:%f, y:%f, theta:%f.",
-     current_pose.x, current_pose.y,
-     current_pose.theta);
-     */
+    NS_NaviCommon::console.debug ("odometry pose: x:%f, y:%f, theta:%f.",
+                                  current_pose.x, current_pose.y, current_pose.theta);
 
     rep->transform.translation.x = current_pose.x;
     rep->transform.translation.y = current_pose.y;
@@ -116,7 +113,6 @@ namespace NS_Controller
      rep->transform.translation.x, rep->transform.translation.y,
      rep->transform.rotation.z, rep->transform.rotation.w);
      */
-
   }
   
   void
