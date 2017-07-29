@@ -131,20 +131,30 @@ namespace NS_Selidar
     return Success;
   }
   
+  /*
   int
   SelidarDriver::stop (unsigned int timeout)
   {
     int ans;
     disableDataGrabbing ();
-    
+
     {
       boost::mutex::scoped_lock auto_lock (rxtx_lock);
-      
+
       if (IS_FAIL(ans = sendCommand (StopReq)))
       {
         return ans;
       }
     }
+
+    return Success;
+  }
+  */
+
+  int
+  SelidarDriver::stop (unsigned int timeout)
+  {
+    disableDataGrabbing ();
     
     return Success;
   }

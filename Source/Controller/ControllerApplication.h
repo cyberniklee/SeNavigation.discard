@@ -24,7 +24,7 @@
 
 #include "Simulator/SimulateController.h"
 
-//#define USE_SIMULATOR
+#define USE_SIMULATOR
 
 namespace NS_Controller
 {
