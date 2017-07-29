@@ -45,7 +45,16 @@ Application::globalInitialize ()
                                     redir_log.c_str ());
   }
   
-  NS_NaviCommon::console.dbg_msg_on = false;
+  if (para.getParameter ("debug", 0) == 1)
+  {
+    NS_NaviCommon::console.debugOn ();
+  }
+  else
+  {
+    NS_NaviCommon::console.debugOff ();
+  }
+
+
   NS_NaviCommon::Time::init ();
   
   global_dispitcher.initialize ();
