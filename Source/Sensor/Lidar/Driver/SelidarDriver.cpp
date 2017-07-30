@@ -114,6 +114,7 @@ namespace NS_Selidar
     return Success;
   }
   
+  /*
   int
   SelidarDriver::reset (unsigned int timeout)
   {
@@ -128,6 +129,26 @@ namespace NS_Selidar
       }
     }
     
+    return Success;
+  }
+  */
+
+  int
+  SelidarDriver::reset (unsigned int timeout)
+  {
+    /*
+    int ans;
+
+    {
+      boost::mutex::scoped_lock auto_lock (rxtx_lock);
+
+      if (IS_FAIL(ans = sendCommand (ResetReq)))
+      {
+        return ans;
+      }
+    }
+    */
+
     return Success;
   }
   
