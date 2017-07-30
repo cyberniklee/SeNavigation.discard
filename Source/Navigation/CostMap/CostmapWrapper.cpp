@@ -7,6 +7,7 @@
 
 #include "CostmapWrapper.h"
 #include "Layers/StaticLayer.h"
+#include "Layers/InflationLayer.h"
 
 #include <Console/Console.h>
 #include <Service/ServiceType/RequestMap.h>
@@ -277,8 +278,9 @@ namespace NS_CostMap
 
     if (layered_costmap)
     {
-      //TODO: add other layers
-
+      InflationLayer* inflation_layer = new InflationLayer ();
+      boost::shared_ptr<Layer> layer (inflation_layer);
+      layered_costmap->addPlugin (layer);
     }
 
     std::vector <boost::shared_ptr<Layer> > *layers = layered_costmap->getPlugins();
