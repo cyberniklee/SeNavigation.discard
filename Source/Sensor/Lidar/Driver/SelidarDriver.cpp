@@ -521,6 +521,8 @@ namespace NS_Selidar
     if (scanning)
       return Denied;
     
+    stop ();
+
     {
       boost::mutex::scoped_lock auto_lock (rxtx_lock);
       

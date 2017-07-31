@@ -29,6 +29,7 @@ namespace NS_Communication
   void
   CommunicatorApplication::loadParameters ()
   {
+    parameter.loadConfigurationFile ("conmmunication.xml");
     local_port_ = parameter.getParameter ("local_port", 6689);
     remote_port_ = parameter.getParameter ("remote_port", 6688);
     map_file_ = parameter.getParameter ("map_file", "/tmp/gmap.pgm");
@@ -93,11 +94,17 @@ namespace NS_Communication
         
         service->call (SERVICE_TYPE_MAP, NULL, &map_resp);
 
-
-        response->payload_length = sizeof(map_resp.map.data.size ());
-        saveMapInPGM (map_resp.map, map_file_);
-        sprintf (mapSize_str, "%ld", map_resp.map.data.size ());
-        memcpy (response->payload, mapSize_str, sizeof(mapSize_str));
+        if (map_resp.result)
+        {
+          saveMapInPGM (map_resp.map, map_file_);
+          sprintf (mapSize_str, "%ld", map_resp.map.data.size ());
+          memcpy (response->payload, mapSize_str, sizeof(mapSize_str));
+          response->payload_length = sizeof(map_resp.map.data.size ());
+        }
+        else
+        {
+          response->payload_length = 0;
+        }
         
         this->sendResponse (response);
       }

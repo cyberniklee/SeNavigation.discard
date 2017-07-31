@@ -17,12 +17,14 @@
 #include "../Controller/ControllerApplication.h"
 #include "../Navigation/NavigationApplication.h"
 #include "../Communication/CommunicatorApplication.h"
+#include "../Test/TestApplication.h"
 
 using namespace NS_GMapping;
 using namespace NS_Controller;
 using namespace NS_Selidar;
 using namespace NS_Navigation;
 using namespace NS_Communication;
+using namespace NS_Test;
 
 class ApplicationManager
 {
@@ -56,9 +58,12 @@ private:
     ControllerApplication* controller = new ControllerApplication;
     applications.push_back (controller);
 /*
-     NavigationApplication* navigation = new NavigationApplication;
-     applications.push_back (navigation);
+    NavigationApplication* navigation = new NavigationApplication;
+    applications.push_back (navigation);
      */
+
+    TestApplication* test = new TestApplication;
+    applications.push_back (test);
 
   }
   
