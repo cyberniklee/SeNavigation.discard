@@ -91,17 +91,12 @@ namespace NS_Communication
         char mapSize_str[16] = { 0 };
         CommData* response = this->createResponseByRequest (message);
         
-        if (service->call (SERVICE_TYPE_MAP, NULL, &map_resp))
-        {
-          response->payload_length = sizeof(map_resp.map.data.size ());
-          saveMapInPGM (map_resp.map, map_file_);
-          sprintf (mapSize_str, "%ld", map_resp.map.data.size ());
-          memcpy (response->payload, mapSize_str, sizeof(mapSize_str));
-        }
-        else
-        {
-          response->payload_length = 0;
-        }
+        service->call (SERVICE_TYPE_MAP, NULL, &map_resp);
+
+        response->payload_length = sizeof(map_resp.map.data.size ());
+        saveMapInPGM (map_resp.map, map_file_);
+        sprintf (mapSize_str, "%ld", map_resp.map.data.size ());
+        memcpy (response->payload, mapSize_str, sizeof(mapSize_str));
         
         this->sendResponse (response);
       }

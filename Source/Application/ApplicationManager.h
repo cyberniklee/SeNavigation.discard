@@ -55,9 +55,10 @@ private:
     
     ControllerApplication* controller = new ControllerApplication;
     applications.push_back (controller);
-
+/*
      NavigationApplication* navigation = new NavigationApplication;
      applications.push_back (navigation);
+     */
   }
   
   void
