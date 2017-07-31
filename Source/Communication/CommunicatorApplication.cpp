@@ -93,6 +93,7 @@ namespace NS_Communication
         
         service->call (SERVICE_TYPE_MAP, NULL, &map_resp);
 
+
         response->payload_length = sizeof(map_resp.map.data.size ());
         saveMapInPGM (map_resp.map, map_file_);
         sprintf (mapSize_str, "%ld", map_resp.map.data.size ());

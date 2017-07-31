@@ -59,6 +59,7 @@ private:
      NavigationApplication* navigation = new NavigationApplication;
      applications.push_back (navigation);
      */
+
   }
   
   void
