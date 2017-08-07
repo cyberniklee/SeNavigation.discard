@@ -8,6 +8,7 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
+-include Source/Test/subdir.mk
 -include Source/Sensor/Lidar/Driver/subdir.mk
 -include Source/Sensor/Lidar/subdir.mk
 -include Source/Navigation/Planner/Implements/TrajectoryLocalPlanner/Algorithm/subdir.mk
@@ -30,6 +31,7 @@ RM := rm -rf
 -include Source/Mapping/GMapping/GridFastSlam/subdir.mk
 -include Source/Mapping/GMapping/subdir.mk
 -include Source/Controller/Simulator/subdir.mk
+-include Source/Controller/ExtendedKalmanFilter/subdir.mk
 -include Source/Controller/Communication/subdir.mk
 -include Source/Controller/subdir.mk
 -include Source/Communication/subdir.mk

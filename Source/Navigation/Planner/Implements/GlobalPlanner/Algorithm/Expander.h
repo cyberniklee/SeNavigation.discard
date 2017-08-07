@@ -74,7 +74,7 @@ namespace NS_Planner
         for (int j = -s; j <= s; j++)
         {
           /*
-           * n 有可能是负数，这样计算出来不经过检查作为数组下标可能导致崩溃
+           * TODO: n 有可能是负数，这样计算出来不经过检查作为数组下标可能导致崩溃
            */
           int n = startCell + i + nx_ * j;
           cout << "n = " << n << "\n";

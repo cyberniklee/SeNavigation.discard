@@ -27,6 +27,7 @@ Source/Application \
 Source/Communication \
 Source/Controller/Communication \
 Source/Controller \
+Source/Controller/ExtendedKalmanFilter \
 Source/Controller/Simulator \
 Source \
 Source/Mapping/GMapping \
@@ -50,4 +51,5 @@ Source/Navigation/Planner/Implements/TrajectoryLocalPlanner/Algorithm \
 Source/Navigation/Planner/Implements/TrajectoryLocalPlanner \
 Source/Sensor/Lidar/Driver \
 Source/Sensor/Lidar \
+Source/Test \
 

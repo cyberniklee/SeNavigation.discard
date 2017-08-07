@@ -24,7 +24,9 @@
 
 #include "Simulator/SimulateController.h"
 
-#define USE_SIMULATOR
+#include "ExtendedKalmanFilter/Estimation.h"
+
+//#define USE_SIMULATOR
 
 namespace NS_Controller
 {
@@ -34,6 +36,11 @@ namespace NS_Controller
     double x;
     double y;
     double theta;
+    double linear_vel;
+    double angular_vel;
+    double roll;
+    double pitch;
+    double yaw;
   } PoseState;
   
   class ControllerApplication: public Application
@@ -47,8 +54,14 @@ namespace NS_Controller
 
     boost::mutex base_lock;
 
-    PoseState current_pose;
+    PoseState original_pose;
+
     NS_DataType::Odometry current_odometry;
+    NS_Transform::Transform current_odom_transform;
+
+    OdomEstimation estimation;
+
+
   private:
     std::string comm_dev_name_;
 
@@ -79,6 +92,8 @@ namespace NS_Controller
 
     int control_duration_;
 
+    bool use_ekf_;
+
 #ifdef USE_SIMULATOR
     SimulateController simulator;
 #endif
@@ -102,6 +117,15 @@ namespace NS_Controller
 
     bool
     checkDevice ();
+
+    PoseState
+    getBasePose ();
+
+    void
+    getPoseLoop (double frequency);
+
+    void
+    estimate ();
 
   public:
     virtual void

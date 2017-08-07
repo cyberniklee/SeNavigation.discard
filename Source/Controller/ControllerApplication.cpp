@@ -18,23 +18,213 @@
 #include <Time/Rate.h>
 #include <DataSet/DataType/PoseStamped.h>
 #include <Time/Utils.h>
+#include <Time/Time.h>
+
+
+
+/*
+
+*/
+
+/*
+imuMsg.orientation_covariance = [
+0.0025 , 0 , 0,
+0, 0.0025, 0,
+0, 0, 0.0025
+]
+
+# Angular velocity covariance estimation:
+# Observed gyro noise: 4 counts => 0.28 degrees/sec
+# nonlinearity spec: 0.2% of full scale => 8 degrees/sec = 0.14 rad/sec
+# Choosing the larger (0.14) as std dev, variance = 0.14^2 ~= 0.02
+imuMsg.angular_velocity_covariance = [
+0.02, 0 , 0,
+0 , 0.02, 0,
+0 , 0 , 0.02
+]
+
+# linear acceleration covariance estimation:
+# observed acceleration noise: 5 counts => 20milli-G's ~= 0.2m/s^2
+# nonliniarity spec: 0.5% of full scale => 0.2m/s^2
+# Choosing 0.2 as std dev, variance = 0.2^2 = 0.04
+imuMsg.linear_acceleration_covariance = [
+0.04 , 0 , 0,
+0 , 0.04, 0,
+0 , 0 , 0.04
+]
+ */
 
 namespace NS_Controller
 {
-  
+  static double
+  odom_pose_covariance_move[] = {
+      1e-3, 0, 0, 0, 0, 0,
+      0, 1e-3, 0, 0, 0, 0,
+      0, 0, 1e6, 0, 0, 0,
+      0, 0, 0, 1e6, 0, 0,
+      0, 0, 0, 0, 1e6, 0,
+      0, 0, 0, 0, 0, 1e3
+  };
+
+  static double
+  odom_pose_covariance_stop[] = {
+      1e-9, 0, 0, 0, 0, 0,
+      0, 1e-3, 1e-9, 0, 0, 0,
+      0, 0, 1e6, 0, 0, 0,
+      0, 0, 0, 1e6, 0, 0,
+      0, 0, 0, 0, 1e6, 0,
+      0, 0, 0, 0, 0, 1e-9
+  };
+
+  static double
+  odom_twist_covariance_move[] = {
+      1e-3, 0, 0, 0, 0, 0,
+      0, 1e-3, 0, 0, 0, 0,
+      0, 0, 1e6, 0, 0, 0,
+      0, 0, 0, 1e6, 0, 0,
+      0, 0, 0, 0, 1e6, 0,
+      0, 0, 0, 0, 0, 1e3
+  };
+
+  static double
+  odom_twist_covariance_stop[] = {
+      1e-9, 0, 0, 0, 0, 0,
+      0, 1e-3, 1e-9, 0, 0, 0,
+      0, 0, 1e6, 0, 0, 0,
+      0, 0, 0, 1e6, 0, 0,
+      0, 0, 0, 0, 1e6, 0,
+      0, 0, 0, 0, 0, 1e-9
+  };
+
+  static double
+  imu_orientation_covariance[] = {
+      0.0025 , 0 , 0,
+      0, 0.0025, 0,
+      0, 0, 0.0025
+  };
+
+  static double
+  imu_angular_velocity_covariance[] = {
+      0.02, 0 , 0,
+      0 , 0.02, 0,
+      0 , 0 , 0.02
+  };
+
+  static double
+  imu_linear_acceleration_covariance[] = {
+      0.04 , 0 , 0,
+      0 , 0.04, 0,
+      0 , 0 , 0.04
+  };
+
   ControllerApplication::ControllerApplication ()
   {
-    memset (&current_pose, 0, sizeof(current_pose));
+    memset (&original_pose, 0, sizeof(original_pose));
     memset (&current_odometry, 0, sizeof(current_odometry));
   }
   
   ControllerApplication::~ControllerApplication ()
   {
-    // TODO Auto-generated destructor stub
     if (comm)
       delete comm;
   }
   
+  void
+  ControllerApplication::getPoseLoop (double frequency)
+  {
+    NS_NaviCommon::Rate rate (frequency);
+
+    while (running)
+    {
+      original_pose = getBasePose ();
+      if (use_ekf_)
+      {
+        estimate ();
+      }
+      else
+      {
+        boost::mutex::scoped_lock locker_ (base_lock);
+
+        NS_Transform::Quaternion ori_trans;
+        NS_DataType::Quaternion ori_msg;
+
+        ori_msg.x = 0.0f;
+        ori_msg.y = 0.0f;
+        ori_msg.z = sin (original_pose.theta / 2.0f);
+        ori_msg.w = cos (original_pose.theta / 2.0f);
+
+        current_odometry.pose.position.x = original_pose.x;
+        current_odometry.pose.position.y = original_pose.y;
+        current_odometry.pose.orientation = ori_msg;
+
+        NS_Transform::quaternionMsgToTF(ori_msg, ori_trans);
+
+        current_odom_transform = NS_Transform::Transform(ori_trans, NS_Transform::Vector3(original_pose.x, original_pose.y, 0));
+      }
+      rate.sleep ();
+    }
+  }
+
+  void
+  ControllerApplication::estimate ()
+  {
+    NS_Transform::Quaternion qo;
+
+    NS_DataType::Quaternion q_msg;
+
+    q_msg.x = 0.0f;
+    q_msg.y = 0.0f;
+    q_msg.z = sin (original_pose.theta / 2.0f);
+    q_msg.w = cos (original_pose.theta / 2.0f);
+
+    NS_Transform::quaternionMsgToTF(q_msg, qo);
+
+    NS_Transform::Transform odom_measure;
+    odom_measure  = NS_Transform::Transform(qo, NS_Transform::Vector3(original_pose.x, original_pose.y, 0));
+
+    //add odom measure
+    MatrixWrapper::SymmetricMatrix odom_covar;
+    if (original_pose.linear_vel == 0 && original_pose.angular_vel == 0)
+    {
+      for (unsigned int i=0; i<6; i++)
+        for (unsigned int j=0; j<6; j++)
+          odom_covar(i+1, j+1) = odom_pose_covariance_stop[6*i+j];
+    }
+    else
+    {
+      for (unsigned int i=0; i<6; i++)
+        for (unsigned int j=0; j<6; j++)
+          odom_covar(i+1, j+1) = odom_pose_covariance_move[6*i+j];
+    }
+    estimation.addMeasurement ("odom", odom_measure, odom_covar);
+
+    NS_Transform::Quaternion qi;
+    NS_Transform::Transform imu_measure;
+    qi = NS_Transform::createQuaternionFromRPY (original_pose.roll, original_pose.pitch, original_pose.yaw);
+    imu_measure = NS_Transform::Transform(qi, NS_Transform::Vector3(0,0,0));
+
+    //add imu measure
+    MatrixWrapper::SymmetricMatrix imu_covar;
+    for (unsigned int i=0; i<3; i++)
+      for (unsigned int j=0; j<3; j++)
+        imu_covar(i+1, j+1) = imu_orientation_covariance[3*i+j];
+    estimation.addMeasurement ("imu", imu_measure, imu_covar);
+
+    NS_NaviCommon::Time filter_stamp = NS_NaviCommon::Time::now ();
+    if (estimation.update (filter_stamp))
+    {
+      NS_Transform::StampedTransform ekf_trans;
+
+      estimation.getEstimate (ekf_trans);
+
+      current_odom_transform = ekf_trans;
+
+      NS_Transform::poseTFToMsg(current_odom_transform, current_odometry.pose);
+
+      current_odom_transform.getOrigin().setZ(0.0);
+    }
+  }
+
   void
   ControllerApplication::odomService (NS_ServiceType::RequestBase* request,
                                       NS_ServiceType::ResponseBase* response)
@@ -46,12 +236,6 @@ namespace NS_Controller
     
     boost::mutex::scoped_lock locker_ (base_lock);
     
-    double x = comm->getFloat64Value (BASE_REG_ODOM_X);
-    double y = comm->getFloat64Value (BASE_REG_ODOM_Y);
-    double theta = comm->getFloat64Value (BASE_REG_ODOM_THETA);
-    double linear_vel = comm->getFloat64Value (BASE_REG_ODOM_LINEAR_VEL);
-    double angular_vel = comm->getFloat64Value (BASE_REG_ODOM_ANGULAR_VEL);
-    
 #ifdef USE_SIMULATOR
     x = simulator.getX ();
     y = simulator.getY ();
@@ -59,20 +243,30 @@ namespace NS_Controller
     linear_vel = simulator.getLinearVel ();
     angular_vel = simulator.getAngularVel ();
 #endif
-    
-    current_odometry.pose.position.x = x;
-    current_odometry.pose.position.y = y;
-    current_odometry.pose.orientation.x = 0.0f;
-    current_odometry.pose.orientation.y = 0.0f;
-    current_odometry.pose.orientation.z = sin (theta / 2.0);
-    current_odometry.pose.orientation.w = cos (theta / 2.0);
-    current_odometry.twist.linear.x = linear_vel;
-    current_odometry.twist.angular.z = angular_vel;
-    
+
+    current_odometry.twist.linear.x = original_pose.linear_vel;
+    current_odometry.twist.angular.z = original_pose.angular_vel;
+
     rep->odom = current_odometry;
     
   }
   
+  PoseState
+  ControllerApplication::getBasePose ()
+  {
+    PoseState p;
+
+    boost::mutex::scoped_lock locker_ (base_lock);
+
+    p.x = comm->getFloat64Value (BASE_REG_ODOM_X);
+    p.y = comm->getFloat64Value (BASE_REG_ODOM_Y);
+    p.theta = comm->getFloat64Value (BASE_REG_ODOM_THETA);
+    p.linear_vel = comm->getFloat64Value (BASE_REG_ODOM_LINEAR_VEL);
+    p.angular_vel = comm->getFloat64Value (BASE_REG_ODOM_ANGULAR_VEL);
+
+    return p;
+  }
+
   void
   ControllerApplication::odomTransformService (
       NS_ServiceType::RequestBase* request,
@@ -85,34 +279,13 @@ namespace NS_Controller
     
     boost::mutex::scoped_lock locker_ (base_lock);
     
-    current_pose.x = comm->getFloat64Value (BASE_REG_ODOM_X);
-    current_pose.y = comm->getFloat64Value (BASE_REG_ODOM_Y);
-    current_pose.theta = comm->getFloat64Value (BASE_REG_ODOM_THETA);
-    
 #ifdef USE_SIMULATOR
     current_pose.x = simulator.getX ();
     current_pose.y = simulator.getY ();
     current_pose.theta = simulator.getTheta ();
 #endif
-    
-    NS_NaviCommon::console.debug ("odometry pose: x:%f, y:%f, theta:%f.",
-                                  current_pose.x, current_pose.y, current_pose.theta);
 
-    rep->transform.translation.x = current_pose.x;
-    rep->transform.translation.y = current_pose.y;
-    rep->transform.translation.z = 0.0f;
-    
-    rep->transform.rotation.x = 0.0f;
-    rep->transform.rotation.y = 0.0f;
-    rep->transform.rotation.z = sin (current_pose.theta / 2.0);
-    rep->transform.rotation.w = cos (current_pose.theta / 2.0);
-    
-    /*
-     NS_NaviCommon::console.debug (
-     "odometry transform: x:%f, y:%f, rz:%f, rw:%f",
-     rep->transform.translation.x, rep->transform.translation.y,
-     rep->transform.rotation.z, rep->transform.rotation.w);
-     */
+    NS_Transform::transformTFToMsg (current_odom_transform, rep->transform);
   }
   
   void
@@ -165,6 +338,15 @@ namespace NS_Controller
     
     control_duration_ = parameter.getParameter ("control_duration", 100);
     control_timeout_ = parameter.getParameter ("control_timeout", 1000);
+
+    if (parameter.getParameter ("use_ekf", 1) == 1)
+    {
+      use_ekf_ = true;
+    }
+    else
+    {
+      use_ekf_ = false;
+    }
   }
   
   void
