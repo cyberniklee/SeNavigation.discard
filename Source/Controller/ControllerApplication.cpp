@@ -20,40 +20,6 @@
 #include <Time/Utils.h>
 #include <Time/Time.h>
 
-
-
-/*
-
-*/
-
-/*
-imuMsg.orientation_covariance = [
-0.0025 , 0 , 0,
-0, 0.0025, 0,
-0, 0, 0.0025
-]
-
-# Angular velocity covariance estimation:
-# Observed gyro noise: 4 counts => 0.28 degrees/sec
-# nonlinearity spec: 0.2% of full scale => 8 degrees/sec = 0.14 rad/sec
-# Choosing the larger (0.14) as std dev, variance = 0.14^2 ~= 0.02
-imuMsg.angular_velocity_covariance = [
-0.02, 0 , 0,
-0 , 0.02, 0,
-0 , 0 , 0.02
-]
-
-# linear acceleration covariance estimation:
-# observed acceleration noise: 5 counts => 20milli-G's ~= 0.2m/s^2
-# nonliniarity spec: 0.5% of full scale => 0.2m/s^2
-# Choosing 0.2 as std dev, variance = 0.2^2 = 0.04
-imuMsg.linear_acceleration_covariance = [
-0.04 , 0 , 0,
-0 , 0.04, 0,
-0 , 0 , 0.04
-]
- */
-
 namespace NS_Controller
 {
   static double
@@ -186,15 +152,15 @@ namespace NS_Controller
     MatrixWrapper::SymmetricMatrix odom_covar (6);
     if (original_pose.linear_vel == 0 && original_pose.angular_vel == 0)
     {
-      for (unsigned int i=0; i<6; i++)
-        for (unsigned int j=0; j<6; j++)
-          odom_covar(i+1, j+1) = odom_pose_covariance_stop[6*i+j];
+      for (unsigned int i = 0; i < 6; i++)
+        for (unsigned int j = 0; j < 6; j++)
+          odom_covar(i + 1, j + 1) = odom_pose_covariance_stop[(6 * i) + j];
     }
     else
     {
-      for (unsigned int i=0; i<6; i++)
-        for (unsigned int j=0; j<6; j++)
-          odom_covar(i+1, j+1) = odom_pose_covariance_move[6*i+j];
+      for (unsigned int i = 0; i < 6; i++)
+        for (unsigned int j = 0; j < 6; j++)
+          odom_covar(i + 1, j + 1) = odom_pose_covariance_move[(6 * i) + j];
     }
     estimation.addMeasurement ("odom", odom_measure, odom_covar);
 
@@ -205,9 +171,9 @@ namespace NS_Controller
 
     //add imu measure
     MatrixWrapper::SymmetricMatrix imu_covar (3);
-    for (unsigned int i=0; i<3; i++)
-      for (unsigned int j=0; j<3; j++)
-        imu_covar(i+1, j+1) = imu_orientation_covariance[3*i+j];
+    for (unsigned int i = 0; i < 3; i++)
+      for (unsigned int j = 0; j < 3; j++)
+        imu_covar(i + 1, j + 1) = imu_orientation_covariance[(3 * i) + j];
     estimation.addMeasurement ("imu", imu_measure, imu_covar);
 
     NS_NaviCommon::Time filter_stamp = NS_NaviCommon::Time::now ();
