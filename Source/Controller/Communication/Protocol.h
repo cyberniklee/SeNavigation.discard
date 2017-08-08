@@ -65,7 +65,11 @@ namespace NS_Controller
     BASE_REG_ODOM_LINEAR_VEL = 0xD8,
     BASE_REG_ODOM_ANGULAR_VEL = 0xE0,
     
-    BASE_REG_END = 0xE0,
+    BASE_REG_IMU_ROLL = 0xF0,
+    BASE_REG_IMU_PITCH = 0xF8,
+    BASE_REG_IMU_YAW = 0x100,
+
+    BASE_REG_END = 0x110,
   };
   
   typedef struct

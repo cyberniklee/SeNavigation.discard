@@ -235,6 +235,10 @@ namespace NS_Controller
     p.linear_vel = comm->getFloat64Value (BASE_REG_ODOM_LINEAR_VEL);
     p.angular_vel = comm->getFloat64Value (BASE_REG_ODOM_ANGULAR_VEL);
 
+    p.roll = comm->getFloat64Value (BASE_REG_IMU_ROLL);
+    p.pitch = comm->getFloat64Value (BASE_REG_IMU_PITCH);
+    p.yaw = comm->getFloat64Value (BASE_REG_IMU_YAW);
+
     return p;
   }
 
@@ -323,7 +327,6 @@ namespace NS_Controller
   void
   ControllerApplication::configController ()
   {
-    
     comm->setFloat64Value (BASE_REG_WHEEL_TRACK, wheel_track_);
     comm->setFloat64Value (BASE_REG_WHEEL_DIAMETER, wheel_diameter_);
     comm->setFloat64Value (BASE_REG_ENCODER_RESOLUTION, encoder_resolution_);

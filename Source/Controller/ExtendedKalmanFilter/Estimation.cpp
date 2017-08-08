@@ -121,8 +121,6 @@ namespace NS_Controller
           "Will not update robot pose with time %f sec in the past.", dt);
       return false;
     }
-    NS_NaviCommon::console.debug ("Update filter at time %f with dt %f",
-                                  filter_time.toSec (), dt);
     
     if (!initialized)
     {
@@ -150,9 +148,6 @@ namespace NS_Controller
     // update filter
     odom_meas_pdf_->AdditiveNoiseSigmaSet (odom_covariance_ * pow (dt, 2));
     
-    NS_NaviCommon::console.debug (
-        "Update filter with odom measurement %f %f %f %f %f %f", odom_rel (1),
-        odom_rel (2), odom_rel (3), odom_rel (4), odom_rel (5), odom_rel (6));
     filter_->Update (odom_meas_model_, odom_rel);
     
     odom_meas_old_ = odom_meas_;
