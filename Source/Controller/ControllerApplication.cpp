@@ -452,6 +452,9 @@ namespace NS_Controller
     NS_NaviCommon::console.message ("controller is running!");
     
     running = true;
+
+    get_pose_thread = boost::thread (
+        boost::bind (&ControllerApplication::getPoseLoop, this, control_duration_));
   }
   
   void
@@ -460,6 +463,8 @@ namespace NS_Controller
     NS_NaviCommon::console.message ("controller is quitting!");
     
     running = false;
+
+    get_pose_thread.join ();
   }
 
 } /* namespace NS_Controller */

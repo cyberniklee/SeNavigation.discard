@@ -54,6 +54,8 @@ namespace NS_Controller
 
     boost::mutex base_lock;
 
+    boost::thread get_pose_thread;
+
     PoseState original_pose;
 
     NS_DataType::Odometry current_odometry;

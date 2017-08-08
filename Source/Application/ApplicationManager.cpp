@@ -56,6 +56,7 @@ ApplicationManager::quitApplications ()
     (*it)->quit ();
   }
   running = false;
+  applications_pending_thread.join ();
 }
 
 bool
