@@ -30,6 +30,11 @@ namespace NS_Controller
     initialize (const NS_Transform::Transform& prior,
                 const NS_NaviCommon::Time& time);
 
+    bool isInitialized ()
+    {
+      return initialized;
+    }
+
     void
     getEstimate (MatrixWrapper::ColumnVector& estimate);
 
@@ -74,6 +79,8 @@ namespace NS_Controller
 
     NS_NaviCommon::Time filter_time_old_;
     
+    bool initialized;
+
   };
 // class
 

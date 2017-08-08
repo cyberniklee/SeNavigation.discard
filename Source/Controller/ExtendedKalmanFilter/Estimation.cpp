@@ -10,7 +10,7 @@ namespace NS_Controller
 {
   // constructor
   OdomEstimation::OdomEstimation ()
-      : prior_ (NULL), filter_ (NULL)
+      : prior_ (NULL), filter_ (NULL), initialized (false)
   {
     // create SYSTEM MODEL
     ColumnVector sysNoise_Mu (6);
@@ -103,6 +103,8 @@ namespace NS_Controller
     filter_estimate_old_ = prior;
     filter_time_old_ = time;
     
+    initialized = true;
+
   }
   
   // update filter
@@ -122,6 +124,11 @@ namespace NS_Controller
     NS_NaviCommon::console.debug ("Update filter at time %f with dt %f",
                                   filter_time.toSec (), dt);
     
+    if (!initialized)
+    {
+      return false;
+    }
+
     // system update filter
     // --------------------
     // for now only add system noise

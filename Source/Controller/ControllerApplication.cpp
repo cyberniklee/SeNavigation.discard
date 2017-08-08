@@ -183,7 +183,7 @@ namespace NS_Controller
     odom_measure  = NS_Transform::Transform(qo, NS_Transform::Vector3(original_pose.x, original_pose.y, 0));
 
     //add odom measure
-    MatrixWrapper::SymmetricMatrix odom_covar;
+    MatrixWrapper::SymmetricMatrix odom_covar (6);
     if (original_pose.linear_vel == 0 && original_pose.angular_vel == 0)
     {
       for (unsigned int i=0; i<6; i++)
@@ -204,7 +204,7 @@ namespace NS_Controller
     imu_measure = NS_Transform::Transform(qi, NS_Transform::Vector3(0,0,0));
 
     //add imu measure
-    MatrixWrapper::SymmetricMatrix imu_covar;
+    MatrixWrapper::SymmetricMatrix imu_covar (3);
     for (unsigned int i=0; i<3; i++)
       for (unsigned int j=0; j<3; j++)
         imu_covar(i+1, j+1) = imu_orientation_covariance[3*i+j];
@@ -222,6 +222,11 @@ namespace NS_Controller
       NS_Transform::poseTFToMsg(current_odom_transform, current_odometry.pose);
 
       current_odom_transform.getOrigin().setZ(0.0);
+    }
+
+    if (!estimation.isInitialized ())
+    {
+      estimation.initialize (odom_measure, NS_NaviCommon::Time::now ());
     }
   }
 
@@ -414,7 +419,7 @@ namespace NS_Controller
       NS_NaviCommon::console.error ("can't open base controller device!");
       return;
     }
-    
+    /*
 #ifndef USE_SIMULATOR
     if (!checkDevice ())
     {
@@ -422,7 +427,7 @@ namespace NS_Controller
       return;
     }
 #endif
-
+*/
     configController ();
     
 #ifdef USE_SIMULATOR
@@ -442,7 +447,7 @@ namespace NS_Controller
         NS_NaviCommon::SERVICE_TYPE_ODOMETRY_BASE_TRANSFORM,
         boost::bind (&ControllerApplication::odomTransformService, this, _1,
                      _2));
-    
+
     initialized = true;
   }
   

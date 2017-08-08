@@ -37,14 +37,6 @@ Application::globalInitialize ()
     NS_NaviCommon::console.warning ("Stdout stream has been disabled!");
   }
   
-  string redir_log = para.getParameter ("redirect_stdout_file", "");
-  if (redir_log != "")
-  {
-    NS_NaviCommon::console.warning ("Stdout stream has been redirected to %s!",
-                                        redir_log.c_str ());
-    NS_NaviCommon::redirectStdoutStream (redir_log);
-  }
-  
   if (para.getParameter ("debug", 1) == 1)
   {
     NS_NaviCommon::console.debugOn ();
