@@ -388,7 +388,7 @@ namespace NS_Controller
       NS_NaviCommon::console.error ("can't open base controller device!");
       return;
     }
-    /*
+
 #ifndef USE_SIMULATOR
     if (!checkDevice ())
     {
@@ -396,7 +396,7 @@ namespace NS_Controller
       return;
     }
 #endif
-*/
+
     configController ();
     
 #ifdef USE_SIMULATOR
