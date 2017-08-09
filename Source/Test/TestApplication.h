@@ -46,9 +46,6 @@ namespace NS_Test
 
   private:
     void
-    saveMapInPGM (NS_DataType::OccupancyGrid& map, std::string map_file);
-
-    void
     mapGenerateLoop (double frequency);
   };
 }
