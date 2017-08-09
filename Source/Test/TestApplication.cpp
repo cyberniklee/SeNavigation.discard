@@ -48,6 +48,11 @@ namespace NS_Test
 
       if (map_resp.result)
       {
+        ////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////   test    ////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////
+        NS_NaviCommon::MapGenerator::addRobotPoseInMap (map_resp.map.data, map_resp.map.info.height, map_resp.map.info.width, 10, 10);
+
         NS_NaviCommon::MapGenerator::saveMapInPGM (map_resp.map.data, map_resp.map.info.height, map_resp.map.info.width, map_file_);
         file_no++;
         NS_NaviCommon::console.message ("Save map file No: %d!", file_no);
