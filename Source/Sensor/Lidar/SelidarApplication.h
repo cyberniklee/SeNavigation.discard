@@ -30,8 +30,6 @@ namespace NS_Selidar
     std::string serial_port;
     int serial_baudrate;
     std::string frame_id;
-    bool inverted;
-    bool angle_compensate;
     int scan_timeout;
 
     SelidarDriver drv;

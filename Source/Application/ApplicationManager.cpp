@@ -31,14 +31,12 @@ ApplicationManager::applicationsPending ()
 
 ApplicationManager::ApplicationManager ()
 {
-  // TODO Auto-generated constructor stub
   instance = this;
   running = false;
 }
 
 ApplicationManager::~ApplicationManager ()
 {
-  // TODO Auto-generated destructor stub
 }
 
 void

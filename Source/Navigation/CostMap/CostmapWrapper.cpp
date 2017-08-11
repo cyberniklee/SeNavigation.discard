@@ -276,14 +276,12 @@ namespace NS_CostMap
       layered_costmap->addPlugin (layer);
     }
 
-    /*
     if (layered_costmap)
     {
       InflationLayer* inflation_layer = new InflationLayer ();
       boost::shared_ptr<Layer> layer (inflation_layer);
       layered_costmap->addPlugin (layer);
     }
-    */
 
     std::vector <boost::shared_ptr<Layer> > *layers = layered_costmap->getPlugins();
     for (std::vector <boost::shared_ptr<Layer> >::iterator layer = layers->begin(); layer != layers->end (); ++layer)

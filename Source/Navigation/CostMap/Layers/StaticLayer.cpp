@@ -72,6 +72,7 @@ namespace NS_CostMap
     x_ = y_ = 0;
     width_ = height_ = 0;
     
+    enabled_ = true;
   }
   
   void

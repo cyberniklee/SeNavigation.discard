@@ -31,13 +31,10 @@ namespace NS_Planner
   
   GlobalPlanner::GlobalPlanner ()
   {
-    // TODO Auto-generated constructor stub
-    
   }
   
   GlobalPlanner::~GlobalPlanner ()
   {
-    // TODO Auto-generated destructor stub
   }
   
   /*

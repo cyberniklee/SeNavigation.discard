@@ -384,8 +384,8 @@ namespace NS_GMapping
         || map.info.height != (unsigned int) smap.getMapSizeY ())
     {
       Point wmin = smap.map2world (IntPoint (0, 0));
-      Point wmax = smap.map2world (
-          IntPoint (smap.getMapSizeX (), smap.getMapSizeY ()));
+      Point wmax = smap.map2world (IntPoint (smap.getMapSizeX (), smap.getMapSizeY ()));
+
       xmin_ = wmin.x;
       ymin_ = wmin.y;
       xmax_ = wmax.x;
@@ -393,9 +393,8 @@ namespace NS_GMapping
       
       NS_NaviCommon::console.message ("Map size update!current is %d x %d.",
                                       smap.getMapSizeX (), smap.getMapSizeY ());
-      NS_NaviCommon::console.message (
-          "Map position is from (%f, %f) to (%f, %f)", xmin_, ymin_, xmax_,
-          ymax_);
+      NS_NaviCommon::console.message ("Map position is from (%f, %f) to (%f, %f)",
+                                      xmin_, ymin_, xmax_, ymax_);
       
       map.info.width = smap.getMapSizeX ();
       map.info.height = smap.getMapSizeY ();

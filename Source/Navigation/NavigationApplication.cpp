@@ -20,13 +20,11 @@ namespace NS_Navigation
   
   NavigationApplication::NavigationApplication ()
   {
-    // TODO Auto-generated constructor stub
     new_goal_trigger = false;
   }
   
   NavigationApplication::~NavigationApplication ()
   {
-    // TODO Auto-generated destructor stub
   }
   
   void
@@ -262,7 +260,7 @@ namespace NS_Navigation
     NS_Transform::transformMsgToTF (odom_transform.transform, odom_tf);
     NS_Transform::transformMsgToTF (map_transform.transform, map_tf);
     
-    global_pose.setData (odom_tf * map_tf);
+    global_pose.setData (odom_tf * map_tf * goal_pose);
     
     NS_DataType::PoseStamped global_pose_data;
     NS_Transform::poseStampedTFToMsg (global_pose, global_pose_data);
@@ -428,7 +426,7 @@ namespace NS_Navigation
         boost::bind (&NavigationApplication::controlLoop, this));
     
     global_costmap->start ();
-    local_costmap->start();
+    local_costmap->start ();
   }
   
   void

@@ -24,7 +24,6 @@ namespace NS_Test
   
   TestApplication::~TestApplication ()
   {
-    // TODO
   }
   
   void
@@ -32,7 +31,7 @@ namespace NS_Test
   {
     parameter.loadConfigurationFile ("test.xml");
     map_file_ = parameter.getParameter ("map_file", "/tmp/gmap.pgm");
-    map_gen_freq_ = parameter.getParameter ("map_gen_freq", 1.0f);
+    map_gen_freq_ = parameter.getParameter ("map_gen_freq", 0.2f);
   }
   
   void

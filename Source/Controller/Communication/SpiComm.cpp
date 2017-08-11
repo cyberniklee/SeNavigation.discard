@@ -19,14 +19,12 @@ namespace NS_Controller
   
   SpiComm::SpiComm (std::string device_name)
   {
-    // TODO Auto-generated constructor stub
     dev_name = device_name;
     is_open = false;
   }
   
   SpiComm::~SpiComm ()
   {
-    // TODO Auto-generated destructor stub
   }
   
   bool

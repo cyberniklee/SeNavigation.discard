@@ -24,8 +24,6 @@ namespace NS_Selidar
   SelidarApplication::SelidarApplication ()
   {
     serial_baudrate = 115200;
-    inverted = false;
-    angle_compensate = true;
     frame_id = "laser_frame";
     scan_count = 0;
     scan_timeout = 3;
@@ -40,11 +38,9 @@ namespace NS_Selidar
   SelidarApplication::loadParameters ()
   {
     parameter.loadConfigurationFile ("selidar.xml");
-    serial_port = parameter.getParameter ("serial_port", "/dev/ttyUSB1");
+    serial_port = parameter.getParameter ("serial_port", "/dev/ttyUSB0");
     serial_baudrate = parameter.getParameter ("serial_baudrate", 115200);
     frame_id = parameter.getParameter ("frame_id", "laser_frame");
-    inverted = parameter.getParameter ("inverted", false);
-    angle_compensate = parameter.getParameter ("angle_compensate", true);
   }
   
 #ifdef DUPLEX_MODE
@@ -148,18 +144,10 @@ namespace NS_Selidar
       got_first_scan_cond.notify_one ();
     }
     scan_count_lock.unlock ();
-    
-    bool reversed = (angle_max > angle_min);
-    if (reversed)
-    {
-      scan_msg->angle_min = M_PI - angle_max;
-      scan_msg->angle_max = M_PI - angle_min;
-    }
-    else
-    {
-      scan_msg->angle_min = M_PI - angle_min;
-      scan_msg->angle_max = M_PI - angle_max;
-    }
+
+    scan_msg->angle_min = angle_min;
+    scan_msg->angle_max = angle_max;
+
     scan_msg->angle_increment = (scan_msg->angle_max - scan_msg->angle_min)
         / (double) (node_count - 1);
     
@@ -170,27 +158,13 @@ namespace NS_Selidar
     
     scan_msg->intensities.resize (node_count);
     scan_msg->ranges.resize (node_count);
-    bool reverse_data = (!inverted && reversed) || (inverted && !reversed);
-    if (!reverse_data)
+
+    for (size_t i = 0; i < node_count; i++)
     {
-      for (size_t i = 0; i < node_count; i++)
-      {
-        float read_value = (float) nodes[i].distance_scale_1000 / 1000.0f;
-        if (read_value == 0.0)
-          scan_msg->ranges[i] = std::numeric_limits<float>::infinity ();
-        else scan_msg->ranges[i] = read_value;
-      }
-    }
-    else
-    {
-      for (size_t i = 0; i < node_count; i++)
-      {
-        float read_value = (float) nodes[i].distance_scale_1000 / 1000.0f;
-        if (read_value == 0.0)
-          scan_msg->ranges[node_count - 1 - i] =
-              std::numeric_limits<float>::infinity ();
-        else scan_msg->ranges[node_count - 1 - i] = read_value;
-      }
+      float read_value = (float) nodes[i].distance_scale_1000 / 1000.0f;
+      if (read_value == 0.0)
+        scan_msg->ranges[i] = std::numeric_limits<float>::infinity ();
+      else scan_msg->ranges[i] = read_value;
     }
     
     dispitcher->publish (NS_NaviCommon::DATA_TYPE_LASER_SCAN, scan_msg);
@@ -217,46 +191,29 @@ namespace NS_Selidar
         float angle_min = DEG2RAD(0.0f);
         float angle_max = DEG2RAD(359.0f);
         
-        if (angle_compensate)
+        const int angle_compensate_nodes_count = 360;
+        const int angle_compensate_multiple = 1;
+        int angle_compensate_offset = 0;
+        SelidarMeasurementNode angle_compensate_nodes[angle_compensate_nodes_count];
+        memset (angle_compensate_nodes, 0, angle_compensate_nodes_count * sizeof(SelidarMeasurementNode));
+
+        for (int i = 0; i < count; i++)
         {
-          const int angle_compensate_nodes_count = 360;
-          const int angle_compensate_multiple = 1;
-          int angle_compensate_offset = 0;
-          SelidarMeasurementNode angle_compensate_nodes[angle_compensate_nodes_count];
-          memset (
-              angle_compensate_nodes, 0,
-              angle_compensate_nodes_count * sizeof(SelidarMeasurementNode));
-          int i = 0, j = 0;
-          for (; i < count; i++)
+          if (nodes[i].distance_scale_1000 != 0)
           {
-            if (nodes[i].distance_scale_1000 != 0)
+            float angle = (float) (nodes[i].angle_scale_100) / 100.0f;
+            int angle_value = (int) (angle * angle_compensate_multiple);
+            if ((angle_value - angle_compensate_offset) < 0)
+              angle_compensate_offset = angle_value;
+
+            for (int j = 0; j < angle_compensate_multiple; j++)
             {
-              float angle = (float) (nodes[i].angle_scale_100) / 100.0f;
-              int angle_value = (int) (angle * angle_compensate_multiple);
-              if ((angle_value - angle_compensate_offset) < 0)
-                angle_compensate_offset = angle_value;
-              
-              for (j = 0; j < angle_compensate_multiple; j++)
-              {
-                angle_compensate_nodes[angle_value - angle_compensate_offset + j] =
-                    nodes[i];
-              }
-              
+              angle_compensate_nodes[angle_value - angle_compensate_offset + j] = nodes[i];
             }
-            
           }
-          publishScan (angle_compensate_nodes, angle_compensate_nodes_count,
-                       start_scan_time, scan_duration, angle_min, angle_max);
         }
-        else
-        {
-          angle_min = DEG2RAD((float )(nodes[0].angle_scale_100) / 100.0f);
-          angle_max = DEG2RAD(
-              (float )(nodes[count - 1].angle_scale_100) / 100.0f);
-          
-          publishScan (nodes, count, start_scan_time, scan_duration, angle_min,
-                       angle_max);
-        }
+        publishScan (angle_compensate_nodes, angle_compensate_nodes_count,
+                     start_scan_time, scan_duration, angle_min, angle_max);
         
       }
     }

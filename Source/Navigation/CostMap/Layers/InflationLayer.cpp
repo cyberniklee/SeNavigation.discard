@@ -44,7 +44,17 @@ namespace NS_CostMap
       enabled_ = true;
     }
     
+    NS_NaviCommon::Parameter parameter;
+
+    parameter.loadConfigurationFile ("inflation_layer.xml");
+
+    double inflation_radius_ = parameter.getParameter ("inflation_radius", 0.55f);
+
+    double cost_scaling_factor_ = parameter.getParameter ("cost_scaling_factor", 10.0f);
+
     matchSize ();
+
+    setInflationParameters (inflation_radius_, cost_scaling_factor_);
   }
   
   void

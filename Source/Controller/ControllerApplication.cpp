@@ -391,6 +391,7 @@ namespace NS_Controller
       return;
     }
 
+    /*
 #ifndef USE_SIMULATOR
     if (!checkDevice ())
     {
@@ -398,6 +399,7 @@ namespace NS_Controller
       return;
     }
 #endif
+     */
 
     configController ();
     

@@ -5,13 +5,10 @@ namespace NS_Planner
   
   FootprintHelper::FootprintHelper ()
   {
-    // TODO Auto-generated constructor stub
-    
   }
   
   FootprintHelper::~FootprintHelper ()
   {
-    // TODO Auto-generated destructor stub
   }
   
   void
