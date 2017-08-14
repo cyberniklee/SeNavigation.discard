@@ -4,20 +4,20 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../Source/Navigation/CostMap/CostmapWrapper.cpp 
+../Source/Mapping/Hector/Utils/PoseInfoContainer.cpp 
 
 OBJS += \
-./Source/Navigation/CostMap/CostmapWrapper.o 
+./Source/Mapping/Hector/Utils/PoseInfoContainer.o 
 
 CPP_DEPS += \
-./Source/Navigation/CostMap/CostmapWrapper.d 
+./Source/Mapping/Hector/Utils/PoseInfoContainer.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
-Source/Navigation/CostMap/%.o: ../Source/Navigation/CostMap/%.cpp
+Source/Mapping/Hector/Utils/%.o: ../Source/Mapping/Hector/Utils/%.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: Cross G++ Compiler'
-	g++ -I$(SENAVICOMMON_PATH)/Source -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
+	arm-openwrt-linux-muslgnueabi-g++ -I$(SENAVICOMMON_PATH)/Source -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

@@ -14,6 +14,7 @@
 #include <boost/bind.hpp>
 #include "../Sensor/Lidar/SelidarApplication.h"
 #include "../Mapping/GMapping/GMappingApplication.h"
+#include "../Mapping/Hector/HectorMappingApplication.h"
 #include "../Controller/ControllerApplication.h"
 #include "../Navigation/NavigationApplication.h"
 #include "../Communication/CommunicatorApplication.h"
@@ -25,6 +26,7 @@ using namespace NS_Selidar;
 using namespace NS_Navigation;
 using namespace NS_Communication;
 using namespace NS_Test;
+using namespace NS_HectorMapping;
 
 class ApplicationManager
 {
@@ -53,8 +55,13 @@ private:
     SelidarApplication* selidar = new SelidarApplication;
     applications.push_back (selidar);
 
+    /*
     GMappingApplication* gmapping = new GMappingApplication;
     applications.push_back (gmapping);
+    */
+
+    HectorMappingApplication* hector = new HectorMappingApplication;
+    applications.push_back (hector);
     
     ControllerApplication* controller = new ControllerApplication;
     applications.push_back (controller);

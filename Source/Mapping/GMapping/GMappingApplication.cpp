@@ -61,14 +61,14 @@ namespace NS_GMapping
     NS_DataType::LaserScan* laser = (NS_DataType::LaserScan*) laser_data;
     laser_count++;
 ///////////////////////////////////////////////////////////////////////////
-    /*
+/*
      for(int i = 0; i < laser->ranges.size(); i++)
      {
      float degree = RAD2DEG(laser->angle_min + laser->angle_increment * i);
      NS_NaviCommon::console.debug("--->   angle: %f, range: %f", degree, laser->ranges[i]);
      }
      return;
-     */
+*/
 ////////////////////////////////////////////////////////////////////////////
     if (throttle_scans_ != 0)
     {

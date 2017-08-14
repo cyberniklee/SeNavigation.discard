@@ -118,12 +118,12 @@ namespace NS_CostMap
     cell_inflation_radius_ = cellDistance (inflation_radius_);
     computeCaches ();
     need_reinflation_ = true;
-    
+    /*
     NS_NaviCommon::console.debug (
-        "InflationLayer::onFootprintChanged(): num footprint points: %lu,"
-        " inscribed_radius_ = %.3f, inflation_radius_ = %.3f",
+        "InflationLayer::onFootprintChanged(): footprint points: %lu, inscribed_radius_ = %.3f, inflation_radius_ = %.3f",
         layered_costmap_->getFootprint ().size (), inscribed_radius_,
         inflation_radius_);
+        */
   }
   
   void

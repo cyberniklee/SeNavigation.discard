@@ -38,6 +38,8 @@ Source/Mapping/GMapping/Sensor/SensorBase \
 Source/Mapping/GMapping/Sensor/SensorOdometry \
 Source/Mapping/GMapping/Sensor/SensorRange \
 Source/Mapping/GMapping/Utils \
+Source/Mapping/Hector \
+Source/Mapping/Hector/Utils \
 Source/Navigation/CostMap/CostMap2D \
 Source/Navigation/CostMap \
 Source/Navigation/CostMap/Layers \

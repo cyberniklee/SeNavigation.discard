@@ -22,6 +22,8 @@ RM := rm -rf
 -include Source/Navigation/CostMap/CostMap2D/subdir.mk
 -include Source/Navigation/CostMap/subdir.mk
 -include Source/Navigation/subdir.mk
+-include Source/Mapping/Hector/Utils/subdir.mk
+-include Source/Mapping/Hector/subdir.mk
 -include Source/Mapping/GMapping/Utils/subdir.mk
 -include Source/Mapping/GMapping/Sensor/SensorRange/subdir.mk
 -include Source/Mapping/GMapping/Sensor/SensorOdometry/subdir.mk
