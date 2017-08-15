@@ -49,8 +49,10 @@ namespace NS_HectorMapping
      */
 ////////////////////////////////////////////////////////////////////////////
     
-    /*
     NS_Transform::StampedTransform laserTransform;
+
+    laserTransform.setIdentity ();
+
     std::vector<NS_DataType::Point32> laser_points;
     
     projectLaser (*laser, laser_points, 6.0f, false);
@@ -68,18 +70,21 @@ namespace NS_HectorMapping
     poseInfoContainer_.update (slamProcessor->getLastScanMatchPose (),
                                slamProcessor->getLastScanMatchCovariance (),
                                laser->header.stamp, "map");
-    
-    NS_NaviCommon::console.debug (
-        "Pose update : %f, %f...",
-        poseInfoContainer_.getPoseStamped ().pose.position.x,
-        poseInfoContainer_.getPoseStamped ().pose.position.y);
 
-        */
+    /*
     if (laserScanToDataContainer(*laser, laserScanContainer, slamProcessor->getScaleToMap()))
     {
       slamProcessor->update(laserScanContainer,slamProcessor->getLastScanMatchPose());
     }
-    
+    */
+
+    /*
+    NS_NaviCommon::console.debug (
+          "Pose update : %f, %f...",
+          poseInfoContainer_.getPoseStamped ().pose.position.x,
+          poseInfoContainer_.getPoseStamped ().pose.position.y);
+          */
+
     /*
      * process map->odom transform
      */
@@ -151,38 +156,6 @@ namespace NS_HectorMapping
     
     map.header.frame_id = "map";
     map.data.resize (map.info.width * map.info.height);
-  }
-  
-  bool
-  HectorMappingApplication::laserScanToDataContainer (
-      const NS_DataType::LaserScan& scan, DataContainer& dataContainer,
-      float scaleToMap)
-  {
-    size_t size = scan.ranges.size ();
-    
-    float angle = scan.angle_min;
-    
-    dataContainer.clear ();
-    
-    dataContainer.setOrigo (Eigen::Vector2f::Zero ());
-    
-    float maxRangeForContainer = scan.range_max - 0.1f;
-    
-    for (size_t i = 0; i < size; ++i)
-    {
-      float dist = scan.ranges[i];
-      
-      if ((dist > scan.range_min) && (dist < maxRangeForContainer))
-      {
-        dist *= scaleToMap;
-        dataContainer.add (
-            Eigen::Vector2f (cos (angle) * dist, sin (angle) * dist));
-      }
-      
-      angle += scan.angle_increment;
-    }
-    
-    return true;
   }
   
   const boost::numeric::ublas::matrix<double>&
@@ -278,14 +251,13 @@ namespace NS_HectorMapping
     dataContainer.clear ();
     
     NS_Transform::Vector3 laserPos (laserTransform.getOrigin ());
-    dataContainer.setOrigo (
-        Eigen::Vector2f (laserPos.x (), laserPos.y ()) * scaleToMap);
+    dataContainer.setOrigo (Eigen::Vector2f (laserPos.x (), laserPos.y ()) * scaleToMap);
     
     for (size_t i = 0; i < size; ++i)
     {
       
       const NS_DataType::Point32& currPoint (points[i]);
-      
+
       float dist_sqr = currPoint.x * currPoint.x + currPoint.y * currPoint.y;
       
       if ((dist_sqr > sqr_laser_min_dist_) && (dist_sqr < sqr_laser_max_dist_))
@@ -296,9 +268,9 @@ namespace NS_HectorMapping
           continue;
         }
         
+
         NS_Transform::Vector3 pointPosBaseFrame (
-            laserTransform
-                * NS_Transform::Vector3 (currPoint.x, currPoint.y,
+            laserTransform * NS_Transform::Vector3 (currPoint.x, currPoint.y,
                                          currPoint.z));
         
         float pointPosLaserFrameZ = pointPosBaseFrame.z () - laserPos.z ();
@@ -309,6 +281,7 @@ namespace NS_HectorMapping
           dataContainer.add (
               Eigen::Vector2f (pointPosBaseFrame.x (), pointPosBaseFrame.y ())
                   * scaleToMap);
+
         }
       }
     }
@@ -316,6 +289,38 @@ namespace NS_HectorMapping
     return true;
   }
   
+  bool
+  HectorMappingApplication::laserScanToDataContainer (
+      const NS_DataType::LaserScan& scan, DataContainer& dataContainer,
+      float scaleToMap)
+  {
+    size_t size = scan.ranges.size ();
+
+    float angle = scan.angle_min;
+
+    dataContainer.clear ();
+
+    dataContainer.setOrigo (Eigen::Vector2f::Zero ());
+
+    float maxRangeForContainer = scan.range_max - 0.1f;
+
+    for (size_t i = 0; i < size; ++i)
+    {
+      float dist = scan.ranges[i];
+
+      if ((dist > scan.range_min) && (dist < maxRangeForContainer))
+      {
+        dist *= scaleToMap;
+        dataContainer.add (
+            Eigen::Vector2f (cos (angle) * dist, sin (angle) * dist));
+      }
+
+      angle += scan.angle_increment;
+    }
+
+    return true;
+  }
+
   void
   HectorMappingApplication::updateMap (NS_DataType::OccupancyGrid& map,
                                        const NS_HectorMapping::GridMap& gridMap,

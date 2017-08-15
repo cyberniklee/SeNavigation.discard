@@ -6,8 +6,8 @@
 #include "../Matcher/ScanMatcher.h"
 #include "../Slam/MapRepresentationInterface.h"
 
-#include "../util/DrawInterface.h"
-#include "../util/HectorDebugInfoInterface.h"
+#include "../Utils/DrawInterface.h"
+#include "../Utils/HectorDebugInfoInterface.h"
 
 namespace NS_HectorMapping
 {
