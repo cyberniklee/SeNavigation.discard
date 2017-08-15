@@ -397,7 +397,7 @@ namespace NS_HectorMapping
     map_size_ = parameter.getParameter ("map_size", 1024);
     map_start_x_ = parameter.getParameter ("map_start_x", 0.5f);
     map_start_y_ = parameter.getParameter ("map_start_y", 0.5f);
-    map_multi_res_levels_ = parameter.getParameter ("map_multi_res_levels", 3);
+    map_multi_res_levels_ = parameter.getParameter ("map_multi_res_levels", 1);
     update_factor_free_ = parameter.getParameter ("update_factor_free", 0.4f);
     update_factor_occupied_ = parameter.getParameter ("update_factor_occupied",
                                                       0.9f);
@@ -460,6 +460,10 @@ namespace NS_HectorMapping
         NS_NaviCommon::SERVICE_TYPE_MAP,
         boost::bind (&HectorMappingApplication::mapService, this, _1, _2));
     
+    service->advertise (
+        NS_NaviCommon::SERVICE_TYPE_MAP_ODOMETRY_TRANSFORM,
+        boost::bind (&HectorMappingApplication::mapTransformService, this, _1, _2));
+
     initialized = true;
   }
   

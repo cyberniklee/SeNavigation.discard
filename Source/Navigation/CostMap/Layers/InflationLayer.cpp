@@ -138,8 +138,8 @@ namespace NS_CostMap
     assert(inflation_queue_.empty ());
     
     unsigned char* master_array = master_grid.getCharMap ();
-    unsigned int size_x = master_grid.getSizeInCellsX (), size_y =
-        master_grid.getSizeInCellsY ();
+    unsigned int size_x = master_grid.getSizeInCellsX ();
+    unsigned int size_y = master_grid.getSizeInCellsY ();
     
     if (seen_ == NULL)
     {

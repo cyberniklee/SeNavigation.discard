@@ -14,6 +14,8 @@
 #include <Service/ServiceType/ResponseTransform.h>
 #include <DataSet/Dispitcher.h>
 #include <DataSet/DataType/Twist.h>
+#include <Service/ServiceType/RequestMap.h>
+#include <Service/ServiceType/ResponseMap.h>
 
 namespace NS_Navigation
 {
@@ -361,7 +363,6 @@ namespace NS_Navigation
     //set up plan triple buffer
     global_planner_plan = new std::vector<NS_DataType::PoseStamped> ();
     latest_plan = new std::vector<NS_DataType::PoseStamped> ();
-    
 
     /*
      * make global planner and global costmap
@@ -417,6 +418,19 @@ namespace NS_Navigation
   void
   NavigationApplication::run ()
   {
+    for (int i = 0; i < 10; i++)
+    {
+      NS_ServiceType::RequestMap req;
+      NS_ServiceType::ResponseMap rep;
+      if (service->call (NS_NaviCommon::SERVICE_TYPE_MAP, &req, &rep))
+      {
+        if (rep.result)
+        {
+          break;
+        }
+      }
+    }
+
     running = true;
 
     plan_thread = boost::thread (

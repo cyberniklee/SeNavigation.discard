@@ -194,11 +194,13 @@ namespace NS_HectorMapping
           {
             searchDir[2] = 0.2f;
             std::cout << "SearchDir angle change too large\n";
+            return false;
           }
           else if (searchDir[2] < -0.2f)
           {
             searchDir[2] = -0.2f;
             std::cout << "SearchDir angle change too large\n";
+            return false;
           }
           
           updateEstimatedPose (estimate, searchDir);

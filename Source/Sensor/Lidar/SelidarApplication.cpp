@@ -27,6 +27,7 @@ namespace NS_Selidar
     frame_id = "laser_frame";
     scan_count = 0;
     scan_timeout = 3;
+    inverted = false;
   }
   
   SelidarApplication::~SelidarApplication ()
@@ -41,6 +42,15 @@ namespace NS_Selidar
     serial_port = parameter.getParameter ("serial_port", "/dev/ttyUSB0");
     serial_baudrate = parameter.getParameter ("serial_baudrate", 115200);
     frame_id = parameter.getParameter ("frame_id", "laser_frame");
+
+    if (parameter.getParameter ("inverted", 0) == 1)
+    {
+      inverted = true;
+    }
+    else
+    {
+      inverted = false;
+    }
   }
   
 #ifdef DUPLEX_MODE
@@ -145,8 +155,16 @@ namespace NS_Selidar
     }
     scan_count_lock.unlock ();
 
-    scan_msg->angle_min =  M_PI - angle_max;
-    scan_msg->angle_max =  M_PI - angle_min;
+    bool reversed = (angle_max > angle_min);
+    if (reversed)
+    {
+      scan_msg->angle_min =  M_PI - angle_max;
+      scan_msg->angle_max =  M_PI - angle_min;
+    } else {
+      scan_msg->angle_min =  M_PI - angle_min;
+      scan_msg->angle_max =  M_PI - angle_max;
+    }
+
 
     scan_msg->angle_increment = (scan_msg->angle_max - scan_msg->angle_min)
         / (double) (node_count - 1);
@@ -154,17 +172,34 @@ namespace NS_Selidar
     scan_msg->scan_time = scan_time;
     scan_msg->time_increment = scan_time / (double) (node_count - 1);
     scan_msg->range_min = 0.15f;
-    scan_msg->range_max = 6.0f;
+    scan_msg->range_max = 8.0f;
     
     scan_msg->intensities.resize (node_count);
     scan_msg->ranges.resize (node_count);
 
-    for (size_t i = 0; i < node_count; i++)
+    bool reverse_data = (!inverted && reversed) || (inverted && !reversed);
+
+    if (!reverse_data)
     {
-      float read_value = (float) nodes[i].distance_scale_1000 / 1000.0f;
-      if (read_value == 0.0)
-        scan_msg->ranges[i] = std::numeric_limits<float>::infinity ();
-      else scan_msg->ranges[i] = read_value;
+      for (size_t i = 0; i < node_count; i++)
+      {
+        float read_value = (float) nodes[i].distance_scale_1000 / 1000.0f;
+        if (read_value == 0.0)
+          scan_msg->ranges[i] = std::numeric_limits<float>::infinity();
+        else
+          scan_msg->ranges[i] = read_value;
+      }
+    }
+    else
+    {
+      for (size_t i = 0; i < node_count; i++)
+      {
+        float read_value = (float) nodes[i].distance_scale_1000 / 1000.0f;
+        if (read_value == 0.0)
+          scan_msg->ranges[node_count-1-i] = std::numeric_limits<float>::infinity();
+        else
+          scan_msg->ranges[node_count-1-i] = read_value;
+      }
     }
     
     dispitcher->publish (NS_NaviCommon::DATA_TYPE_LASER_SCAN, scan_msg);
@@ -197,7 +232,8 @@ namespace NS_Selidar
         SelidarMeasurementNode angle_compensate_nodes[angle_compensate_nodes_count];
         memset (angle_compensate_nodes, 0, angle_compensate_nodes_count * sizeof(SelidarMeasurementNode));
 
-        for (int i = 0; i < count; i++)
+        int i, j;
+        for (i = 0; i < count; i++)
         {
           if (nodes[i].distance_scale_1000 != 0)
           {
@@ -206,7 +242,7 @@ namespace NS_Selidar
             if ((angle_value - angle_compensate_offset) < 0)
               angle_compensate_offset = angle_value;
 
-            for (int j = 0; j < angle_compensate_multiple; j++)
+            for (j = 0; j < angle_compensate_multiple; j++)
             {
               angle_compensate_nodes[angle_value - angle_compensate_offset + j] = nodes[i];
             }

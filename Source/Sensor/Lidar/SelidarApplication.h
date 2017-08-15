@@ -31,6 +31,7 @@ namespace NS_Selidar
     int serial_baudrate;
     std::string frame_id;
     int scan_timeout;
+    bool inverted;
 
     SelidarDriver drv;
     boost::thread scan_thread;

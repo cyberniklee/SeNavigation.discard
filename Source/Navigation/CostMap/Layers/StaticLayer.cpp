@@ -32,8 +32,14 @@ namespace NS_CostMap
     {
       NS_ServiceType::RequestMap req;
       NS_ServiceType::ResponseMap rep;
-      service_->call (NS_NaviCommon::SERVICE_TYPE_MAP, &req, &rep);
-      processMap (rep.map);
+      if (service_->call (NS_NaviCommon::SERVICE_TYPE_MAP, &req, &rep))
+      {
+        if (rep.result)
+        {
+          processMap (rep.map);
+        }
+      }
+
       
       rate.sleep ();
     }

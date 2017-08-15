@@ -561,6 +561,10 @@ namespace NS_GMapping
         NS_NaviCommon::SERVICE_TYPE_MAP,
         boost::bind (&GMappingApplication::mapService, this, _1, _2));
     
+    service->advertise (
+        NS_NaviCommon::SERVICE_TYPE_MAP_ODOMETRY_TRANSFORM,
+        boost::bind (&GMappingApplication::mapTransformService, this, _1, _2));
+
     initialized = true;
   }
   
