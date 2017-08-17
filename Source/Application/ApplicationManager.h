@@ -57,8 +57,7 @@ private:
 /*
     GMappingApplication* gmapping = new GMappingApplication;
     applications.push_back (gmapping);
-    */
-
+*/
     HectorMappingApplication* hector = new HectorMappingApplication;
     applications.push_back (hector);
 

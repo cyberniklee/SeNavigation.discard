@@ -47,6 +47,9 @@ namespace NS_Test
   private:
     void
     mapGenerateLoop (double frequency);
+
+    bool
+    getRobotPose (NS_Transform::Stamped<NS_Transform::Pose>& global_pose);
   };
 }
 

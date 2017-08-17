@@ -13,6 +13,8 @@
 #include <Transform/DataTypes.h>
 #include "TestApplication.h"
 #include <MapGenerator/MapGenerator.h>
+#include <Service/ServiceType/RequestTransform.h>
+#include <Service/ServiceType/ResponseTransform.h>
 
 namespace NS_Test
 {
@@ -31,9 +33,41 @@ namespace NS_Test
   {
     parameter.loadConfigurationFile ("test.xml");
     map_file_ = parameter.getParameter ("map_file", "/tmp/gmap.pgm");
-    map_gen_freq_ = parameter.getParameter ("map_gen_freq", 0.2f);
+    map_gen_freq_ = parameter.getParameter ("map_gen_freq", 1.0f);
   }
   
+  bool
+  TestApplication::getRobotPose (
+      NS_Transform::Stamped<NS_Transform::Pose>& global_pose)
+  {
+    NS_ServiceType::RequestTransform request_odom;
+    NS_ServiceType::ResponseTransform odom_transform;
+    NS_ServiceType::ResponseTransform map_transform;
+
+    if (service->call (NS_NaviCommon::SERVICE_TYPE_ODOMETRY_BASE_TRANSFORM,
+                       &request_odom, &odom_transform) == false)
+    {
+      NS_NaviCommon::console.warning ("Get odometry transform failure!");
+      return false;
+    }
+
+    if (service->call (NS_NaviCommon::SERVICE_TYPE_MAP_ODOMETRY_TRANSFORM,
+                       &request_odom, &map_transform) == false)
+    {
+      NS_NaviCommon::console.warning ("Get map transform failure!");
+      return false;
+    }
+
+    //TODO: not verify code for transform
+    NS_Transform::Transform odom_tf, map_tf;
+    NS_Transform::transformMsgToTF (odom_transform.transform, odom_tf);
+    NS_Transform::transformMsgToTF (map_transform.transform, map_tf);
+
+    global_pose.setData (odom_tf * map_tf);
+
+    return true;
+  }
+
   void
   TestApplication::mapGenerateLoop (double frequency)
   {
@@ -50,7 +84,17 @@ namespace NS_Test
         ////////////////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////   test    ////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////
-        NS_NaviCommon::MapGenerator::addRobotPoseInMap (map_resp.map.data, map_resp.map.info.height, map_resp.map.info.width, 10, 10);
+        NS_Transform::Stamped<NS_Transform::Pose> pose;
+        NS_DataType::PoseStamped pose_data;
+
+        if (getRobotPose (pose))
+        {
+          NS_Transform::poseStampedTFToMsg(pose, pose_data);
+
+          NS_NaviCommon::console.debug ("get robot pose %.3f, %.3f", (pose_data.pose.position.x * map_resp.map.info.resolution), (pose_data.pose.position.y * map_resp.map.info.resolution));
+
+          NS_NaviCommon::MapGenerator::addRobotPoseInMap (map_resp.map.data, map_resp.map.info.height, map_resp.map.info.width, pose_data.pose.position.x, pose_data.pose.position.y);
+        }
 
         NS_NaviCommon::MapGenerator::saveMapInPGM (map_resp.map.data, map_resp.map.info.height, map_resp.map.info.width, map_file_);
         file_no++;
