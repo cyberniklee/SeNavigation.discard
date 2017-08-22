@@ -48,19 +48,18 @@ private:
   void
   registerApplications ()
   {
-
     CommunicatorApplication* communicator = new CommunicatorApplication;
     applications.push_back (communicator);
 
     SelidarApplication* selidar = new SelidarApplication;
     applications.push_back (selidar);
-/*
+
     GMappingApplication* gmapping = new GMappingApplication;
     applications.push_back (gmapping);
-*/
+/*
     HectorMappingApplication* hector = new HectorMappingApplication;
     applications.push_back (hector);
-
+*/
     ControllerApplication* controller = new ControllerApplication;
     applications.push_back (controller);
 
