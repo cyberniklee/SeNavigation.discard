@@ -897,8 +897,10 @@ namespace NS_GMapping
   
   ScanMatcher::~ScanMatcher ()
   {
+    /*
     if (m_laserAngles)
       delete[] m_laserAngles;
+      */
   }
   
   void
