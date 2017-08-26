@@ -87,9 +87,28 @@ namespace NS_GMapping
     unsigned int m_laserBeams;
     double m_laserAngles[LASER_MAXBEAMS];
     //OrientedPoint m_laserPose;
-  PARAM_SET_GET(OrientedPoint, laserPose, protected, public, public)PARAM_SET_GET(double, laserMaxRange, protected, public, public)
+    PARAM_SET_GET(OrientedPoint, laserPose, protected, public, public)
+    PARAM_SET_GET(double, laserMaxRange, protected, public, public)
     /**scan_matcher parameters*/
-  PARAM_SET_GET(double, usableRange, protected, public, public)PARAM_SET_GET(double, gaussianSigma, protected, public, public)PARAM_SET_GET(double, likelihoodSigma, protected, public, public)PARAM_SET_GET(int, kernelSize, protected, public, public)PARAM_SET_GET(double, optAngularDelta, protected, public, public)PARAM_SET_GET(double, optLinearDelta, protected, public, public)PARAM_SET_GET(unsigned int, optRecursiveIterations, protected, public, public)PARAM_SET_GET(unsigned int, likelihoodSkip, protected, public, public)PARAM_SET_GET(double, llsamplerange, protected, public, public)PARAM_SET_GET(double, llsamplestep, protected, public, public)PARAM_SET_GET(double, lasamplerange, protected, public, public)PARAM_SET_GET(double, lasamplestep, protected, public, public)PARAM_SET_GET(bool, generateMap, protected, public, public)PARAM_SET_GET(double, enlargeStep, protected, public, public)PARAM_SET_GET(double, fullnessThreshold, protected, public, public)PARAM_SET_GET(double, angularOdometryReliability, protected, public, public)PARAM_SET_GET(double, linearOdometryReliability, protected, public, public)PARAM_SET_GET(double, freeCellRatio, protected, public, public)PARAM_SET_GET(unsigned int, initialBeamsSkip, protected, public, public)
+    PARAM_SET_GET(double, usableRange, protected, public, public)
+    PARAM_SET_GET(double, gaussianSigma, protected, public, public)
+    PARAM_SET_GET(double, likelihoodSigma, protected, public, public)
+    PARAM_SET_GET(int, kernelSize, protected, public, public)
+    PARAM_SET_GET(double, optAngularDelta, protected, public, public)
+    PARAM_SET_GET(double, optLinearDelta, protected, public, public)
+    PARAM_SET_GET(unsigned int, optRecursiveIterations, protected, public, public)
+    PARAM_SET_GET(unsigned int, likelihoodSkip, protected, public, public)
+    PARAM_SET_GET(double, llsamplerange, protected, public, public)
+    PARAM_SET_GET(double, llsamplestep, protected, public, public)
+    PARAM_SET_GET(double, lasamplerange, protected, public, public)
+    PARAM_SET_GET(double, lasamplestep, protected, public, public)
+    PARAM_SET_GET(bool, generateMap, protected, public, public)
+    PARAM_SET_GET(double, enlargeStep, protected, public, public)
+    PARAM_SET_GET(double, fullnessThreshold, protected, public, public)
+    PARAM_SET_GET(double, angularOdometryReliability, protected, public, public)
+    PARAM_SET_GET(double, linearOdometryReliability, protected, public, public)
+    PARAM_SET_GET(double, freeCellRatio, protected, public, public)
+    PARAM_SET_GET(unsigned int, initialBeamsSkip, protected, public, public)
 
     // allocate this large array only once
     IntPoint* m_linePoints;

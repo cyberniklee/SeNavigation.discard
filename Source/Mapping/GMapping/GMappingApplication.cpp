@@ -520,8 +520,8 @@ namespace NS_GMapping
     str_ = parameter.getParameter ("str", 0.1f);
     stt_ = parameter.getParameter ("stt", 0.2f);
     
-    linear_update_ = parameter.getParameter ("linear_update", 0.0f);
-    angular_update_ = parameter.getParameter ("angular_update", 0.0f);
+    linear_update_ = parameter.getParameter ("linear_update", 0.5f);
+    angular_update_ = parameter.getParameter ("angular_update", 0.5f);
     temporal_update_ = parameter.getParameter ("temporal_update", -1.0f);
     resample_threshold_ = parameter.getParameter ("resample_threshold", 0.5f);
     particles_ = parameter.getParameter ("particles", 30);

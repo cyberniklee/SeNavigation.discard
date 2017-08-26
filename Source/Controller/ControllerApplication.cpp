@@ -87,6 +87,8 @@ namespace NS_Controller
   {
     memset (&original_pose, 0, sizeof(original_pose));
     memset (&current_odometry, 0, sizeof(current_odometry));
+
+    current_odom_transform.setIdentity ();
   }
   
   ControllerApplication::~ControllerApplication ()
@@ -402,7 +404,7 @@ namespace NS_Controller
      */
 
     configController ();
-    
+
 #ifdef USE_SIMULATOR
     simulator.initialize ();
     simulator.run ();
