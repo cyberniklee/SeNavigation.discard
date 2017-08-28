@@ -257,6 +257,12 @@ namespace NS_GMapping
         "Laser got first frame min:%.3f, max:%.3f, inc:%.3f",
         laser_data.angle_min, laser_data.angle_max, laser_data.angle_increment);
     
+    NS_NaviCommon::console.debug (
+        "Laser angles in top-down centered laser-frame: min: %.3f max: %.3f inc: %.3f",
+        laser_angles.front(),
+        laser_angles.back(),
+        std::fabs(laser_data.angle_increment));
+
     OrientedPoint gmap_pose (0, 0, 0);
     
     gsp_laser = new RangeSensor ("FLASER", gsp_laser_beam_count,
@@ -364,9 +370,11 @@ namespace NS_GMapping
     
     NS_NaviCommon::console.debug ("Trajectory tree:");
     
+    int node_count = 0;
+
     for (GridSlamProcessor::TNode* n = best.node; n; n = n->parent)
     {
-      NS_NaviCommon::console.debug ("  %.3f  %.3f  %.3f", n->pose.x, n->pose.y,
+      NS_NaviCommon::console.debug ("[%d]  %.3f  %.3f  %.3f", node_count++, n->pose.x, n->pose.y,
                                     n->pose.theta);
       if (!n->reading)
       {
@@ -376,7 +384,7 @@ namespace NS_GMapping
       NS_NaviCommon::console.debug ("Processing node!");
       matcher.invalidateActiveArea ();
       matcher.computeActiveArea (smap, n->pose, &((*n->reading)[0]));
-      matcher.setgenerateMap (true);
+      //matcher.setgenerateMap (true);
       matcher.registerScan (smap, n->pose, &((*n->reading)[0]));
     }
     
@@ -489,6 +497,11 @@ namespace NS_GMapping
     
     reading.setPose (gmap_pose);
     
+    NS_NaviCommon::console.debug ("scan pose : %.3f %.3f %.3f\n",
+                                  gmap_pose.x,
+                                  gmap_pose.y,
+                                  gmap_pose.theta);
+
     return gsp->processScan (reading);
   }
   

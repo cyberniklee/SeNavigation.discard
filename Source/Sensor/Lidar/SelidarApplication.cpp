@@ -39,7 +39,7 @@ namespace NS_Selidar
   SelidarApplication::loadParameters ()
   {
     parameter.loadConfigurationFile ("selidar.xml");
-    serial_port = parameter.getParameter ("serial_port", "/dev/ttyUSB0");
+    serial_port = parameter.getParameter ("serial_port", "/dev/ttyUSB2");
     serial_baudrate = parameter.getParameter ("serial_baudrate", 115200);
     frame_id = parameter.getParameter ("frame_id", "laser_frame");
 

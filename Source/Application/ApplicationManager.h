@@ -48,9 +48,10 @@ private:
   void
   registerApplications ()
   {
+    /*
     CommunicatorApplication* communicator = new CommunicatorApplication;
     applications.push_back (communicator);
-
+*/
     SelidarApplication* selidar = new SelidarApplication;
     applications.push_back (selidar);
 
@@ -62,10 +63,10 @@ private:
 */
     ControllerApplication* controller = new ControllerApplication;
     applications.push_back (controller);
-
+/*
     NavigationApplication* navigation = new NavigationApplication;
     applications.push_back (navigation);
-
+*/
     TestApplication* test = new TestApplication;
     applications.push_back (test);
   }

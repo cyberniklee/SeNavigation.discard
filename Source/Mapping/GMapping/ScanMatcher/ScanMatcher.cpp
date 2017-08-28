@@ -8,7 +8,7 @@
 #include "../ScanMatcher/GridLineTraversal.h"
 //#define GENERATE_MAPS
 
-#define NEW_SCAN_MATCHER
+//#define NEW_SCAN_MATCHER
 
 namespace NS_GMapping
 {
