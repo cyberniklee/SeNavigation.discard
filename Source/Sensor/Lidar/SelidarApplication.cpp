@@ -39,7 +39,7 @@ namespace NS_Selidar
   SelidarApplication::loadParameters ()
   {
     parameter.loadConfigurationFile ("selidar.xml");
-    serial_port = parameter.getParameter ("serial_port", "/dev/ttyUSB2");
+    serial_port = parameter.getParameter ("serial_port", "/dev/ttyUSB0");
     serial_baudrate = parameter.getParameter ("serial_baudrate", 115200);
     frame_id = parameter.getParameter ("frame_id", "laser_frame");
 
@@ -201,7 +201,16 @@ namespace NS_Selidar
           scan_msg->ranges[node_count-1-i] = read_value;
       }
     }
-    
+    ///////////////////////////////////////////////////////////////////////////////////////
+    /*
+    for (size_t i = 0; i < node_count; i++)
+    {
+      float read_value = (float) nodes[i].distance_scale_1000 / 1000.0f;
+      printf("-->%d    %f\n", i, read_value);
+    }
+    */
+    //////////////////////////////////////////////////////////////////////////////////////
+
     dispitcher->publish (NS_NaviCommon::DATA_TYPE_LASER_SCAN, scan_msg);
   }
   
@@ -213,16 +222,118 @@ namespace NS_Selidar
     NS_NaviCommon::Time start_scan_time;
     NS_NaviCommon::Time end_scan_time;
     double scan_duration;
+
+    const int buffer_size = 360 * 4;
+    SelidarMeasurementNode nodes_buffer[buffer_size];
+    SelidarMeasurementNode nodes_temp[buffer_size];
+    SelidarMeasurementNode nodes_pub[buffer_size];
+    size_t buffered_nodes = 0;
+    memset (nodes_buffer, 0, sizeof(nodes_buffer));
+    memset (nodes_temp, 0, sizeof(nodes_temp));
+    memset (nodes_pub, 0, sizeof(nodes_pub));
+
     while (running)
     {
-      SelidarMeasurementNode nodes[360 * 2];
+      SelidarMeasurementNode nodes[buffer_size];
       size_t count = _countof(nodes);
       start_scan_time = NS_NaviCommon::Time::now ();
       op_result = drv.grabScanData (nodes, count);
       end_scan_time = NS_NaviCommon::Time::now ();
       scan_duration = (end_scan_time - start_scan_time).toSec () * 1e-3;
+
       if (op_result == Success)
       {
+        if ((buffered_nodes + count) > buffer_size)
+        {
+          NS_NaviCommon::console.warning ("Lidar buffer is full!");
+          buffered_nodes = 0;
+          continue;
+        }
+
+        for (int i = 0; i < count; i++)
+        {
+          nodes_buffer[buffered_nodes] = nodes[i];
+          if (nodes_buffer[buffered_nodes].angle_scale_100 >= 36000)
+            nodes_buffer[buffered_nodes].angle_scale_100 -= 36000;
+          buffered_nodes++;
+        }
+
+        int pub_nodes_count = 0;
+
+        for (int i = 0; i < buffered_nodes; i++)
+        {
+          if (i > 0 && nodes_buffer[i].angle_scale_100 < nodes_buffer[i - 1].angle_scale_100)
+          {
+            pub_nodes_count = i;
+            //copy publish nodes
+            for (int j = 0; j < pub_nodes_count; j++)
+            {
+              nodes_pub[j] = nodes_buffer[j];
+            }
+
+            //re-serialize,save temp
+            for (int j = 0; j < buffered_nodes; j++)
+            {
+              nodes_temp[j] = nodes_buffer[pub_nodes_count + j];
+            }
+
+            //save to buffer
+            buffered_nodes -= pub_nodes_count;
+            for (int j = 0; j < buffered_nodes; j++)
+            {
+              nodes_buffer[j] = nodes_temp[j];
+            }
+
+            break;
+          }
+        }
+/*
+        if (pub_nodes_count > 0)
+        {
+
+          float angle_min = (nodes_pub[0].angle_scale_100 % 36000) / 100.0f;
+          float angle_max = (nodes_pub[pub_nodes_count - 1].angle_scale_100 % 36000) / 100.0f;
+
+
+          angle_min = DEG2RAD(angle_min);
+          angle_max = DEG2RAD(angle_max);
+
+          publishScan (nodes_pub, pub_nodes_count, start_scan_time, scan_duration, angle_min, angle_max);
+        }
+*/
+        if (pub_nodes_count > 0)
+        {
+          float angle_min = DEG2RAD(0.0f);
+          float angle_max = DEG2RAD(359.0f);
+
+          const int angle_compensate_nodes_count = 360;
+          const int angle_compensate_multiple = 1;
+          int angle_compensate_offset = 0;
+          SelidarMeasurementNode angle_compensate_nodes[angle_compensate_nodes_count];
+          memset (angle_compensate_nodes, 0, angle_compensate_nodes_count * sizeof(SelidarMeasurementNode));
+
+          int i, j;
+          for (i = 0; i < pub_nodes_count; i++)
+          {
+            if (nodes_pub[i].distance_scale_1000 != 0)
+            {
+              float angle = (float) (nodes_pub[i].angle_scale_100) / 100.0f;
+              int angle_value = (int) (angle * angle_compensate_multiple);
+              if ((angle_value - angle_compensate_offset) < 0)
+                angle_compensate_offset = angle_value;
+
+              for (j = 0; j < angle_compensate_multiple; j++)
+              {
+                angle_compensate_nodes[angle_value - angle_compensate_offset + j] = nodes[i];
+              }
+            }
+          }
+          publishScan (angle_compensate_nodes, angle_compensate_nodes_count,
+                       start_scan_time, scan_duration, angle_min, angle_max);
+        }
+
+
+        /*
         float angle_min = DEG2RAD(0.0f);
         float angle_max = DEG2RAD(359.0f);
         
@@ -250,6 +361,9 @@ namespace NS_Selidar
         }
         publishScan (angle_compensate_nodes, angle_compensate_nodes_count,
                      start_scan_time, scan_duration, angle_min, angle_max);
+        */
+
+
         
       }
     }

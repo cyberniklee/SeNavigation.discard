@@ -61,14 +61,18 @@ private:
     HectorMappingApplication* hector = new HectorMappingApplication;
     applications.push_back (hector);
 */
+
     ControllerApplication* controller = new ControllerApplication;
     applications.push_back (controller);
+
 /*
     NavigationApplication* navigation = new NavigationApplication;
     applications.push_back (navigation);
 */
+
     TestApplication* test = new TestApplication;
     applications.push_back (test);
+
   }
   
   void

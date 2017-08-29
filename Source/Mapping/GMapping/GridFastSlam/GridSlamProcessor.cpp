@@ -603,14 +603,17 @@ namespace NS_GMapping
   void
   GridSlamProcessor::onScanmatchUpdate ()
   {
+    cout << "###### scan match update! ######" << endl;
   }
   void
   GridSlamProcessor::onResampleUpdate ()
   {
+    cout << "###### re-sample update! ######" << endl;
   }
   void
   GridSlamProcessor::onOdometryUpdate ()
   {
+    cout << "###### odometry update! ######" << endl;
   }
 
 }
